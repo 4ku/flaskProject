@@ -45,12 +45,10 @@ class TextAreaEntryForm(FlaskForm):
         DataRequired(), Length(min=1, max=140)])
 
 class PostForm(FlaskForm):
-    text_areas = FieldList(FormField(TextAreaEntryForm), min_entries=1)
-    # post = TextAreaField('Add task', validators=[
-    #     DataRequired(), Length(min=1, max=140)])
-
-    
-    user_list = SelectField('users', choices=[])
+    # text_areas = FieldList(FormField(TextAreaEntryForm), min_entries=1)
+    post = TextAreaField('Add task', validators=[
+        Length(min=0, max=140)])
+    user_list = SelectField('users', choices=[], coerce = int)
     submit = SubmitField('Submit')
     add_field = SubmitField('Add field')
 

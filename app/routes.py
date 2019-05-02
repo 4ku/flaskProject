@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, session
 from flask_login import login_user, logout_user, login_manager,login_required
 from flask_user import current_user,roles_required
 from werkzeug.urls import url_parse
@@ -64,59 +64,54 @@ def user(username):
 @app.route('/give_task', methods=['GET', 'POST'])
 @roles_required(['Admin', 'Usual'])
 def give_task():
+    extra_fields = []
+    if 'fields' in session:
+        extra_fields = session['fields']
     
-    class DynamicForm(FlaskForm): pass
-    
-    fields = ["textArea"]
-    for field_label in fields:
+    for i, field_label in enumerate(extra_fields):
         field = Field()
         if field_label == "textArea":
-            field = TextAreaField(field.label)
+            field = TextAreaField()
         elif field_label == "text":
-            field = TextAreaField(field.label)
-        setattr(DynamicForm, field_label, field)
+            field = TextAreaField()
+        setattr(PostForm, str(i), field)
     
+    form = PostForm()
+    all_users = User.query.all()
+
+    choices = []
+    for user in all_users:
+        if current_user.username == user.username:
+            continue
+        for role in user.roles:
+            if((role.name == "Client") or (role.name == "Usual")):
+                choices.append((user.id, user.username))
+                break
+    form.user_list.choices = choices
+
+    if form.validate_on_submit():
+        print(form.submit.data)
+        print(form.add_field.data)
+
+        if form.submit.data:
+            session['fields'] = []
+            task = Task(description=form.post.data)
+            current_user.assign.append(task)
+            user = User.query.filter_by(id=form.user_list.data).first()
+            user.accept.append(task)
+            db.session.add(task)
+            db.session.commit()
+            return redirect(url_for('give_task'))
+        elif form.add_field.data:
+            session['fields'].append("textArea")
+            print(session['fields'])
+            return redirect(url_for('give_task'))
 
 
-    
+    tasks = current_user.assign.all()
 
-
-
-    # form = PostForm()
-    # all_users = User.query.all()
-    # choices = []
-    # for user in all_users:
-    #     if current_user.username == user.username:
-    #         continue
-    #     for role in user.roles:
-    #         if((role.name == "Client") or (role.name == "Usual")):
-    #             choices.append((str(user.id), user.username))
-    #             break
-    
-    # form.user_list.choices = choices
-
-    # # txt1 = TextAreaEntryForm()
-    # # txt2 = TextAreaEntryForm()
-
-    # form.text_areas = [TextAreaEntryForm(), TextAreaEntryForm()]
-    # # form.text_areas = [{"text": "First Address"},
-    # #               {"text": "Second Address"}]
-    # if form.validate_on_submit():
-    #     if form.submit.data:
-    #         task = Task(description=form.post.data)
-    #         db.session.add(task)
-    #         current_user.assign.append(task)
-    #         user = User.query.filter_by(id=form.user_list.data).first()
-    #         user.accept.append(task)
-    #         db.session.commit()
-    #         return redirect(url_for('give_task'))
-    #     elif form.add_field.data:
-    #         form.text_areas.append(TextAreaEntryForm())
-
-    # tasks = current_user.assign.all()
-
-    # return render_template("tasks.html", title='Give task',
-    #  form=form, tasks=tasks)
+    return render_template("tasks.html", title='Give task',
+     form=form, tasks=tasks)
 
 
 @app.route('/your_tasks', methods=['GET', 'POST'])
