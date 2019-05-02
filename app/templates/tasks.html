@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1> {{ current_user.username }}</h1>
+    	{% if form %}
+        <form method="post">
+        {{ form.hidden_tag() }}
+        <p>
+
+            
+            {% for text_area in form.text_areas %}
+                {{ text_area.text() }}
+	             {% for error in text_area.errors %}
+		         	<span style="color: red;">[{{ error }}]</span>
+		         {% endfor %}
+			{% endfor %}
+        </p>
+        <p>{{form.add_field()}}</p>
+        <p> {{ form.user_list() }} </p>
+        <p>{{ form.submit() }}</p>
+    	</form>
+    	{% endif %}
+    {% for task in tasks %}
+    		{% include '_task.html' %}
+    		<br>
+    {% endfor %}
+
+{% endblock %}

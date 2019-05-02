@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Edit task</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.assigner.label }}: {{ form.assigner() }}<br>
+            
+            {% for error in form.assigner.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.acceptor.label }}: {{ form.acceptor() }}<br>
+				{% for error in form.acceptor.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+		  <p>
+            {{ form.post.label }}<br>
+            {{ form.post(cols=32, rows=4) }}<br>
+        </p>
+        <p>
+            {{ form.status.label }}: {{ form.status() }}<br>
+        </p>
+        <p> {{ form.submit() }}</p>
+            {% for error in form.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+    </form>
+{% endblock %}

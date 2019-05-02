@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Edit Profile</h1>
+    <form action="" method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        
+        <p>
+         	<img src="{{ user.avatar() }}" width="128" height="128">
+        </p> <p>
+		     <b>{{ form.picture.label() }}</b>: 
+		     {{ form.picture(class="form-control-file") }}
+		     {% if form.picture.errors %}
+		     <p>
+               {% for error in form.picture.errors %}
+                    <span style="color: red;">{{ error }}</span></br>
+               {% endfor %}
+           </p>
+           {% endif %}
+        </p>
+        <p>
+            <b>{{ form.username.label }}</b>: {{ form.username(size=32) }}<br>
+            {% for error in form.username.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            <b>{{ form.role_list.label }}</b>: {{ form.role_list() }} <br>
+            {% for error in form.role_list.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}

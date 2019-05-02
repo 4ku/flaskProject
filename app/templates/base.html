@@ -1,0 +1,46 @@
+<html>
+    <head>
+        {% if title %}
+        <title>{{ title }}</title>
+        {% else %}
+        <title>Task manager</title>
+        {% endif %}
+    </head>
+    <body>
+         <div>
+         	{% if current_user.is_anonymous %}
+					<a href="{{ url_for('login') }}">Login</a>
+				{% else %}
+					
+					<a href="{{ url_for('user', username=current_user.username) }}">Profile</a>
+					
+					{% if current_user.roles[0].name == "Admin" %}
+						<a href="{{ url_for('all_users') }}">All users</a>
+						<a href="{{ url_for('all_tasks') }}">All tasks</a>
+						<a href="{{ url_for('give_task') }}">Give task</a>
+						
+					{% elif current_user.roles[0].name == "Usual" %}
+						<a href="{{ url_for('give_task') }}">Give task</a>
+				   	<a href="{{ url_for('your_tasks') }}">My tasks</a>
+						
+					{% elif current_user.roles[0].name == "Client" %}
+						<a href="{{ url_for('your_tasks') }}">My tasks</a>
+					{% endif %}
+					
+					<a href="{{ url_for('logout') }}">Logout</a>
+				
+				{% endif %}
+		 </div>
+        <hr>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </body>
+</html>
