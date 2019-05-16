@@ -3,7 +3,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config(object):
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess1111111111111111'
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess111111111111'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'app.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -14,4 +14,5 @@ class Config(object):
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     USER_EMAIL_SENDER_EMAIL = "ef.i.a@ya.ru"
     ADMINS = ['ef.i.a@ya.ru']
-    POSTS_PER_PAGE = 10
+    SESSION_TYPE = 'filesystem'
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024

@@ -40,19 +40,16 @@ class RegistrationForm(FlaskForm):
 
 
 
-class TextAreaEntryForm(FlaskForm):
-    text = TextAreaField('Add description', validators=[
-        DataRequired(), Length(min=1, max=140)])
-
 class PostForm(FlaskForm):
-    # text_areas = FieldList(FormField(TextAreaEntryForm), min_entries=1)
-    post = TextAreaField('Add task', validators=[
-        Length(min=0, max=140)])
+    post = TextAreaField(label = 'Add task', validators=[
+        Length(max=140), DataRequired()])
     user_list = SelectField('users', choices=[], coerce = int)
     submit = SubmitField('Submit')
+
+class AddFieldForm(FlaskForm):
     add_field = SubmitField('Add field')
-
-
+    fields_list = SelectField('Field type', 
+        choices=[('Text','Text'),('Date','Date'),('File','File')])
 
 
 class EditProfileForm(FlaskForm):

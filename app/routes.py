@@ -1,10 +1,10 @@
-from flask import render_template, flash, redirect, url_for, request, session
+from flask import render_template, flash, redirect, url_for, request, session, send_from_directory
 from flask_login import login_user, logout_user, login_manager,login_required
 from flask_user import current_user,roles_required
 from werkzeug.urls import url_parse
 from app import app, db
 from app.forms import *
-from app.models import User, Role, Task
+from app.models import *
 from datetime import datetime
 from sqlalchemy import or_
 from werkzeug.utils import secure_filename
@@ -13,7 +13,8 @@ from PIL import Image
 import secrets
 from flask_wtf import FlaskForm
 from wtforms.fields import Field
-from wtforms import StringField, TextAreaField, SubmitField, RadioField, FieldList, FormField
+from wtforms import StringField, TextAreaField, SubmitField, RadioField, FieldList, FormField, TextField
+from wtforms.fields.html5 import DateField
 
 
 
@@ -27,7 +28,6 @@ def before_request():
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
-
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/login', methods=['GET', 'POST'])
@@ -48,7 +48,6 @@ def login():
     return render_template('login.html', title='Login', form=form)
 
 
-
 @app.route('/user/<username>', methods=['GET', 'POST'])
 @login_required
 def user(username):
@@ -58,27 +57,37 @@ def user(username):
     return render_template('user.html', user=user, tasks = tasks)
 
 
-
-
-
 @app.route('/give_task', methods=['GET', 'POST'])
 @roles_required(['Admin', 'Usual'])
 def give_task():
+
+    class DynamicForm(FlaskForm):
+        pass
+
     extra_fields = []
     if 'fields' in session:
         extra_fields = session['fields']
     
     for i, field_label in enumerate(extra_fields):
+        label_field = TextField(label = "Label: ")
         field = Field()
-        if field_label == "textArea":
-            field = TextAreaField()
-        elif field_label == "text":
-            field = TextAreaField()
-        setattr(PostForm, str(i), field)
-    
+        if field_label == "Text":
+            field = TextAreaField(label = "Text area:", 
+                validators=[Length(max=140), DataRequired()])
+        elif field_label == "Date":
+            field = DateField(label = "Date: ", validators=[DataRequired()])
+        elif field_label == "File":
+            field = FileField('Pick a file: ',
+                 validators=[FileAllowed(['jpg', 'png','jpeg']), DataRequired("fd")])
+        setattr(DynamicForm, str(i*2), label_field)        
+        setattr(DynamicForm, str(i*2+1), field)
+
     form = PostForm()
+    add_field_form = AddFieldForm()
+    dynamic_form = DynamicForm()
     all_users = User.query.all()
 
+    # Устанавливаем в меню список всех пользователей и клиентов
     choices = []
     for user in all_users:
         if current_user.username == user.username:
@@ -89,29 +98,48 @@ def give_task():
                 break
     form.user_list.choices = choices
 
-    if form.validate_on_submit():
-        print(form.submit.data)
-        print(form.add_field.data)
+    # Если нажата кнопка добавить задание
+    if form.submit.data and form.validate_on_submit() and dynamic_form.validate():
+        session['fields'] = []
+        task = Task()
+        task.media.append(Task_media(text = form.post.data))
+        label = ""
+        for field in dynamic_form:
+            if field.type == "TextField":
+                label = field.data
+            elif field.type == "TextAreaField":
+                task.media.append(Task_media(label = label, text = field.data)) 
+            elif field.type == "DateField":
+                task.media.append(Task_media(label = label, date = field.data))
+            elif field.type == "FileField":
+                print(type(field.data))
+                file = field.data
+                random_hex = secrets.token_hex(8)
+                filename = secure_filename(file.filename)
+                _, f_ext = os.path.splitext(filename)
+                encrypted_filename = random_hex + f_ext
+                file.save(os.path.join(app.root_path, 'static/files/', encrypted_filename))
+                task.media.append(Task_media(label = label, encrypted_filename = encrypted_filename, filename = filename))
+            
+        current_user.assign.append(task)
+        user = User.query.filter_by(id=form.user_list.data).first()
+        user.accept.append(task)
+        db.session.add(task)
+        db.session.commit()
+        return redirect(url_for('give_task'))
 
-        if form.submit.data:
+    if add_field_form.add_field.data and add_field_form.validate_on_submit(): 
+        if "fields" not in session:
             session['fields'] = []
-            task = Task(description=form.post.data)
-            current_user.assign.append(task)
-            user = User.query.filter_by(id=form.user_list.data).first()
-            user.accept.append(task)
-            db.session.add(task)
-            db.session.commit()
-            return redirect(url_for('give_task'))
-        elif form.add_field.data:
-            session['fields'].append("textArea")
-            print(session['fields'])
-            return redirect(url_for('give_task'))
+        session['fields'].append(add_field_form.fields_list.data)
+        return redirect(url_for('give_task'))
 
-
+    # Получаем все задания, выданные данным пользователем
     tasks = current_user.assign.all()
 
-    return render_template("tasks.html", title='Give task',
-     form=form, tasks=tasks)
+    return render_template("tasks.html", title='Give task', 
+        form=form, add_field_form = add_field_form, 
+        extra_fields = dynamic_form, tasks=tasks)
 
 
 @app.route('/your_tasks', methods=['GET', 'POST'])
@@ -121,12 +149,10 @@ def your_tasks():
     return render_template("tasks.html", title='My tasks', tasks = tasks)
 
 
-
 @app.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('login'))
-
 
 
 @app.route('/all_users', methods=['GET', 'POST'])
@@ -173,8 +199,7 @@ def save_picture(form_picture):
     random_hex = secrets.token_hex(8)
     _, f_ext = os.path.splitext(form_picture.filename)
     picture_fn = random_hex + f_ext
-    picture_path = os.path.join(app.root_path, 'static/', picture_fn)
-
+    picture_path = os.path.join(app.root_path, 'static/avatars/', picture_fn)
     # output_size = (125, 125)
     i = Image.open(form_picture)
     # i.thumbnail(output_size)
@@ -202,13 +227,14 @@ def edit_user(username):
         form.role_list.data = user.roles[0].name
         db.session.commit()
 
-    return render_template('edit_profile.html', title='Edit Profile',
+    return render_template('edit_user.html', title='Edit Profile',
                            form=form, user = user)
 
 
 @app.route('/delete_task/<task_id>')
 @roles_required(['Admin'])
 def delete_task(task_id):
+    Task_media.query.filter(Task_media.task_id == task_id).delete()
     Task.query.filter(Task.id == task_id).delete()
     db.session.commit()
     next_page = request.args.get('next')
@@ -222,7 +248,6 @@ def delete_task(task_id):
 def edit_task(task_id):
     task = Task.query.filter_by(id = task_id).first()
     form = EditTaskForm()
-    
     all_users = User.query.all()
     
     choices_assigner = []
@@ -230,7 +255,7 @@ def edit_task(task_id):
         if current_user.username == user.username:
             continue
         for role in user.roles:
-            if((role.name == "Usual")):
+            if((role.name == "Usual") or (role.name == "Admin")):
                 choices_assigner.append((user.id, user.username))
                 break
     
@@ -246,6 +271,47 @@ def edit_task(task_id):
     form.assigner.choices = choices_assigner
     form.acceptor.choices = choices_acceptor
 
+
+    class DynamicForm(FlaskForm):
+        pass
+
+    for i, field_data in enumerate(task.media):
+        label_field = TextField(label = "Label: ")
+        field = Field()
+        if field_data.label:
+            label_field.data = field_data.label
+        if field_data.text:
+            field = TextAreaField(label = "Text area:", 
+                validators=[Length(max=140), DataRequired()])
+            field.data = field_data.text
+        elif field_data.date:
+            field = DateField(label = "Date: ", validators=[DataRequired()])
+            field.data = field_data.date
+        elif field_data.filename:
+            field = FileField('Pick a file: ',
+                 validators=[FileAllowed(['jpg', 'png','jpeg']), DataRequired("fd")])
+        setattr(DynamicForm, str(i*2), label_field)        
+        setattr(DynamicForm, str(i*2+1), field)
+    
+    dynamic_form = DynamicForm()
+    for field in dynamic_form:
+        if field.type == "TextField":
+            label = field.data
+        elif field.type == "TextAreaField":
+            task.media.append(Task_media(label = label, text = field.data)) 
+        elif field.type == "DateField":
+            task.media.append(Task_media(label = label, date = field.data))
+        elif field.type == "FileField":
+            print(type(field.data))
+            file = field.data
+            random_hex = secrets.token_hex(8)
+            filename = secure_filename(file.filename)
+            _, f_ext = os.path.splitext(filename)
+            encrypted_filename = random_hex + f_ext
+            file.save(os.path.join(app.root_path, 'static/files/', encrypted_filename))
+            task.media.append(Task_media(label = label, encrypted_filename = encrypted_filename, filename = filename))
+
+
     if form.validate_on_submit():
         acceptor = User.query.filter_by(id = int(form.acceptor.data)).first()
         assigner = User.query.filter_by(id = int(form.assigner.data)).first()
@@ -256,13 +322,18 @@ def edit_task(task_id):
         task.assigner_id = assigner.id
         task.description = form.post.data
         task.status = form.status.data
+
         db.session.commit()
         flash('Your changes have been saved.')
         return redirect(url_for('edit_task', task_id = task_id))
     elif request.method == 'GET':
         form.acceptor.data = task.acceptor.id
         form.assigner.data = task.assigner.id
-        form.post.data = task.description
         form.status.data = task.status
     return render_template('edit_task.html', title='Edit task',
-                           form=form)
+                           form=form, extra_fields = dynamic_form)
+
+@app.route('/uploads/<path:filename>')
+def download_file(filename):
+    upload_folder = os.path.join(app.root_path, 'static/files/')
+    return send_from_directory(upload_folder, filename, as_attachment=True)

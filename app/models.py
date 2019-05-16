@@ -5,13 +5,24 @@ from hashlib import md5
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import url_for
 
+class Task_media(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    task_id = db.Column(db.Integer, db.ForeignKey('task.id'))
+    label = db.Column(db.String())
+    text = db.Column(db.String(140))
+    date = db.Column(db.DateTime)
+    encrypted_filename = db.Column(db.String())
+    filename = db.Column(db.String())
+
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.String(140))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     assigner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     acceptor_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    
+    media = db.relationship("Task_media")
     status = db.Column(db.String(140), default ="Issued")
+
     def __repr__(self):
         return '<Task {}>'.format(self.description)
 
@@ -25,10 +36,8 @@ class User(UserMixin, db.Model):
     about_me = db.Column(db.String(140))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     avatar_path = db.Column(db.String(), default = None)
-
     roles = db.relationship('Role', secondary='user_roles')
-
-
+    
     assign = db.relationship(
         'Task',
         primaryjoin=(Task.assigner_id == id),

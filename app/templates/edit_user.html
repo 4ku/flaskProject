@@ -7,9 +7,11 @@
         
         <p>
          	<img src="{{ user.avatar() }}" width="128" height="128">
-        </p> <p>
+        </p> 
+        
+        <p>
 		     <b>{{ form.picture.label() }}</b>: 
-		     {{ form.picture(class="form-control-file") }}
+		     {{ form.picture() }}
 		     {% if form.picture.errors %}
 		     <p>
                {% for error in form.picture.errors %}
@@ -18,6 +20,7 @@
            </p>
            {% endif %}
         </p>
+        
         <p>
             <b>{{ form.username.label }}</b>: {{ form.username(size=32) }}<br>
             {% for error in form.username.errors %}

@@ -17,16 +17,29 @@
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
-		  <p>
-            {{ form.post.label }}<br>
-            {{ form.post(cols=32, rows=4) }}<br>
-        </p>
+
         <p>
             {{ form.status.label }}: {{ form.status() }}<br>
         </p>
         <p> {{ form.submit() }}</p>
-            {% for error in form.errors %}
+        {% for error in form.errors %}
             <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
+        {% endfor %}
+        
+        {% for field in extra_fields %}
+			 	 <p>
+					{% if field.type not in ['CSRFTokenField', 'HiddenField'] %}
+						{{ field.label }}  
+						{{ field() }}
+						{% if field.type != "TextField" %}
+							<hr>
+						{% endif %}
+					{% endif %}
+					
+					{% for error in field.errors %}
+			     	 	<span style="color: red;">[{{ error }}]</span>
+			      {% endfor %}
+				 </p>  
+		{% endfor %}
     </form>
 {% endblock %}
