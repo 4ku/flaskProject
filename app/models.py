@@ -6,10 +6,15 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask import url_for
 
 
+class Task_templates(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String())
+    media_id = db.Column(db.Integer, db.ForeignKey('task_media.id'))
+    field = db.relationship("Task_media", uselist=True)
+
 
 class Task_media(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    task_id = db.Column(db.Integer, db.ForeignKey('task.id'))
     label = db.Column(db.String())
     text = db.Column(db.String(140))
     date = db.Column(db.DateTime)
@@ -23,17 +28,21 @@ class Task(db.Model):
     assigner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     acceptor_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     
-    media = db.relationship("Task_media")
+    media_id = db.Column(db.Integer, db.ForeignKey('task_media.id'))
+    media = db.relationship("Task_media", uselist=True)
+
     status = db.Column(db.String(140), default ="Issued")
 
     def __repr__(self):
         return '<Task {}>'.format(self.description)
+
 
 class Menu_field(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     name = db.Column(db.String())
     link = db.Column(db.String())
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -92,20 +101,5 @@ class UserRoles(db.Model):
 def load_user(id):
     return User.query.get(int(id))
 
-
-# НУЖНО ИЗМЕНИТЬ. Дублирование таблицы task_media
-class Template_field(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    task_id = db.Column(db.Integer, db.ForeignKey('task_templates.id'))
-    label = db.Column(db.String())
-    text = db.Column(db.String(140))
-    date = db.Column(db.DateTime)
-    filename = db.Column(db.String())
-
-
-class Task_templates(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    field = db.relationship("Template_field")
-    name = db.Column(db.String())
 
 
