@@ -7,7 +7,7 @@
         {% endif %}
     </head>
     <body>
-         <div>
+      <div width="100%">
          	{% if current_user.is_anonymous %}
 					<a href="{{ url_for('login') }}">Login</a>
 				{% else %}
@@ -17,10 +17,10 @@
 					{% if current_user.roles[0].name == "Admin" %}
 						<a href="{{ url_for('all_users') }}">All users</a>
 						<a href="{{ url_for('all_tasks') }}">All tasks</a>
-						<a href="{{ url_for('give_task') }}">Give task</a>
+						<a href="{{ url_for('templates') }}">Create task</a>
 						
 					{% elif current_user.roles[0].name == "Usual" %}
-						<a href="{{ url_for('give_task') }}">Give task</a>
+						<a href="{{ url_for('templates') }}">Create task</a>
 				   	<a href="{{ url_for('your_tasks') }}">My tasks</a>
 						
 					{% elif current_user.roles[0].name == "Client" %}
@@ -28,9 +28,20 @@
 					{% endif %}
 					
 					<a href="{{ url_for('logout') }}">Logout</a>
-				
+					
+					{% for link in current_user.extra_menu_fields %}
+						<a href="{{ link.link }}">
+					 	  Link_{{link.id}}
+						</a>
+					{% endfor %}
+					
+					<a href="{{ url_for('add_extra_menu_field', next = request.path) }}">
+					 	 Add current page to menu
+					</a>
 				{% endif %}
+
 		 </div>
+
         <hr>
         {% with messages = get_flashed_messages() %}
         {% if messages %}
@@ -41,6 +52,7 @@
         </ul>
         {% endif %}
         {% endwith %}
+        <h1> {{ current_user.username }} </h1>
         {% block content %}{% endblock %}
     </body>
 </html>

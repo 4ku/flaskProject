@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+		<form method="post">
+			{{ form.hidden_tag() }}
+			<p>{{add_field_form.fields_list.label}}: {{add_field_form.fields_list()}}</p>
+	      <p>{{add_field_form.add_field()}}</p>
+	      
+			{% for error in add_field_form.errors %}
+			     	 	<span style="color: red;">[{{ error }}]</span>
+			{% endfor %}
+		</form>
+	
+     <form method="post" enctype="multipart/form-data">
+			{{ form.hidden_tag() }}
+			
+			{% for field in extra_fields %}
+			 	 <p>
+					{% if field.type not in ['CSRFTokenField', 'HiddenField'] %}
+						{{ field.label }}  
+						{{ field() }}
+						{% if field.type != "TextField" %}
+							<hr>
+						{% endif %}
+					{% endif %}
+					
+					{% for error in field.errors %}
+			     	 	<span style="color: red;">[{{ error }}]</span>
+			      {% endfor %}
+			      
+				 </p>  
+			{% endfor %}
+			{% for error in form.errors %}
+			     	 	<span style="color: red;">[{{ error }}]</span>
+			{% endfor %}
+       <p>{{ form.submit() }}</p>
+     </form>
+     
+{% endblock %}
+
+
+

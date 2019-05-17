@@ -75,8 +75,6 @@ class EditProfileForm(FlaskForm):
 class EditTaskForm(FlaskForm):
     assigner = SelectField('Assigner', choices=[(1,"cl1"),(2,"cl2")], coerce=int)
     acceptor = SelectField('Acceptor', choices=[(2,"cl2")], coerce = int)
-    post = TextAreaField('Add task', validators=[
-        DataRequired(), Length(min=1, max=140)])
     status = SelectField('Status', 
         choices=[('Issued','Issued'),('In progress','In progress'),('Done','Done')])
     submit = SubmitField('Submit')  

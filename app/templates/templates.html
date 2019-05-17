@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+    
+    {% if current_user.roles[0].name == "Admin" %}
+    	<h3> Create new template </h3>
+    	<div>
+		 	<a href="{{ url_for('create_new_template') }}">
+		 		New template
+		 	</a>
+    	</div>
+    {% endif %}
+    
+    <h3> Choose type of task </h3>
+	{% for template in templates %}
+		<div>
+			<a href="{{ url_for('create_task', template_id = template.id) }}">
+				{% if template.name %}
+					<b>{{ template.name }} </b>
+				{% else %}
+					<b> Template_{{template.id}} </b>
+				{% endif %}
+			</a>	
+		</div>
+	{% endfor %}
+	
+{% endblock %}
+
+
+

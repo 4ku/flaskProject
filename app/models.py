@@ -5,6 +5,8 @@ from hashlib import md5
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import url_for
 
+
+
 class Task_media(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     task_id = db.Column(db.Integer, db.ForeignKey('task.id'))
@@ -13,6 +15,7 @@ class Task_media(db.Model):
     date = db.Column(db.DateTime)
     encrypted_filename = db.Column(db.String())
     filename = db.Column(db.String())
+
 
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -26,6 +29,11 @@ class Task(db.Model):
     def __repr__(self):
         return '<Task {}>'.format(self.description)
 
+class Menu_field(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    name = db.Column(db.String())
+    link = db.Column(db.String())
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -37,7 +45,8 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     avatar_path = db.Column(db.String(), default = None)
     roles = db.relationship('Role', secondary='user_roles')
-    
+    extra_menu_fields = db.relationship("Menu_field")
+
     assign = db.relationship(
         'Task',
         primaryjoin=(Task.assigner_id == id),
@@ -78,11 +87,25 @@ class UserRoles(db.Model):
     user_id = db.Column(db.Integer(), db.ForeignKey('user.id', ondelete='CASCADE'))
     role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
 
-
+# Хз почему это здесь, нужно разобраться что это вообще делает
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
 
 
+# НУЖНО ИЗМЕНИТЬ. Дублирование таблицы task_media
+class Template_field(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    task_id = db.Column(db.Integer, db.ForeignKey('task_templates.id'))
+    label = db.Column(db.String())
+    text = db.Column(db.String(140))
+    date = db.Column(db.DateTime)
+    filename = db.Column(db.String())
+
+
+class Task_templates(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    field = db.relationship("Template_field")
+    name = db.Column(db.String())
 
 
