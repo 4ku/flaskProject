@@ -97,11 +97,8 @@ def save_picture(form_picture):
     _, f_ext = os.path.splitext(form_picture.filename)
     picture_fn = random_hex + f_ext
     picture_path = os.path.join(app.root_path, 'static/avatars/', picture_fn)
-    # output_size = (125, 125)
     i = Image.open(form_picture)
-    # i.thumbnail(output_size)
     i.save(picture_path)
-
     return picture_fn
 
 @app.route('/edit_user/<username>', methods=['GET', 'POST'])
@@ -111,14 +108,14 @@ def edit_user(username):
     form = EditProfileForm(user.username)
     if form.validate_on_submit():
         if form.picture.data:
-            picture_file = save_picture(form.picture.data)
-            user.avatar_path = picture_file
+            user.avatar_path = save_picture(form.picture.data)
         user.username = form.username.data
         user.roles[0] = (Role(name=form.role_list.data))
         db.session.commit()
         flash('Your changes have been saved.')
         return redirect(url_for('edit_user', username = form.username.data))
     elif request.method == 'GET':
+        # Предзаполнение полей
         form.username.data = user.username
         form.role_list.data = user.roles[0].name
         db.session.commit()
@@ -131,53 +128,30 @@ def edit_user(username):
 @roles_required(['Admin'])
 def edit_task(task_id):
     task = Task.query.filter_by(id = task_id).first()
-    form = EditTaskForm()
-    all_users = User.query.all()
-    
-    choices_assigner = []
-    for user in all_users:
-        # if current_user.username == user.username:
-        #     continue
-        for role in user.roles:
-            if((role.name == "Usual") or (role.name == "Admin")):
-                choices_assigner.append((user.id, user.username))
-                break
-    
-    choices_acceptor = []
-    for user in all_users:
-        # if current_user.username == user.username:
-        #     continue
-        for role in user.roles:
-            if((role.name == "Client") or (role.name == "Usual")):
-                choices_acceptor.append((user.id, user.username))
-                break
-    
-    form.assigner.choices = choices_assigner
-    form.acceptor.choices = choices_acceptor
-
 
     class DynamicForm(FlaskForm):
         pass
 
+    # Создание новых полей для задания
     for i, field_data in enumerate(task.media):
         label_field = TextField(label = "Label: ")
         field = Field()
-        if field_data.label:
-            label_field.data = field_data.label
         if field_data.text:
             field = TextAreaField(label = "Text area:", 
                 validators=[Length(max=140), DataRequired()])
-            field.data = field_data.text
         elif field_data.date:
             field = DateField(label = "Date: ", validators=[DataRequired()])
-            field.data = field_data.date
         elif field_data.filename:
             field = FileField('Pick a file: ',
-                 validators=[FileAllowed(['jpg', 'png','jpeg']), DataRequired("fd")])
+                 validators=[FileAllowed(['jpg', 'png','jpeg']), DataRequired()])
         setattr(DynamicForm, str(i*2), label_field)        
         setattr(DynamicForm, str(i*2+1), field)
-    
+
+
+    form = EditTaskForm()
     dynamic_form = DynamicForm()
+    all_users = User.query.all()
+    
     for i, field_data in enumerate(task.media):
         if field_data.label:
             dynamic_form[str(2*i)].data = field_data.label
@@ -187,8 +161,28 @@ def edit_task(task_id):
             dynamic_form[str(2*i+1)].data = field_data.date
         elif field_data.filename:
             pass
-            # field = FileField('Pick a file: ',
-            #      validators=[FileAllowed(['jpg', 'png','jpeg']), DataRequired("fd")])
+
+
+
+
+    # Не очень красивый код заполнения списка назначавших задание
+    choices_assigner = []
+    for user in all_users:
+        for role in user.roles:
+            if((role.name == "Usual") or (role.name == "Admin")):
+                choices_assigner.append((user.id, user.username))
+                break
+    
+    # Не очень красивый код заполнения списка получивших задание    
+    choices_acceptor = []
+    for user in all_users:
+        for role in user.roles:
+            if((role.name == "Client") or (role.name == "Usual")):
+                choices_acceptor.append((user.id, user.username))
+                break
+    
+    form.assigner.choices = choices_assigner
+    form.acceptor.choices = choices_acceptor
 
 
     if form.validate_on_submit():
@@ -203,6 +197,7 @@ def edit_task(task_id):
 
         Task_media.query.filter(Task_media.task_id == task.id).delete()
 
+        # Сохранение данных в БД
         label = ""
         for field in dynamic_form:
             if field.type == "TextField":
@@ -219,6 +214,7 @@ def edit_task(task_id):
                 encrypted_filename = random_hex + f_ext
                 file.save(os.path.join(app.root_path, 'static/files/', encrypted_filename))
                 task.media.append(Task_media(label = label, encrypted_filename = encrypted_filename, filename = filename))
+
         db.session.commit()
         flash('Your changes have been saved.')
         return redirect(url_for('edit_task', task_id = task_id))
@@ -331,8 +327,8 @@ def templates():
 @app.route('/create_task/<template_id>', methods=['GET', 'POST'])
 @roles_required(['Admin', 'Usual'])
 def create_task(template_id):
-
     fields = Task_templates.query.filter_by(id = template_id).first().field
+
 
     class DynamicForm(FlaskForm):
         pass
@@ -382,10 +378,11 @@ def create_task(template_id):
             if((role.name == "Client") or (role.name == "Usual")):
                 choices.append((user.id, user.username))
                 break
+
     form.user_list.choices = choices
 
     # Если нажата кнопка добавить задание
-    if form.submit.data and form.validate_on_submit() and dynamic_form.validate():
+    if form.validate_on_submit():
         task = Task()
         label = ""
         for field in dynamic_form:
@@ -411,9 +408,6 @@ def create_task(template_id):
         db.session.add(task)
         db.session.commit()
         return redirect(url_for('give_task'))
-
-    # Получаем все задания, выданные данным пользователем
-    tasks = current_user.assign.all()
 
     return render_template("create_task.html", title='Create task', 
         form=form,  

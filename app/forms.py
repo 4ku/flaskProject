@@ -73,8 +73,8 @@ class EditProfileForm(FlaskForm):
 
 
 class EditTaskForm(FlaskForm):
-    assigner = SelectField('Assigner', choices=[(1,"cl1"),(2,"cl2")], coerce=int)
-    acceptor = SelectField('Acceptor', choices=[(2,"cl2")], coerce = int)
+    assigner = SelectField('Assigner', choices=[], coerce=int)
+    acceptor = SelectField('Acceptor', choices=[], coerce = int)
     status = SelectField('Status', 
         choices=[('Issued','Issued'),('In progress','In progress'),('Done','Done')])
     submit = SubmitField('Submit')  
