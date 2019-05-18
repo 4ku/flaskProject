@@ -1,33 +1,32 @@
 {% extends "base.html" %}
 
 {% block content %}
-	{% if sub_title %}
+	{% if title %}
 		<h1>{{ title }} </h1>
 	{% endif %}
 	<form action="" method="post" enctype="multipart/form-data">
 		{{ form.hidden_tag() }}
 
-		<p>
-			{{ form.assigner.label }}: {{ form.assigner() }}<br>
-		</p>
-
 		{% if edit_task %}
+		  <p>
+				{{ form.assigner.label }}: {{ form.assigner() }}<br>
+		  </p>
 		  <p>
 				{{ form.acceptor.label }}: {{ form.acceptor() }}<br>
 		  </p>
 		  <p>
 				{{ form.status.label }}: {{ form.status() }}<br>
 		  </p>
+		{% else %}
+			<p>
+				{{ form.acceptor.label }}: {{ form.acceptor() }}<br>
+			</p>
 		{% endif %}
 
 		{% for field in extra_fields %}
 		 	 <p>
 				{% if field.type not in ['CSRFTokenField', 'HiddenField'] %}
-					{{ field.label }}  
 					{{ field() }}
-					{% if field.type != "TextField" %}
-						<hr>
-					{% endif %}
 				{% endif %}
 				
 				{% for error in field.errors %}
@@ -35,6 +34,10 @@
 				{% endfor %}
 			 </p>  
 		{% endfor %}
+				{% for error in form.errors %}
+			  	 	<span style="color: red;">[{{ error }}]</span>
+				{% endfor %}
 		<p> {{ form.submit() }}</p>
 	</form>
+
 {% endblock %}

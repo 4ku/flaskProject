@@ -6,20 +6,32 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask import url_for
 
 
-class Task_templates(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String())
-    media_id = db.Column(db.Integer, db.ForeignKey('task_media.id'))
-    field = db.relationship("Task_media", uselist=True)
+template_media_connection = db.Table("template_media_connection",
+    db.Column('template_id', db.Integer, db.ForeignKey('task_templates.id')),
+    db.Column('media_id', db.Integer, db.ForeignKey('task_media.id'))
+ )
 
+task_media_connection = db.Table("task_media_connection",
+    db.Column('task_id', db.Integer, db.ForeignKey('task.id')),
+    db.Column('media_id', db.Integer, db.ForeignKey('task_media.id'))
+ )
 
 class Task_media(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    label = db.Column(db.String())
-    text = db.Column(db.String(140))
+    text = db.Column(db.String(50))
+    textArea = db.Column(db.String(140))
     date = db.Column(db.DateTime)
     encrypted_filename = db.Column(db.String())
     filename = db.Column(db.String())
+
+class Task_templates(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String())
+    field = db.relationship("Task_media", 
+        secondary = template_media_connection, 
+        primaryjoin =(template_media_connection.c.template_id == id),
+        secondaryjoin = (template_media_connection.c.media_id == Task_media.id),
+        cascade="all, delete, delete-orphan",single_parent=True)
 
 
 class Task(db.Model):
@@ -28,8 +40,11 @@ class Task(db.Model):
     assigner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     acceptor_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     
-    media_id = db.Column(db.Integer, db.ForeignKey('task_media.id'))
-    media = db.relationship("Task_media", uselist=True)
+    media = db.relationship("Task_media", 
+        secondary = task_media_connection, 
+        primaryjoin =(task_media_connection.c.task_id == id),
+        secondaryjoin = (task_media_connection.c.media_id == Task_media.id),
+        cascade="all, delete, delete-orphan",single_parent=True)
 
     status = db.Column(db.String(140), default ="Issued")
 
@@ -59,7 +74,6 @@ class User(UserMixin, db.Model):
     assign = db.relationship(
         'Task',
         primaryjoin=(Task.assigner_id == id),
-        # secondaryjoin=(giveTask.c.task_id == Task.id),
         backref='assigner', lazy='dynamic')
 
     accept = db.relationship(
@@ -79,7 +93,7 @@ class User(UserMixin, db.Model):
     
     def avatar(self):
         if self.avatar_path is not None:
-            return url_for('static', filename=self.avatar_path)
+            return url_for('static', filename="avatars/"+self.avatar_path)
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
         return 'https://www.gravatar.com/avatar/{}?d=identicon&s=200'.format(
             digest)

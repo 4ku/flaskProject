@@ -39,42 +39,40 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('Please use a different email address.')
 
 
-
-class PostForm(FlaskForm):
-    post = TextAreaField(label = 'Add task', validators=[
-        Length(max=140), DataRequired()])
-    user_list = SelectField('users', choices=[], coerce = int)
-    submit = SubmitField('Submit')
-
-class AddFieldForm(FlaskForm):
-    add_field = SubmitField('Add field')
-    fields_list = SelectField('Field type', 
-        choices=[('Text','Text'),('Date','Date'),('File','File')])
-
-
-class EditProfileForm(FlaskForm):
+class EditProfileForm_Admin(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     role_list = SelectField('Role', 
         choices=[('Admin','Admin'),('Usual','Usual user'),('Client','Client')])
     picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png','jpeg'])])
     submit = SubmitField('Submit')
 
-    
     def __init__(self, original_username, *args, **kwargs):
-        super(EditProfileForm, self).__init__(*args, **kwargs)
+        super(EditProfileForm_Admin, self).__init__(*args, **kwargs)
         self.original_username = original_username
 
     def validate_username(self, username):
         if username.data != self.original_username:
             user = User.query.filter_by(username=self.username.data).first()
             if user is not None:
-                raise ValidationError('Please use a different username.')   
+                raise ValidationError('Please use a different username.')
+
+class EditProfileForm(FlaskForm):
+    picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png','jpeg'])])
+    submit = SubmitField('Submit')
 
 
-
-class EditTaskForm(FlaskForm):
+class TaskForm_edit(FlaskForm):
     assigner = SelectField('Assigner', choices=[], coerce=int)
     acceptor = SelectField('Acceptor', choices=[], coerce = int)
     status = SelectField('Status', 
         choices=[('Issued','Issued'),('In progress','In progress'),('Done','Done')])
-    submit = SubmitField('Submit')  
+    submit = SubmitField('Submit')
+
+class TaskForm_create(FlaskForm):
+    acceptor = SelectField('Acceptor', choices=[], coerce = int)
+    submit = SubmitField('Submit')
+
+class AddFieldForm(FlaskForm):
+    add_field = SubmitField('Add field')
+    fields_list = SelectField('Field type', 
+        choices=[('Text','Text'),('Date','Date'),('File','File')])

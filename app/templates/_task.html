@@ -16,6 +16,8 @@
 			</a>
 			<br>
 			<b>Status:</b> {{ task.status }} 
+			<br>
+			<b>Issued time:</b> {{ task.timestamp.strftime('%-d %B %Y at %-H:%-M') }}
 		</td> 
 
 		{% if current_user.roles[0].name == "Admin" %}	
@@ -34,9 +36,6 @@
 </table>
 {% for content in task.media %}
 	<p>
-		{% if content.label %}
-			<b> {{ content.label }} </b>
-		{% endif %}
 		{% if content.text %}
 			{{ content.text }}
 		{% elif content.date %}

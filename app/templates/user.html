@@ -11,26 +11,34 @@
 				  <h1>{{ user.username }}</h1>
 				  <p> Role: {{user.roles[0].name}}</p>			  
 				  {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
-				  {% if user.last_seen %}<p>Last seen on: {{ user.last_seen }}</p>{% endif %}
+				  {% if user.last_seen %}<p>Last seen on: {{ user.last_seen.strftime('%-d %B %Y at %-H:%-M') }}</p>{% endif %}
 				  
             </td>
-				{% if current_user.roles[0].name == "Admin" and user.username != current_user.username %}
+
+				{% if current_user.roles[0].name == "Admin" %}
 					<td>
-						<a href="{{ url_for('edit_user', username=user.username) }}">
-		                 <b>Edit</b>
-		             </a>
+						<a href="{{ url_for('edit_user_admin', username=user.username) }}">
+			              <b>Edit</b>
+			          </a>
 					</td> 
 					<td>
 						<a href="{{ url_for('delete_user', user_id=user.id) }}">
 		                 <b>Delete user</b>
 		             </a>
-					</td>  
+					</td>
+				{% else %}
+					<td>
+						<a href="{{ url_for('edit_user') }}">
+			              <b>Edit</b>
+			          </a>
+					</td> 
 				{% endif %}
         </tr>
     </table>
     <hr>
    
    {% if current_user.roles[0].name == "Admin" %}
+   	<h3> All tasks related with that user </h3>
 		 {% for task in tasks %}
 				{% include '_task.html' %}
 		 {% endfor %}

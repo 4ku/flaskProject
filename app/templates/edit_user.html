@@ -13,26 +13,29 @@
 		     <b>{{ form.picture.label() }}</b>: 
 		     {{ form.picture() }}
 		     {% if form.picture.errors %}
-		     <p>
-               {% for error in form.picture.errors %}
-                    <span style="color: red;">{{ error }}</span></br>
-               {% endfor %}
-           </p>
+				  <p>
+		            {% for error in form.picture.errors %}
+		                 <span style="color: red;">{{ error }}</span></br>
+		            {% endfor %}
+		        </p>
            {% endif %}
         </p>
-        
-        <p>
-            <b>{{ form.username.label }}</b>: {{ form.username(size=32) }}<br>
-            {% for error in form.username.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            <b>{{ form.role_list.label }}</b>: {{ form.role_list() }} <br>
-            {% for error in form.role_list.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
+        {% if current_user.roles[0].name == "Admin" %}
+		     <p>
+		         <b>{{ form.username.label }}</b>: {{ form.username(size=32) }}<br>
+		         {% for error in form.username.errors %}
+		         <span style="color: red;">[{{ error }}]</span>
+		         {% endfor %}
+		     </p>
+		     <p>
+		         <b>{{ form.role_list.label }}</b>: {{ form.role_list() }} <br>
+		         {% for error in form.role_list.errors %}
+		         <span style="color: red;">[{{ error }}]</span>
+		         {% endfor %}
+		     </p>
+		  {% else %}
+		  
+        {% endif %}
         <p>{{ form.submit() }}</p>
     </form>
 {% endblock %}

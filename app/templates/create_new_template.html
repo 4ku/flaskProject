@@ -18,11 +18,8 @@
 			{% for field in extra_fields %}
 			 	 <p>
 					{% if field.type not in ['CSRFTokenField', 'HiddenField'] %}
-						{{ field.label }}  
-						{{ field() }}
-						{% if field.type != "TextField" %}
-							<hr>
-						{% endif %}
+						{{ field.label }}
+						{{ field() }}  
 					{% endif %}
 					
 					{% for error in field.errors %}
@@ -31,9 +28,11 @@
 			      
 				 </p>  
 			{% endfor %}
+			
 			{% for error in form.errors %}
 			     	 	<span style="color: red;">[{{ error }}]</span>
 			{% endfor %}
+			
        <p>{{ form.submit() }}</p>
      </form>
      

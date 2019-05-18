@@ -12,7 +12,7 @@
 					<a href="{{ url_for('login') }}">Login</a>
 				{% else %}
 					
-					<a href="{{ url_for('user', username=current_user.username) }}">Profile</a>
+					<a href="{{ url_for('user', username=current_user.username) }}">{{current_user.username}}</a>
 					
 					{% if current_user.roles[0].name == "Admin" %}
 						<a href="{{ url_for('all_users') }}">All users</a>
@@ -21,6 +21,7 @@
 						
 					{% elif current_user.roles[0].name == "Usual" %}
 						<a href="{{ url_for('templates') }}">Create task</a>
+						<a href="{{ url_for('issued_tasks') }}">Issued tasks</a>
 				   	<a href="{{ url_for('your_tasks') }}">My tasks</a>
 						
 					{% elif current_user.roles[0].name == "Client" %}
@@ -35,7 +36,7 @@
 						</a>
 					{% endfor %}
 					
-					<a href="{{ url_for('add_extra_menu_field', next = request.path) }}">
+					<a style = "float: right;" href="{{ url_for('add_extra_menu_field', next = request.path) }}">
 					 	 Add current page to menu
 					</a>
 				{% endif %}
@@ -52,7 +53,6 @@
         </ul>
         {% endif %}
         {% endwith %}
-        <h1> {{ current_user.username }} </h1>
         {% block content %}{% endblock %}
     </body>
 </html>

@@ -13,6 +13,7 @@ from flask_wtf import FlaskForm
 from wtforms.fields import Field
 from wtforms import StringField, TextAreaField, SubmitField, RadioField, FieldList, FormField, TextField
 from wtforms.fields.html5 import DateField
+from sqlalchemy import exists
 
 from app import app, db
 from app.forms import *
@@ -70,8 +71,9 @@ def register():
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
     tasks = Task.query.filter(or_(Task.assigner_id == user.id, 
-        Task.acceptor_id == user.id)).all()
-    return render_template('user.html', user=user, tasks = tasks)
+        Task.acceptor_id == user.id)).order_by(Task.timestamp.desc()).all()
+    return render_template('user.html', user=user, 
+        tasks = tasks)
 
 
 #-------------------------------------------------------------
@@ -101,11 +103,11 @@ def save_picture(form_picture):
     i.save(picture_path)
     return picture_fn
 
-@app.route('/edit_user/<username>', methods=['GET', 'POST'])
+@app.route('/edit_user_admin/<username>', methods=['GET', 'POST'])
 @roles_required(['Admin'])
-def edit_user(username):
+def edit_user_admin(username):
     user = User.query.filter_by(username=username).first()
-    form = EditProfileForm(user.username)
+    form = EditProfileForm_Admin(user.username)
     if form.validate_on_submit():
         if form.picture.data:
             user.avatar_path = save_picture(form.picture.data)
@@ -113,30 +115,40 @@ def edit_user(username):
         user.roles[0] = (Role(name=form.role_list.data))
         db.session.commit()
         flash('Your changes have been saved.')
-        return redirect(url_for('edit_user', username = form.username.data))
+        return redirect(url_for('edit_user_admin', username = form.username.data))
     elif request.method == 'GET':
         # Предзаполнение полей
         form.username.data = user.username
         form.role_list.data = user.roles[0].name
-        db.session.commit()
 
     return render_template('edit_user.html', title='Edit Profile',
                            form=form, user = user)
 
 
-@app.route('/edit_task/<task_id>', methods=['GET', 'POST'])
-@roles_required(['Admin'])
-def edit_task(task_id):
-    task = Task.query.filter_by(id = task_id).first()
+# Такая же функция, только для обычных пользователей
+@app.route('/edit_user', methods=['GET', 'POST'])
+@login_required
+def edit_user():
+    form = EditProfileForm()
+    if form.validate_on_submit():
+        if form.picture.data:
+            current_user.avatar_path = save_picture(form.picture.data)
+        db.session.commit()
+        flash('Your changes have been saved.')
+        return redirect(url_for('edit_user'))
+    return render_template('edit_user.html', title='Edit Profile',
+                           form=form, user = current_user)
 
+
+# Данная функция используется при создании задания и его редактирования
+def prepare_task(task, fields, is_edit):
     class DynamicForm(FlaskForm):
         pass
 
     # Создание новых полей для задания
-    for i, field_data in enumerate(task.media):
-        label_field = TextField(label = "Label: ")
+    for i, field_data in enumerate(fields):
         field = Field()
-        if field_data.text:
+        if field_data.text or field_data.text=="":
             field = TextAreaField(label = "Text area:", 
                 validators=[Length(max=140), DataRequired()])
         elif field_data.date:
@@ -144,95 +156,112 @@ def edit_task(task_id):
         elif field_data.filename:
             field = FileField('Pick a file: ',
                  validators=[FileAllowed(['jpg', 'png','jpeg']), DataRequired()])
-        setattr(DynamicForm, str(i*2), label_field)        
-        setattr(DynamicForm, str(i*2+1), field)
+        setattr(DynamicForm, str(i), field)
 
-
-    form = EditTaskForm()
     dynamic_form = DynamicForm()
-    all_users = User.query.all()
+
+    form = TaskForm_edit() if is_edit else TaskForm_create()
+
+    assigners = User.query.join(User.roles).filter(or_(Role.name == "Admin", Role.name == "Usual")).all()
+    assigner_choices =  [ (user.id, user.username) for user in assigners ]
+
+    acceptors = User.query.join(User.roles).filter(or_(Role.name == "Client", Role.name == "Usual")).all()
+    acceptor_choices = [ (user.id, user.username) for user in acceptors ]
+    if (current_user.id, current_user.username) in acceptor_choices:
+        acceptor_choices.remove((current_user.id, current_user.username))
+        
+    form.acceptor.choices = acceptor_choices    
+    if is_edit:
+        form.assigner.choices = assigner_choices
     
-    for i, field_data in enumerate(task.media):
-        if field_data.label:
-            dynamic_form[str(2*i)].data = field_data.label
-        if field_data.text:
-            dynamic_form[str(2*i+1)].data = field_data.text
-        elif field_data.date:
-            dynamic_form[str(2*i+1)].data = field_data.date
-        elif field_data.filename:
-            pass
-
-
-
-
-    # Не очень красивый код заполнения списка назначавших задание
-    choices_assigner = []
-    for user in all_users:
-        for role in user.roles:
-            if((role.name == "Usual") or (role.name == "Admin")):
-                choices_assigner.append((user.id, user.username))
-                break
-    
-    # Не очень красивый код заполнения списка получивших задание    
-    choices_acceptor = []
-    for user in all_users:
-        for role in user.roles:
-            if((role.name == "Client") or (role.name == "Usual")):
-                choices_acceptor.append((user.id, user.username))
-                break
-    
-    form.assigner.choices = choices_assigner
-    form.acceptor.choices = choices_acceptor
 
 
     if form.validate_on_submit():
-        acceptor = User.query.filter_by(id = int(form.acceptor.data)).first()
-        assigner = User.query.filter_by(id = int(form.assigner.data)).first()
-
-        task.acceptor = acceptor
+        # Назначение, кто создал задание и кому оно адресовано
+        if is_edit:
+            assigner = User.query.filter_by(id = int(form.assigner.data)).first()
+        else:
+            assigner = current_user
         task.assigner = assigner
-        task.acceptor_id = acceptor.id
         task.assigner_id = assigner.id
-        task.status = form.status.data
 
-        Task_media.query.filter(Task_media.task_id == task.id).delete()
+        acceptor = User.query.filter_by(id = int(form.acceptor.data)).first()
+        task.acceptor = acceptor
+        task.acceptor_id = acceptor.id
 
         # Сохранение данных в БД
-        label = ""
-        for field in dynamic_form:
-            if field.type == "TextField":
-                label = field.data
-            elif field.type == "TextAreaField":
-                task.media.append(Task_media(label = label, text = field.data)) 
-            elif field.type == "DateField":
-                task.media.append(Task_media(label = label, date = field.data))
-            elif field.type == "FileField":
-                file = field.data
-                random_hex = secrets.token_hex(8)
-                filename = secure_filename(file.filename)
-                _, f_ext = os.path.splitext(filename)
-                encrypted_filename = random_hex + f_ext
-                file.save(os.path.join(app.root_path, 'static/files/', encrypted_filename))
-                task.media.append(Task_media(label = label, encrypted_filename = encrypted_filename, filename = filename))
+        if is_edit:
+            task.status = form.status.data
+            # Изменение task.media
+            for i, field_data in enumerate(task.media):
+                if field_data.text:
+                    field_data.text = dynamic_form[str(i)].data
+                elif field_data.date:
+                    field_data.date = dynamic_form[str(i)].data 
+                elif field_data.filename:
+                    pass
+        else:
+            # Создание task.media
+            for field in dynamic_form:
+                if field.type == "TextField":
+                    task.media.append(Task_media(text = field.data))
+                elif field.type == "TextAreaField":
+                    task.media.append(Task_media(text = field.data)) 
+                elif field.type == "DateField":
+                    task.media.append(Task_media(date = field.data))
+                elif field.type == "FileField":
+                    file = field.data
+                    random_hex = secrets.token_hex(8)
+                    filename = secure_filename(file.filename)
+                    _, f_ext = os.path.splitext(filename)
+                    encrypted_filename = random_hex + f_ext
+                    file.save(os.path.join(app.root_path, 'static/files/', encrypted_filename))
+                    task.media.append(Task_media(encrypted_filename = encrypted_filename, filename = filename))
+        
+            db.session.add(task)
 
         db.session.commit()
         flash('Your changes have been saved.')
-        return redirect(url_for('edit_task', task_id = task_id))
+        return redirect(url_for('login'))
     elif request.method == 'GET':
-        form.acceptor.data = task.acceptor.id
-        form.assigner.data = task.assigner.id
-        form.status.data = task.status
+        # Заполнение полей существующими данными
 
-    return render_template('edit_task.html', title='Edit task',
-                           form=form, extra_fields = dynamic_form)
+        for i, field_data in enumerate(fields):
+            if field_data.text:
+                dynamic_form[str(i)].data = field_data.text
+            elif field_data.date:
+                dynamic_form[str(i)].data = field_data.date
+            elif field_data.filename:
+                pass
+
+        if is_edit:
+            form.acceptor.data = task.acceptor.id
+            form.assigner.data = task.assigner.id
+            form.status.data = task.status
+
+    title = "Edit task" if is_edit else "Create task"
+    return render_template('create_or_edit_task.html', title=title, form=form,
+             extra_fields = dynamic_form, edit_task = is_edit)
+
+@app.route('/edit_task/<task_id>', methods=['GET', 'POST'])
+@roles_required(['Admin'])
+def edit_task(task_id):
+    task = Task.query.filter_by(id = task_id).first()
+    return prepare_task(task, task.media, True)
 
 
 # --- Удаление пользователя и заданий ----
 @app.route('/delete_user/<user_id>')
 @roles_required(['Admin'])
 def delete_user(user_id):
-    Task.query.filter(Task.acceptor_id == user_id).delete()
-    Task.query.filter(Task.assigner_id == user_id).delete()
+    #Удаление всех заданий пользователя
+    acceptor_tasks = Task.query.filter(Task.acceptor_id == user_id).all()
+    assigner_tasks = Task.query.filter(Task.assigner_id == user_id).all()
+    for task in acceptor_tasks:
+        delete_task(task.id)
+    for task in assigner_tasks:
+        delete_task(task.id)
+    
     User.query.filter_by(id=user_id).delete()
     db.session.commit()
     return redirect(url_for("all_users"))
@@ -240,8 +269,10 @@ def delete_user(user_id):
 @app.route('/delete_task/<task_id>')
 @roles_required(['Admin'])
 def delete_task(task_id):
-    Task_media.query.filter(Task_media.task_id == task_id).delete()
-    Task.query.filter(Task.id == task_id).delete()
+    task = Task.query.filter(Task.id == task_id).first()
+    for media in task.media:
+        db.session.delete(media)
+    db.session.delete(task)
     db.session.commit()
     next_page = request.args.get('next')
     if not next_page or url_parse(next_page).netloc != '':
@@ -260,19 +291,16 @@ def create_new_template():
         extra_fields = session['fields']
     
     for i, field_label in enumerate(extra_fields):
-        label_field = TextField(label = "Label: ")
         field = Field()
         if field_label == "Text":
             field = TextAreaField(label = "Text area:", 
-                validators=[Length(max=140), DataRequired()])
+                validators=[Length(max=140)])
         elif field_label == "Date":
-            field = DateField(label = "Date: ", validators=[DataRequired()])
+            field = DateField(label = "Date: ", validators=[])
         elif field_label == "File":
             field = FileField('Pick a file: ',
-                 validators=[FileAllowed(['jpg', 'png','jpeg']), DataRequired("fd")])
-        setattr(DynamicForm, str(i*2), label_field)        
-        setattr(DynamicForm, str(i*2+1), field)
-
+                 validators=[FileAllowed(['jpg', 'png','jpeg'])])
+        setattr(DynamicForm, str(i), field)
 
     class myForm(FlaskForm):
         submit = SubmitField('Submit')
@@ -282,25 +310,26 @@ def create_new_template():
     dynamic_form = DynamicForm()
 
     # Если нажата кнопка добавить задание
-    if form.submit.data and form.validate_on_submit() and dynamic_form.validate():
+    if form.submit.data and form.validate_on_submit() and len(extra_fields) > 0:
         session['fields'] = []
         template = Task_templates()
-        label = ""
-        print(template.field)
         for field in dynamic_form:
             if field.type == "TextField":
-                label = field.data
+                pass
             elif field.type == "TextAreaField":
-                template.field.append(Task_media(label = label, text = field.data)) 
+                data = field.data if field.data else ""
+                template.field.append(Task_media(text = data)) 
             elif field.type == "DateField":
-                template.field.append(Task_media(label = label, date = field.data))
+                data = field.data if field.data else datetime(1,1,1)
+                template.field.append(Task_media(date = data))
             elif field.type == "FileField":
-                template.field.append(Task_media(label = label, filename = "1"))
+                template.field.append(Task_media(filename = ""))
             
         db.session.add(template)
         db.session.commit()
         return redirect(url_for('templates'))
 
+    # Если нажата кнопка создания поля
     if add_field_form.add_field.data and add_field_form.validate_on_submit(): 
         if "fields" not in session:
             session['fields'] = []
@@ -328,91 +357,14 @@ def templates():
 @roles_required(['Admin', 'Usual'])
 def create_task(template_id):
     fields = Task_templates.query.filter_by(id = template_id).first().field
+    return prepare_task(Task(), fields, False)
 
 
-    class DynamicForm(FlaskForm):
-        pass
-
-    for i, field_data in enumerate(fields):
-        label_field = TextField(label = "Label: ")
-        field = Field()
-        if field_data.label:
-            label_field.data = field_data.label
-        if field_data.text:
-            field = TextAreaField(label = "Text area:", 
-                validators=[Length(max=140), DataRequired()])
-            field.data = field_data.text
-        elif field_data.date:
-            field = DateField(label = "Date: ", validators=[DataRequired()])
-            field.data = field_data.date
-        elif field_data.filename:
-            field = FileField('Pick a file: ',
-                 validators=[FileAllowed(['jpg', 'png','jpeg']), DataRequired()])
-        setattr(DynamicForm, str(i*2), label_field)        
-        setattr(DynamicForm, str(i*2+1), field)
-
-    class myForm(FlaskForm):
-        user_list = SelectField('users', choices=[], coerce = int)
-        submit = SubmitField('Submit')
-
-    form = myForm()
-    dynamic_form = DynamicForm()
-    all_users = User.query.all()
-
-    for i, field_data in enumerate(fields):
-        if field_data.label:
-            dynamic_form[str(2*i)].data = field_data.label
-        if field_data.text:
-            dynamic_form[str(2*i+1)].data = field_data.text
-        elif field_data.date:
-            dynamic_form[str(2*i+1)].data = field_data.date
-        elif field_data.filename:
-            pass
-
-    # Устанавливаем в меню список всех пользователей и клиентов
-    choices = []
-    for user in all_users:
-        if current_user.username == user.username:
-            continue
-        for role in user.roles:
-            if((role.name == "Client") or (role.name == "Usual")):
-                choices.append((user.id, user.username))
-                break
-
-    form.user_list.choices = choices
-
-    # Если нажата кнопка добавить задание
-    if form.validate_on_submit():
-        task = Task()
-        label = ""
-        for field in dynamic_form:
-            if field.type == "TextField":
-                label = field.data
-            elif field.type == "TextAreaField":
-                task.media.append(Task_media(label = label, text = field.data)) 
-            elif field.type == "DateField":
-                task.media.append(Task_media(label = label, date = field.data))
-            elif field.type == "FileField":
-                print(type(field.data))
-                file = field.data
-                random_hex = secrets.token_hex(8)
-                filename = secure_filename(file.filename)
-                _, f_ext = os.path.splitext(filename)
-                encrypted_filename = random_hex + f_ext
-                file.save(os.path.join(app.root_path, 'static/files/', encrypted_filename))
-                task.media.append(Task_media(label = label, encrypted_filename = encrypted_filename, filename = filename))
-            
-        current_user.assign.append(task)
-        user = User.query.filter_by(id=form.user_list.data).first()
-        user.accept.append(task)
-        db.session.add(task)
-        db.session.commit()
-        return redirect(url_for('give_task'))
-
-    return render_template("create_task.html", title='Create task', 
-        form=form,  
-        extra_fields = dynamic_form)
-
+@app.route('/issued_tasks', methods=['GET', 'POST'])
+@roles_required(['Admin', 'Usual'])
+def issued_tasks():
+    tasks = current_user.assign.order_by(Task.timestamp.desc()).all()
+    return render_template("tasks.html", title='Issued tasks', tasks = tasks)
 
 #-------------------------------------------------------------
 # Доступные всем зарегестрированным пользователям страницы 
@@ -421,7 +373,7 @@ def create_task(template_id):
 @app.route('/your_tasks', methods=['GET', 'POST'])
 @login_required
 def your_tasks():
-    tasks = current_user.accept.all()
+    tasks = current_user.accept.order_by(Task.timestamp.desc()).all()
     return render_template("tasks.html", title='My tasks', tasks = tasks)
 
 # Добавление в верхнее меню нового аттрибута
@@ -453,91 +405,4 @@ def before_request():
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
-
-
-
-# Some shit
-@app.route('/give_task', methods=['GET', 'POST'])
-@roles_required(['Admin', 'Usual'])
-def give_task():
-
-    class DynamicForm(FlaskForm):
-        pass
-
-    extra_fields = []
-    if 'fields' in session:
-        extra_fields = session['fields']
-    
-    for i, field_label in enumerate(extra_fields):
-        label_field = TextField(label = "Label: ")
-        field = Field()
-        if field_label == "Text":
-            field = TextAreaField(label = "Text area:", 
-                validators=[Length(max=140), DataRequired()])
-        elif field_label == "Date":
-            field = DateField(label = "Date: ", validators=[DataRequired()])
-        elif field_label == "File":
-            field = FileField('Pick a file: ',
-                 validators=[FileAllowed(['jpg', 'png','jpeg']), DataRequired("fd")])
-        setattr(DynamicForm, str(i*2), label_field)        
-        setattr(DynamicForm, str(i*2+1), field)
-
-    form = PostForm()
-    add_field_form = AddFieldForm()
-    dynamic_form = DynamicForm()
-    all_users = User.query.all()
-
-    # Устанавливаем в меню список всех пользователей и клиентов
-    choices = []
-    for user in all_users:
-        if current_user.username == user.username:
-            continue
-        for role in user.roles:
-            if((role.name == "Client") or (role.name == "Usual")):
-                choices.append((user.id, user.username))
-                break
-    form.user_list.choices = choices
-
-    # Если нажата кнопка добавить задание
-    if form.submit.data and form.validate_on_submit() and dynamic_form.validate():
-        session['fields'] = []
-        task = Task()
-        task.media.append(Task_media(text = form.post.data))
-        label = ""
-        for field in dynamic_form:
-            if field.type == "TextField":
-                label = field.data
-            elif field.type == "TextAreaField":
-                task.media.append(Task_media(label = label, text = field.data)) 
-            elif field.type == "DateField":
-                task.media.append(Task_media(label = label, date = field.data))
-            elif field.type == "FileField":
-                print(type(field.data))
-                file = field.data
-                random_hex = secrets.token_hex(8)
-                filename = secure_filename(file.filename)
-                _, f_ext = os.path.splitext(filename)
-                encrypted_filename = random_hex + f_ext
-                file.save(os.path.join(app.root_path, 'static/files/', encrypted_filename))
-                task.media.append(Task_media(label = label, encrypted_filename = encrypted_filename, filename = filename))
-            
-        current_user.assign.append(task)
-        user = User.query.filter_by(id=form.user_list.data).first()
-        user.accept.append(task)
-        db.session.add(task)
-        db.session.commit()
-        return redirect(url_for('give_task'))
-
-    if add_field_form.add_field.data and add_field_form.validate_on_submit(): 
-        if "fields" not in session:
-            session['fields'] = []
-        session['fields'].append(add_field_form.fields_list.data)
-        return redirect(url_for('give_task'))
-
-    # Получаем все задания, выданные данным пользователем
-    tasks = current_user.assign.all()
-
-    return render_template("tasks.html", title='Give task', 
-        form=form, add_field_form = add_field_form, 
-        extra_fields = dynamic_form, tasks=tasks)
 
