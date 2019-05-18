@@ -1,6 +1,6 @@
 from flask import render_template, flash, redirect, url_for, request, session, send_from_directory
-from flask_login import login_user, logout_user, login_manager,login_required
-from flask_user import current_user,roles_required
+from flask_login import current_user, login_user, logout_user, login_manager, login_required
+from functools import wraps
 
 from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
@@ -20,10 +20,31 @@ from app.forms import *
 from app.models import *
 
 
+# Проверка роли пользователя
+def roles_required(roles):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.is_authenticated:
+                return redirect(url_for('login'))
+
+            access = False
+            for role in roles:
+                for user_role in current_user.roles:
+                    if role == user_role.name:
+                        access = True
+            
+            if not access:
+                flash('You do not have access to that page. Sorry!')
+                return redirect(url_for('login'))
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
 
 @app.login_manager.unauthorized_handler
 def unauthorized_callback():
-    return redirect('login')
+    return redirect('/login')
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/login', methods=['GET', 'POST'])
@@ -126,9 +147,9 @@ def edit_user_admin(username):
 
 
 # Такая же функция, только для обычных пользователей
-@app.route('/edit_user', methods=['GET', 'POST'])
+@app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
-def edit_user():
+def edit_profile():
     form = EditProfileForm()
     if form.validate_on_submit():
         if form.picture.data:

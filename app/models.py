@@ -1,6 +1,6 @@
 from datetime import datetime
 from app import db, login
-from flask_user import UserMixin
+from flask_login import UserMixin
 from hashlib import md5
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import url_for
@@ -97,6 +97,8 @@ class User(UserMixin, db.Model):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
         return 'https://www.gravatar.com/avatar/{}?d=identicon&s=200'.format(
             digest)
+
+
     
 
 class Role(db.Model):
