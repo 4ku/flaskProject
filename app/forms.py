@@ -76,3 +76,7 @@ class AddFieldForm(FlaskForm):
     add_field = SubmitField('Add field')
     fields_list = SelectField('Field type', 
         choices=[('Text','Text'),('Date','Date'),('File','File')])
+
+def check_file_label(form, field):
+    if (field.label.text["filename"] == "") and (not field.data):
+        raise ValidationError('Please choose a file')

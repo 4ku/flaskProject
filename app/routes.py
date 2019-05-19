@@ -4,6 +4,7 @@ from functools import wraps
 
 from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
+from werkzeug.datastructures import FileStorage
 from datetime import datetime
 from sqlalchemy import or_
 import os
@@ -14,6 +15,7 @@ from wtforms.fields import Field
 from wtforms import StringField, TextAreaField, SubmitField, RadioField, FieldList, FormField, TextField
 from wtforms.fields.html5 import DateField
 from sqlalchemy import exists
+from shutil import copyfile
 
 from app import app, db
 from app.forms import *
@@ -40,6 +42,13 @@ def roles_required(roles):
             return f(*args, **kwargs)
         return decorated_function
     return decorator
+
+def encode_filename(filename):
+    random_hex = secrets.token_hex(8)
+    filename = secure_filename(filename)
+    _, f_ext = os.path.splitext(filename)
+    encrypted_filename = random_hex + f_ext
+    return (filename, encrypted_filename)
 
 
 @app.login_manager.unauthorized_handler
@@ -115,15 +124,6 @@ def all_tasks():
         tasks = Task.query.order_by(Task.timestamp.desc()).all())
 
 
-def save_picture(form_picture):
-    random_hex = secrets.token_hex(8)
-    _, f_ext = os.path.splitext(form_picture.filename)
-    picture_fn = random_hex + f_ext
-    picture_path = os.path.join(app.root_path, 'static/avatars/', picture_fn)
-    i = Image.open(form_picture)
-    i.save(picture_path)
-    return picture_fn
-
 @app.route('/edit_user_admin/<username>', methods=['GET', 'POST'])
 @roles_required(['Admin'])
 def edit_user_admin(username):
@@ -131,7 +131,10 @@ def edit_user_admin(username):
     form = EditProfileForm_Admin(user.username)
     if form.validate_on_submit():
         if form.picture.data:
-            user.avatar_path = save_picture(form.picture.data)
+            _ , encrypted_filename = encode_filename(form.picture.data.filename)
+            image = Image.open(form.picture.data)
+            image.save(os.path.join(app.root_path, 'static/avatars/', encrypted_filename))
+            user.avatar_path = encrypted_filename
         user.username = form.username.data
         user.roles[0] = (Role(name=form.role_list.data))
         db.session.commit()
@@ -169,18 +172,17 @@ def prepare_task(task, fields, is_edit):
     # Создание новых полей для задания
     for i, field_data in enumerate(fields):
         field = Field()
-        if field_data.text or field_data.text=="":
+        if field_data.text or field_data.text == "":
             field = TextAreaField(label = "Text area:", 
                 validators=[Length(max=140), DataRequired()])
         elif field_data.date:
             field = DateField(label = "Date: ", validators=[DataRequired()])
-        elif field_data.filename:
-            field = FileField('Pick a file: ',
-                 validators=[FileAllowed(['jpg', 'png','jpeg']), DataRequired()])
+        elif field_data.filename or field_data.filename == "":
+            label = {"filename": field_data.filename, "encrypted_filename": field_data.encrypted_filename}
+            field = FileField(label = label, validators=[check_file_label])
         setattr(DynamicForm, str(i), field)
 
     dynamic_form = DynamicForm()
-
     form = TaskForm_edit() if is_edit else TaskForm_create()
 
     assigners = User.query.join(User.roles).filter(or_(Role.name == "Admin", Role.name == "Usual")).all()
@@ -195,10 +197,9 @@ def prepare_task(task, fields, is_edit):
     if is_edit:
         form.assigner.choices = assigner_choices
     
-
-
-    if form.validate_on_submit():
+    if form.validate_on_submit() and dynamic_form.validate():
         # Назначение, кто создал задание и кому оно адресовано
+        assigner = None
         if is_edit:
             assigner = User.query.filter_by(id = int(form.assigner.data)).first()
         else:
@@ -220,7 +221,16 @@ def prepare_task(task, fields, is_edit):
                 elif field_data.date:
                     field_data.date = dynamic_form[str(i)].data 
                 elif field_data.filename:
-                    pass
+                    # Если добавляем свой файл (заменяем предшествующий)
+                    if dynamic_form[str(i)].data:
+                        os.remove(os.path.join(app.root_path, 'static/files/', field_data.encrypted_filename))
+                        file = dynamic_form[str(i)].data
+                        filename, encrypted_filename = encode_filename(file.filename)
+                        field_data.filename = filename
+                        field_data.encrypted_filename = encrypted_filename
+                        file.save(os.path.join(app.root_path, 'static/files/',  encrypted_filename))
+                    # Если хотим оставить файл, который был до этого, то ничего не делаем
+                                        
         else:
             # Создание task.media
             for field in dynamic_form:
@@ -231,14 +241,19 @@ def prepare_task(task, fields, is_edit):
                 elif field.type == "DateField":
                     task.media.append(Task_media(date = field.data))
                 elif field.type == "FileField":
-                    file = field.data
-                    random_hex = secrets.token_hex(8)
-                    filename = secure_filename(file.filename)
-                    _, f_ext = os.path.splitext(filename)
-                    encrypted_filename = random_hex + f_ext
-                    file.save(os.path.join(app.root_path, 'static/files/', encrypted_filename))
+                    filename, encrypted_filename = "", ""
+                    # Если добавляем свой файл
+                    if field.data:
+                        file = field.data
+                        filename, encrypted_filename = encode_filename(file.filename)
+                        file.save(os.path.join(app.root_path, 'static/files/',  encrypted_filename))
+                    # Если оставляем файл, который был в шаблоне
+                    elif field.label.text["filename"]:
+                        src_path = os.path.join(app.root_path, 'static/files/', field.label.text["encrypted_filename"])
+                        filename, encrypted_filename = encode_filename(field.label.text["filename"])
+                        dst_path = os.path.join(app.root_path, 'static/files/', encrypted_filename)
+                        copyfile(src_path, dst_path)
                     task.media.append(Task_media(encrypted_filename = encrypted_filename, filename = filename))
-        
             db.session.add(task)
 
         db.session.commit()
@@ -253,7 +268,7 @@ def prepare_task(task, fields, is_edit):
             elif field_data.date:
                 dynamic_form[str(i)].data = field_data.date
             elif field_data.filename:
-                pass
+                dynamic_form[str(i)].label = {"filename": field_data.filename, "encrypted_filename": field_data.encrypted_filename}
 
         if is_edit:
             form.acceptor.data = task.acceptor.id
@@ -261,8 +276,9 @@ def prepare_task(task, fields, is_edit):
             form.status.data = task.status
 
     title = "Edit task" if is_edit else "Create task"
-    return render_template('create_or_edit_task.html', title=title, form=form,
-             extra_fields = dynamic_form, edit_task = is_edit)
+    return render_template('create_or_edit_task.html', title=title, form=form, 
+        extra_fields = dynamic_form, edit_task = is_edit)
+
 
 @app.route('/edit_task/<task_id>', methods=['GET', 'POST'])
 @roles_required(['Admin'])
@@ -292,6 +308,8 @@ def delete_user(user_id):
 def delete_task(task_id):
     task = Task.query.filter(Task.id == task_id).first()
     for media in task.media:
+        if media.filename:
+            os.remove(os.path.join(app.root_path, 'static/files/', media.encrypted_filename))
         db.session.delete(media)
     db.session.delete(task)
     db.session.commit()
@@ -319,8 +337,7 @@ def create_new_template():
         elif field_label == "Date":
             field = DateField(label = "Date: ", validators=[])
         elif field_label == "File":
-            field = FileField('Pick a file: ',
-                 validators=[FileAllowed(['jpg', 'png','jpeg'])])
+            field = FileField('Pick a file: ')
         setattr(DynamicForm, str(i), field)
 
     class myForm(FlaskForm):
@@ -344,7 +361,13 @@ def create_new_template():
                 data = field.data if field.data else datetime(1,1,1)
                 template.field.append(Task_media(date = data))
             elif field.type == "FileField":
-                template.field.append(Task_media(filename = ""))
+                filename, encrypted_filename = "", ""
+                if field.data:
+                    file = field.data
+                    filename, encrypted_filename = encode_filename(file.filename)
+                    file.save(os.path.join(app.root_path, 'static/files/',  encrypted_filename))
+                template.field.append(Task_media(encrypted_filename = encrypted_filename, filename = filename))
+
             
         db.session.add(template)
         db.session.commit()
