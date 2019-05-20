@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% for link in current_user.extra_menu_fields %}
+	<div>
+		<a style = "margin-right: 50px; " href="{{ link.link }}">
+			{% if link.name %}
+				{{ link.name }}
+			{% else %}
+				Link_{{link.id}}
+			{% endif %}
+		</a>
+		<a style = "margin-right: 50px; " href="{{ url_for('rename_menu_field', link_id = link.id) }}">Rename link</a>
+		<a style = "margin-right: 50px; " href="{{ url_for('delete_menu_field', link_id = link.id) }}">Delete link</a>
+	</div>
+{% endfor %}
+
+{% endblock %}

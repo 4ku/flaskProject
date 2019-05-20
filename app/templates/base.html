@@ -5,6 +5,11 @@
         {% else %}
         <title>Task manager</title>
         {% endif %}
+        <style>
+		     a {
+		     margin-left: 5px
+		     }
+        </style>
     </head>
     <body>
       <div width="100%">
@@ -32,12 +37,19 @@
 					
 					{% for link in current_user.extra_menu_fields %}
 						<a href="{{ link.link }}">
-					 	  Link_{{link.id}}
+					 	  {% if link.name %}
+								{{ link.name }}
+							{% else %}
+						 	  Link_{{link.id}}
+						 	{% endif %}
 						</a>
 					{% endfor %}
 					
-					<a style = "float: right;" href="{{ url_for('add_extra_menu_field', next = request.path) }}">
-					 	 Add current page to menu
+					<a style = "float: right;" href="{{ url_for('add_extra_menu_field', name = title, next = request.path) }}">
+					 	 Add
+					</a>
+					<a style = "float: right;" href="{{ url_for('toolbar_settings') }}">
+					 	 Settings
 					</a>
 				{% endif %}
 

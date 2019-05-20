@@ -20,7 +20,7 @@ class RegistrationForm(FlaskForm):
     password2 = PasswordField(
         'Repeat Password', validators=[DataRequired(), EqualTo('password')])
     user_role = RadioField('User role', 
-        choices=[('Admin','Admin'),('Usual','Usual user'),('Client','client')])
+        choices=[('Admin','Admin'),('Usual','Usual user'),('Client','Client')])
     
     submit = SubmitField('Register')
     
@@ -75,7 +75,7 @@ class TaskForm_create(FlaskForm):
 class AddFieldForm(FlaskForm):
     add_field = SubmitField('Add field')
     fields_list = SelectField('Field type', 
-        choices=[('Text','Text'),('Date','Date'),('File','File')])
+        choices=[('TextArea','TextArea'),('Date','Date'),('File','File')])
 
 def check_file_label(form, field):
     if (field.label.text["filename"] == "") and (not field.data):

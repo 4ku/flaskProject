@@ -102,7 +102,7 @@ def user(username):
     user = User.query.filter_by(username=username).first_or_404()
     tasks = Task.query.filter(or_(Task.assigner_id == user.id, 
         Task.acceptor_id == user.id)).order_by(Task.timestamp.desc()).all()
-    return render_template('user.html', user=user, 
+    return render_template('user.html', title = user.username, user=user, 
         tasks = tasks)
 
 
@@ -114,13 +114,13 @@ def user(username):
 @roles_required(['Admin'])
 def all_users():
     all_users = User.query.filter(User.username!=current_user.username).all()
-    return render_template("all_users.html", users = all_users)
+    return render_template("all_users.html", title = "All users", users = all_users)
 
 
 @app.route('/all_tasks', methods=['GET', 'POST'])
 @roles_required(['Admin'])
 def all_tasks():
-    return render_template("tasks.html", 
+    return render_template("tasks.html", title = "All tasks",
         tasks = Task.query.order_by(Task.timestamp.desc()).all())
 
 
@@ -156,10 +156,13 @@ def edit_profile():
     form = EditProfileForm()
     if form.validate_on_submit():
         if form.picture.data:
-            current_user.avatar_path = save_picture(form.picture.data)
+            _ , encrypted_filename = encode_filename(form.picture.data.filename)
+            image = Image.open(form.picture.data)
+            image.save(os.path.join(app.root_path, 'static/avatars/', encrypted_filename))
+            current_user.avatar_path = encrypted_filename
         db.session.commit()
         flash('Your changes have been saved.')
-        return redirect(url_for('edit_user'))
+        return redirect(url_for('edit_profile'))
     return render_template('edit_user.html', title='Edit Profile',
                            form=form, user = current_user)
 
@@ -172,7 +175,7 @@ def prepare_task(task, fields, is_edit):
     # Создание новых полей для задания
     for i, field_data in enumerate(fields):
         field = Field()
-        if field_data.text or field_data.text == "":
+        if field_data.textArea or field_data.textArea == "":
             field = TextAreaField(label = "Text area:", 
                 validators=[Length(max=140), DataRequired()])
         elif field_data.date:
@@ -216,8 +219,8 @@ def prepare_task(task, fields, is_edit):
             task.status = form.status.data
             # Изменение task.media
             for i, field_data in enumerate(task.media):
-                if field_data.text:
-                    field_data.text = dynamic_form[str(i)].data
+                if field_data.textArea:
+                    field_data.textArea = dynamic_form[str(i)].data
                 elif field_data.date:
                     field_data.date = dynamic_form[str(i)].data 
                 elif field_data.filename:
@@ -237,7 +240,7 @@ def prepare_task(task, fields, is_edit):
                 if field.type == "TextField":
                     task.media.append(Task_media(text = field.data))
                 elif field.type == "TextAreaField":
-                    task.media.append(Task_media(text = field.data)) 
+                    task.media.append(Task_media(textArea = field.data)) 
                 elif field.type == "DateField":
                     task.media.append(Task_media(date = field.data))
                 elif field.type == "FileField":
@@ -263,8 +266,8 @@ def prepare_task(task, fields, is_edit):
         # Заполнение полей существующими данными
 
         for i, field_data in enumerate(fields):
-            if field_data.text:
-                dynamic_form[str(i)].data = field_data.text
+            if field_data.textArea:
+                dynamic_form[str(i)].data = field_data.textArea
             elif field_data.date:
                 dynamic_form[str(i)].data = field_data.date
             elif field_data.filename:
@@ -291,9 +294,16 @@ def edit_task(task_id):
 @app.route('/delete_user/<user_id>')
 @roles_required(['Admin'])
 def delete_user(user_id):
+
+    user = User.query.filter_by(id=user_id).first()
+
+    # Удаление аватарки
+    if user.avatar_path:
+        os.remove(os.path.join(app.root_path, 'static/avatars/', user.avatar_path))
+
     #Удаление всех заданий пользователя
-    acceptor_tasks = Task.query.filter(Task.acceptor_id == user_id).all()
-    assigner_tasks = Task.query.filter(Task.assigner_id == user_id).all()
+    acceptor_tasks = Task.query.filter(Task.acceptor_id == user.id).all()
+    assigner_tasks = Task.query.filter(Task.assigner_id == user.id).all()
     for task in acceptor_tasks:
         delete_task(task.id)
     for task in assigner_tasks:
@@ -318,10 +328,8 @@ def delete_task(task_id):
         next_page = url_for('all_users')
     return redirect(next_page)
 
-# Создание шаблона
-@app.route('/create_new_template', methods=['GET', 'POST'])
-@roles_required(['Admin'])
-def create_new_template():
+
+def prepare_template(template, is_edit):
     class DynamicForm(FlaskForm):
         pass
 
@@ -331,7 +339,7 @@ def create_new_template():
     
     for i, field_label in enumerate(extra_fields):
         field = Field()
-        if field_label == "Text":
+        if field_label == "TextArea":
             field = TextAreaField(label = "Text area:", 
                 validators=[Length(max=140)])
         elif field_label == "Date":
@@ -341,6 +349,7 @@ def create_new_template():
         setattr(DynamicForm, str(i), field)
 
     class myForm(FlaskForm):
+        name = TextField(label = "Template name")
         submit = SubmitField('Submit')
 
     form = myForm()
@@ -350,40 +359,116 @@ def create_new_template():
     # Если нажата кнопка добавить задание
     if form.submit.data and form.validate_on_submit() and len(extra_fields) > 0:
         session['fields'] = []
-        template = Task_templates()
-        for field in dynamic_form:
-            if field.type == "TextField":
-                pass
-            elif field.type == "TextAreaField":
-                data = field.data if field.data else ""
-                template.field.append(Task_media(text = data)) 
-            elif field.type == "DateField":
-                data = field.data if field.data else datetime(1,1,1)
-                template.field.append(Task_media(date = data))
-            elif field.type == "FileField":
-                filename, encrypted_filename = "", ""
-                if field.data:
-                    file = field.data
-                    filename, encrypted_filename = encode_filename(file.filename)
-                    file.save(os.path.join(app.root_path, 'static/files/',  encrypted_filename))
-                template.field.append(Task_media(encrypted_filename = encrypted_filename, filename = filename))
-
+        if not is_edit:
+            template = Task_templates()
+            if form.name:
+                template.name = form.name.data
+            for field in dynamic_form:
+                if field.type == "TextField":
+                    pass
+                elif field.type == "TextAreaField":
+                    data = field.data if field.data else ""
+                    template.field.append(Task_media(textArea = data)) 
+                elif field.type == "DateField":
+                    data = field.data if field.data else datetime(1,1,1)
+                    template.field.append(Task_media(date = data))
+                elif field.type == "FileField":
+                    filename, encrypted_filename = "", ""
+                    if field.data:
+                        file = field.data
+                        filename, encrypted_filename = encode_filename(file.filename)
+                        file.save(os.path.join(app.root_path, 'static/files/',  encrypted_filename))
+                    template.field.append(Task_media(encrypted_filename = encrypted_filename, filename = filename))
             
-        db.session.add(template)
+                db.session.add(template)
+        else:
+            if form.name:
+                template.name = form.name.data
+            # Изменение task.media
+            for i, field_data in enumerate(template.field):
+                if field_data.textArea:
+                    field_data.textArea = dynamic_form[str(i)].data
+                elif field_data.date:
+                    field_data.date = dynamic_form[str(i)].data 
+                elif field_data.filename:
+                    # Если добавляем свой файл (заменяем предшествующий)
+                    if dynamic_form[str(i)].data:
+                        os.remove(os.path.join(app.root_path, 'static/files/', field_data.encrypted_filename))
+                        file = dynamic_form[str(i)].data
+                        filename, encrypted_filename = encode_filename(file.filename)
+                        field_data.filename = filename
+                        field_data.encrypted_filename = encrypted_filename
+                        file.save(os.path.join(app.root_path, 'static/files/',  encrypted_filename))
+                    # Если хотим оставить файл, который был до этого, то ничего не делаем
+
         db.session.commit()
         return redirect(url_for('templates'))
 
     # Если нажата кнопка создания поля
-    if add_field_form.add_field.data and add_field_form.validate_on_submit(): 
+    elif add_field_form.add_field.data and add_field_form.validate_on_submit(): 
         if "fields" not in session:
             session['fields'] = []
         session['fields'].append(add_field_form.fields_list.data)
         return redirect(url_for('create_new_template'))
 
-    return render_template("create_new_template.html", title='Create template', 
+    elif request.method == 'GET' and is_edit:
+        for i, field_data in enumerate(template.field):
+            if field_data.textArea:
+                dynamic_form[str(i)].data = field_data.textArea
+            elif field_data.date:
+                dynamic_form[str(i)].data = field_data.date
+            elif field_data.filename:
+                dynamic_form[str(i)].label = {"filename": field_data.filename, "encrypted_filename": field_data.encrypted_filename}
+
+    title = None
+    if is_edit:
+        title = "Edit template"
+    else:
+        title = "Create template"
+    return render_template("create_new_template.html", title= title, 
         form=form, add_field_form = add_field_form, 
         extra_fields = dynamic_form)
 
+
+# Создание шаблона
+@app.route('/create_new_template', methods=['GET', 'POST'])
+@roles_required(['Admin'])
+def create_new_template():
+    return prepare_template(None, False)
+
+@app.route('/edit_template/<template_id>', methods=['GET', 'POST'])
+@roles_required(['Admin'])
+def edit_template(template_id):
+    template = Task_templates.query.filter_by(id = template_id).first()
+    fields = []
+    for field in template.field:
+        if field.textArea:
+            fields.append("TextArea")
+        elif field.date:
+            fields.append("Date")
+        elif field.filename or field.filename == "":
+            fields.append("File")
+    session["fields"] = fields
+    return prepare_template(template, True)
+
+
+@app.route('/delete_field_in_template/<field_id>', methods=['GET', 'POST'])
+@roles_required(['Admin'])
+def delete_field_in_template(field_id):
+    del session['fields'][int(field_id)]
+    return redirect(url_for("create_new_template"))
+
+@app.route('/delete_template/<template_id>', methods=['GET', 'POST'])
+@roles_required(['Admin'])
+def delete_template(template_id):
+    template = Task_templates.query.filter_by(id = template_id).first()
+    for media in template.field:
+        if media.filename:
+            os.remove(os.path.join(app.root_path, 'static/files/', media.encrypted_filename))
+        db.session.delete(media)
+    db.session.delete(template)
+    db.session.commit()
+    return redirect(url_for("templates"))
 
 #-------------------------------------------------------------
 # Страницы, которые доступны и админу и обычному пользователю 
@@ -420,17 +505,46 @@ def your_tasks():
     tasks = current_user.accept.order_by(Task.timestamp.desc()).all()
     return render_template("tasks.html", title='My tasks', tasks = tasks)
 
+
+
+@app.route('/toolbar_settings', methods=['GET'])
+@login_required
+def toolbar_settings():
+    return render_template("toolbar_settings.html", title='Toolbar settings')
+
 # Добавление в верхнее меню нового аттрибута
 @app.route('/add_extra_menu_field/')
 @login_required
 def add_extra_menu_field():
-    if current_user.is_authenticated:
-        current_user.extra_menu_fields.append(Menu_field(link = request.referrer))
+    name  = request.args.get('name', None)
+    current_user.extra_menu_fields.append(Menu_field(link = request.referrer, name = name))
+    db.session.commit()
+    next_page = request.args.get('next')
+    if not next_page or url_parse(next_page).netloc != '':
+        next_page = url_for('login')
+    return redirect(next_page)
+
+@app.route('/rename_link/<link_id>',methods=['GET', 'POST'])
+@login_required
+def rename_menu_field(link_id):
+    class myForm(FlaskForm):
+        name = TextField(label = "Link name")
+        submit = SubmitField('Submit')
+    link = Menu_field.query.filter_by(id = link_id).first()
+    form = myForm()
+
+    if form.validate_on_submit():
+        link.name = form.name.data
         db.session.commit()
-        next_page = request.args.get('next')
-        if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('login')
-        return redirect(next_page)
+        return redirect(url_for("toolbar_settings"))
+    return render_template("rename_link.html", title='Edit link', form = form)
+
+@app.route('/delete_link/<link_id>')
+@login_required
+def delete_menu_field(link_id):
+    Menu_field.query.filter_by(id = link_id).delete()
+    db.session.commit()
+    return redirect(url_for("toolbar_settings"))
 
 # Скачивание файла
 @app.route('/uploads/<path:filename>')

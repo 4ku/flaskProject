@@ -14,14 +14,16 @@
 	
      <form method="post" enctype="multipart/form-data">
 			{{ form.hidden_tag() }}
-			
+			<p>{{ form.name.label}}: {{ form.name() }}</p>
 			{% for field in extra_fields %}
 			 	 <p>
 					{% if field.type not in ['CSRFTokenField', 'HiddenField'] %}
 						{{ field.label }}
 						{{ field() }}  
+						<a href="{{ url_for('delete_field_in_template', field_id = field.id) }}">
+							<b>Delete</b>
+						</a>
 					{% endif %}
-					
 					{% for error in field.errors %}
 			     	 	<span style="color: red;">[{{ error }}]</span>
 			      {% endfor %}
