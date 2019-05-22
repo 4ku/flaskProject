@@ -23,6 +23,9 @@ class Task_media(db.Model):
     date = db.Column(db.DateTime)
     encrypted_filename = db.Column(db.String())
     filename = db.Column(db.String())
+    link = db.Column(db.String(50))
+    picture = db.Column(db.String())
+
 
 class Task_templates(db.Model):
     id = db.Column(db.Integer, primary_key=True)

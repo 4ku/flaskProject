@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 from app.models import User
-from wtforms import StringField, TextAreaField, SubmitField, RadioField, FieldList, FormField
+from wtforms import StringField, TextField, TextAreaField, SubmitField, RadioField, FieldList, FormField
 from wtforms.validators import DataRequired, Length
 from flask_wtf.file import FileField, FileAllowed
 
@@ -11,7 +11,6 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Sign In')
-
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -38,7 +37,6 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('Please use a different email address.')
 
-
 class EditProfileForm_Admin(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     role_list = SelectField('Role', 
@@ -60,7 +58,6 @@ class EditProfileForm(FlaskForm):
     picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png','jpeg'])])
     submit = SubmitField('Submit')
 
-
 class TaskForm_edit(FlaskForm):
     assigner = SelectField('Assigner', choices=[], coerce=int)
     acceptor = SelectField('Acceptor', choices=[], coerce = int)
@@ -75,7 +72,12 @@ class TaskForm_create(FlaskForm):
 class AddFieldForm(FlaskForm):
     add_field = SubmitField('Add field')
     fields_list = SelectField('Field type', 
-        choices=[('TextArea','TextArea'),('Date','Date'),('File','File')])
+        choices=[('Text','Text'), ('TextArea','TextArea'),('Date','Date'),('File','File')])
+
+class MenuForm(FlaskForm):
+    name = TextField(label = "Link name")
+    submit = SubmitField('Submit')
+
 
 def check_file_label(form, field):
     if (field.label.text["filename"] == "") and (not field.data):

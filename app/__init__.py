@@ -22,7 +22,4 @@ login.login_view = 'login'
 
 Session(app)
 
-UPLOAD_FOLDER = './photos'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-from app import routes, models
+from app import routes, task_routes, models

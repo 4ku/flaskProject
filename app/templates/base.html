@@ -1,15 +1,11 @@
 <html>
     <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stylevo.css') }}">
         {% if title %}
         <title>{{ title }}</title>
         {% else %}
         <title>Task manager</title>
         {% endif %}
-        <style>
-		     a {
-		     margin-left: 5px
-		     }
-        </style>
     </head>
     <body>
       <div width="100%">
@@ -68,3 +64,5 @@
         {% block content %}{% endblock %}
     </body>
 </html>
+
+

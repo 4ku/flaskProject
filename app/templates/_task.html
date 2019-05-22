@@ -37,13 +37,21 @@
 {% for content in task.media %}
 	<p>
 		{% if content.text %}
-			{{ content.text }}
+			{% if is_link(content.text) %}
+				<a href="{{ content.text }}">
+					{{ content.text }}
+				</a>
+			{% else %}
+				{{ content.text }}
+			{% endif %}
+		{% elif content.textArea %}
+			{{ content.textArea }}
 		{% elif content.date %}
 			{{ content.date.strftime('%-d %B %Y') }}
 		{% elif content.filename %}
-			<a href="{{ url_for('download_file', filename = content.encrypted_filename) }}">
-				<b>{{ content.filename }}</b>
-			</a>
+				<a href="{{ url_for('download_file', filename = content.encrypted_filename) }}">
+					<b>{{ content.filename }}</b>
+				</a>
 		{% endif %}
 	</p>
 {% endfor %}
