@@ -30,7 +30,7 @@ class Task_media(db.Model):
 class Task_templates(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String())
-    field = db.relationship("Task_media", 
+    fields = db.relationship("Task_media", 
         secondary = template_media_connection, 
         primaryjoin =(template_media_connection.c.template_id == id),
         secondaryjoin = (template_media_connection.c.media_id == Task_media.id),

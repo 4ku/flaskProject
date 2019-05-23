@@ -74,6 +74,10 @@ class AddFieldForm(FlaskForm):
     fields_list = SelectField('Field type', 
         choices=[('Text','Text'), ('TextArea','TextArea'),('Date','Date'),('File','File')])
 
+class TemplateForm(FlaskForm):
+    name = TextField(label = "Template name")
+    submit = SubmitField('Submit')
+
 class MenuForm(FlaskForm):
     name = TextField(label = "Link name")
     submit = SubmitField('Submit')

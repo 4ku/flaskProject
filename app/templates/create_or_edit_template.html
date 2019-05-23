@@ -18,8 +18,15 @@
 			{% for field in extra_fields %}
 			 	 <p>
 					{% if field.type not in ['CSRFTokenField', 'HiddenField'] %}
-						{{ field.label }}
-						{{ field() }}  
+						{% if (field.type != "FileField") %}
+							{{ field.label }}
+						{% endif %}
+						{{ field() }} 
+						{% if (field.type == "FileField") and (field.label) %}
+						<a href="{{ url_for('download_file', filename = field.label.encrypted_filename) }}">
+							<b>{{ field.label.filename }}</b>
+						</a>
+					{% endif %} 
 						<a href="{{ url_for('delete_field_in_template', field_id = field.id) }}">
 							<b>Delete</b>
 						</a>
