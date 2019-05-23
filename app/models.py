@@ -20,7 +20,7 @@ class Task_media(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(50))
     textArea = db.Column(db.String(140))
-    date = db.Column(db.DateTime)
+    date = db.Column(db.DateTime())
     encrypted_filename = db.Column(db.String())
     filename = db.Column(db.String())
     link = db.Column(db.String(50))

@@ -23,6 +23,7 @@ def save_media(fields, dynamic_form, is_edit, start_ind):
     i = start_ind
     for field in fields:
         form_data = dynamic_form[str(i)].data
+        if not form_data: continue
         if field.text is not None:
             field.text = form_data
         if field.textArea is not None:
@@ -154,10 +155,8 @@ def create_task(template_id):
     task = Task()
     for field in fields:
         if field.text is not None:
-            print(field.text)
             task.media.append(Task_media(text = field.text))
         elif field.textArea is not None:
-            print(field.textArea)
             task.media.append(Task_media(textArea = field.textArea))
         elif field.date:
             task.media.append(Task_media(date = field.date))
@@ -206,8 +205,7 @@ def prepare_template(template, is_edit):
         elif field == "TextArea":
             extra_fields_objects.append(Task_media(textArea = ""))
         elif field == "Date":
-            date = datetime(1,1,1)
-            extra_fields_objects.append(Task_media(date = date))
+            extra_fields_objects.append(Task_media(date = datetime(1,1,1)))
         elif field == "File":
             extra_fields_objects.append(Task_media(filename = ""))
         elif field == "Picture":
@@ -279,14 +277,17 @@ def prepare_template(template, is_edit):
             elif field_data.filename:
                 dynamic_form[str(i)].label = {"filename": field_data.filename, "encrypted_filename": field_data.encrypted_filename}
 
-    title = None
+    title, template_id = None, None
     if is_edit:
         title = "Edit template"
+        template_id = template.id
     else:
         title = "Create template"
+        template_id = -1
+
     return render_template("create_or_edit_template.html", title= title, 
         form=form, add_field_form = add_field_form, 
-        extra_fields = dynamic_form, template_id = template.id)
+        extra_fields = dynamic_form, template_id = template_id)
 
 
 # Создание шаблона
@@ -304,10 +305,21 @@ def edit_template(template_id):
     return prepare_template(template, True)
 
 
-@app.route('/delete_field_in_template/<field_id>', methods=['GET', 'POST'])
+@app.route('/delete_field_in_template/', methods=['GET', 'POST'])
 @roles_required(['Admin'])
-def delete_field_in_template(field_id):
-    del session['fields'][int(field_id)]
+def delete_field_in_template():
+    # Немножко говнокода (хз как нормально реализовать удаление одного поля)
+    field_id  = request.args.get('field_id', 1, type = int)
+    template_id  = request.args.get('template_id',  1, type = int)
+    template = Task_templates.query.filter_by(id = template_id).first()
+    length = len(template.fields) if template is not None else 0
+    if template_id!=-1 and field_id < length:
+        for i, field in enumerate(template.fields):
+            if i == field_id:
+                db.session.delete(field)
+                db.session.commit()
+    else:
+        del session['fields'][int(field_id)-length]
     return redirect(request.referrer)
 
 @app.route('/delete_template/<template_id>', methods=['GET', 'POST'])

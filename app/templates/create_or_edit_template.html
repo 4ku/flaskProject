@@ -23,11 +23,11 @@
 						{% endif %}
 						{{ field() }} 
 						{% if (field.type == "FileField") and (field.label) %}
-						<a href="{{ url_for('download_file', filename = field.label.encrypted_filename) }}">
-							<b>{{ field.label.filename }}</b>
-						</a>
-					{% endif %} 
-						<a href="{{ url_for('delete_field_in_template', field_id = field.id) }}">
+							<a href="{{ url_for('download_file', filename = field.label.encrypted_filename) }}">
+								<b>{{ field.label.filename }}</b>
+							</a>
+						{% endif %} 
+						<a href="{{ url_for('delete_field_in_template', template_id = template_id,field_id = field.id) }}">
 							<b>Delete</b>
 						</a>
 					{% endif %}
