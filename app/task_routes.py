@@ -23,12 +23,11 @@ def save_media(fields, dynamic_form, is_edit, start_ind):
     i = start_ind
     for field in fields:
         form_data = dynamic_form[str(i)].data
-        if not form_data: continue
-        if field.text is not None:
+        if field.text is not None and form_data:
             field.text = form_data
-        if field.textArea is not None:
+        if field.textArea is not None and form_data:
             field.textArea = form_data
-        elif field.date:
+        elif field.date and form_data:
             field.date = form_data 
         elif field.filename is not None:
             filename, encrypted_filename = "", ""
@@ -57,32 +56,91 @@ def save_media(fields, dynamic_form, is_edit, start_ind):
             pass
         i+=1
 
+# Создание Task_media по тэгу из списка
+def create_media_by_tags(fields):
+    media = []
+    for field in fields:
+        if field == "Text":
+            media.append(Task_media(text = ""))
+        elif field == "TextArea":
+            media.append(Task_media(textArea = ""))
+        elif field == "Date":
+            media.append(Task_media(date = datetime(1,1,1)))
+        elif field == "File":
+            media.append(Task_media(filename = ""))
+        elif field == "Picture":
+            media.append(Task_media(picture = ""))
+        elif field == "Link":
+            media.append(Task_media(link = ""))
+    return media
+
+# Создание динамических полей
+def create_fields_to_form(DynamicForm, fields, is_task):
+    text_validator = [Length(max=50), DataRequired()] if is_task else [Length(max=50)]
+    textArea_validator = [Length(max=140), DataRequired()] if is_task else [Length(max=50)]
+    date_validator = [DataRequired()] if is_task else []
+    file_validator = [check_file_label] if is_task else []
+    link_validator = [DataRequired()] if is_task else []
+    picture_validator = [check_file_label] if is_task else []
+
+    for i, field_data in enumerate(fields):
+        field = None
+        if field_data.text or field_data.text == "":
+            field = TextField(label = "Text:", 
+                validators=text_validator)
+        if field_data.textArea or field_data.textArea == "":
+            field = TextAreaField(label = "Text area:", 
+                validators=textArea_validator)
+        elif field_data.date:
+            field = DateField(label = "Date: ", validators=date_validator)
+        elif field_data.filename or field_data.filename == "":
+            label = {"filename": field_data.filename, "encrypted_filename": field_data.encrypted_filename}
+            field = FileField(label = label, validators=file_validator)
+        elif field_data.link:
+            field = TextField(label = "Link:", 
+                validators=link_validator)
+        elif field_data.picture:
+            label = {"filename": field_data.picture, "encrypted_filename": field_data.encrypted_filename}
+            field = FileField(label = label, validators=picture_validator)
+        setattr(DynamicForm, str(i), field)
+
+# Копирование Task_media - используется пока только при создании задания (create_task)
+def copy_media(fields, media):
+    for field in fields:
+        if field.text is not None:
+            media.append(Task_media(text = field.text))
+        elif field.textArea is not None:
+            media.append(Task_media(textArea = field.textArea))
+        elif field.date:
+            media.append(Task_media(date = field.date))
+        elif field.filename is not None:
+            media.append(Task_media(filename = field.filename,
+                     encrypted_filename = field.encrypted_filename))
+
+# Заполнение динамических полей данными
+def fill_data(dynamic_form, fields):
+    for i, field_data in enumerate(fields):
+        if field_data.text:
+            dynamic_form[str(i)].data = field_data.text
+        elif field_data.textArea:
+            dynamic_form[str(i)].data = field_data.textArea
+        elif field_data.date:
+            dynamic_form[str(i)].data = field_data.date
+        elif field_data.filename:
+            dynamic_form[str(i)].label = {"filename": field_data.filename, "encrypted_filename": field_data.encrypted_filename}
+
+
+#-------------------------------------------------------
+# Функции, связанные с task
+#-------------------------------------------------------
+
 # Данная функция используется при создании задания и его редактирования
 def prepare_task(task, is_edit):
     class DynamicForm(FlaskForm):
         pass
 
     # Создание новых полей для задания
-    for i, field_data in enumerate(task.media):
-        field = None
-        if field_data.text or field_data.text == "":
-            field = TextField(label = "Text:", 
-                validators=[Length(max=50), DataRequired()])
-        if field_data.textArea or field_data.textArea == "":
-            field = TextAreaField(label = "Text area:", 
-                validators=[Length(max=140), DataRequired()])
-        elif field_data.date:
-            field = DateField(label = "Date: ", validators=[DataRequired()])
-        elif field_data.filename or field_data.filename == "":
-            label = {"filename": field_data.filename, "encrypted_filename": field_data.encrypted_filename}
-            field = FileField(label = label, validators=[check_file_label])
-        elif field_data.link:
-            field = TextField(label = "Link:", 
-                validators=[Length(), DataRequired()])
-        elif field_data.picture:
-            label = {"filename": field_data.picture, "encrypted_filename": field_data.encrypted_filename}
-            field = FileField(label = label, validators=[check_file_label])
-        setattr(DynamicForm, str(i), field)
+    create_fields_to_form(DynamicForm, task.media, True)
 
     dynamic_form = DynamicForm()
     form = TaskForm_edit() if is_edit else TaskForm_create()
@@ -119,6 +177,7 @@ def prepare_task(task, is_edit):
         if is_edit:
             task.status = form.status.data
 
+        # Сохранение task.media в БД
         save_media(task.media, dynamic_form, is_edit, 0)    
 
         db.session.commit()
@@ -126,16 +185,7 @@ def prepare_task(task, is_edit):
         return redirect(url_for('login'))
     elif request.method == 'GET':
         # Заполнение полей существующими данными
-
-        for i, field_data in enumerate(task.media):
-            if field_data.text:
-                dynamic_form[str(i)].data = field_data.text
-            if field_data.textArea:
-                dynamic_form[str(i)].data = field_data.textArea
-            elif field_data.date:
-                dynamic_form[str(i)].data = field_data.date
-            elif field_data.filename:
-                dynamic_form[str(i)].label = {"filename": field_data.filename, "encrypted_filename": field_data.encrypted_filename}
+        fill_data(dynamic_form, task.media)
 
         if is_edit:
             form.acceptor.data = task.acceptor.id
@@ -151,29 +201,17 @@ def prepare_task(task, is_edit):
 @roles_required(['Admin', 'Usual'])
 def create_task(template_id):
     fields = Task_templates.query.filter_by(id = template_id).first().fields
-    # Копируем task_media из fields в new_fields
     task = Task()
-    for field in fields:
-        if field.text is not None:
-            task.media.append(Task_media(text = field.text))
-        elif field.textArea is not None:
-            task.media.append(Task_media(textArea = field.textArea))
-        elif field.date:
-            task.media.append(Task_media(date = field.date))
-        elif field.filename is not None:
-            task.media.append(Task_media(filename = field.filename,
-                     encrypted_filename = field.encrypted_filename))
-
+    # Копируем task_media из fields, которые взяли из шаблона, в новый Task
+    copy_media(fields, task.media)
     db.session.add(task)    
     return prepare_task(task, False)
-
 
 @app.route('/edit_task/<task_id>', methods=['GET', 'POST'])
 @roles_required(['Admin'])
 def edit_task(task_id):
     task = Task.query.filter_by(id = task_id).first()
     return prepare_task(task, True)
-
 
 @app.route('/delete_task/<task_id>')
 @roles_required(['Admin'])
@@ -190,7 +228,11 @@ def delete_task(task_id):
         next_page = url_for('all_users')
     return redirect(next_page)
 
+#-------------------------------------------------------
+# Функции, связанные с template
+#-------------------------------------------------------
 
+# Используется при создании шаблона и его редактировани
 def prepare_template(template, is_edit):
     class DynamicForm(FlaskForm):
         pass
@@ -198,44 +240,11 @@ def prepare_template(template, is_edit):
     extra_fields = []
     if 'fields' in session:
         extra_fields = session['fields']
-    extra_fields_objects = []
-    for field in extra_fields:
-        if field == "Text":
-            extra_fields_objects.append(Task_media(text = ""))
-        elif field == "TextArea":
-            extra_fields_objects.append(Task_media(textArea = ""))
-        elif field == "Date":
-            extra_fields_objects.append(Task_media(date = datetime(1,1,1)))
-        elif field == "File":
-            extra_fields_objects.append(Task_media(filename = ""))
-        elif field == "Picture":
-            extra_fields_objects.append(Task_media(picture = ""))
-        elif field == "Link":
-            extra_fields_objects.append(Task_media(link = ""))
-    
+    extra_fields_objects = create_media_by_tags(extra_fields)
     fields_objects = [field for field in template.fields] + extra_fields_objects
     
     # Создание полей для шаблона
-    for i, field_data in enumerate(fields_objects):
-        field = None
-        if field_data.text or field_data.text == "":
-            field = TextField(label = "Text:", 
-                validators=[Length(max=50)])
-        if field_data.textArea or field_data.textArea == "":
-            field = TextAreaField(label = "Text area:", 
-                validators=[Length(max=140)])
-        elif field_data.date:
-            field = DateField(label = "Date: ")
-        elif field_data.filename or field_data.filename == "":
-            label = {"filename": field_data.filename, "encrypted_filename": field_data.encrypted_filename}
-            field = FileField(label = label)
-        elif field_data.link:
-            field = TextField(label = "Link:", 
-                validators=[Length()])
-        elif field_data.picture:
-            label = {"filename": field_data.picture, "encrypted_filename": field_data.encrypted_filename}
-            field = FileField(label = label)
-        setattr(DynamicForm, str(i), field)
+    create_fields_to_form(DynamicForm, fields_objects, False)
 
     form = TemplateForm()
     add_field_form = AddFieldForm()
@@ -266,16 +275,7 @@ def prepare_template(template, is_edit):
         # Заполнение полей существующими данными
         if template.name:
             form.name.data = template.name
-
-        for i, field_data in enumerate(template.fields):
-            if field_data.text:
-                dynamic_form[str(i)].data = field_data.text
-            elif field_data.textArea:
-                dynamic_form[str(i)].data = field_data.textArea
-            elif field_data.date:
-                dynamic_form[str(i)].data = field_data.date
-            elif field_data.filename:
-                dynamic_form[str(i)].label = {"filename": field_data.filename, "encrypted_filename": field_data.encrypted_filename}
+        fill_data(dynamic_form, template.fields)
 
     title, template_id = None, None
     if is_edit:
@@ -288,7 +288,6 @@ def prepare_template(template, is_edit):
     return render_template("create_or_edit_template.html", title= title, 
         form=form, add_field_form = add_field_form, 
         extra_fields = dynamic_form, template_id = template_id)
-
 
 # Создание шаблона
 @app.route('/create_new_template', methods=['GET', 'POST'])
@@ -304,11 +303,10 @@ def edit_template(template_id):
     template = Task_templates.query.filter_by(id = template_id).first()
     return prepare_template(template, True)
 
-
+# Немножко говнокода (хз как нормально реализовать удаление одного поля)
 @app.route('/delete_field_in_template/', methods=['GET', 'POST'])
 @roles_required(['Admin'])
 def delete_field_in_template():
-    # Немножко говнокода (хз как нормально реализовать удаление одного поля)
     field_id  = request.args.get('field_id', 1, type = int)
     template_id  = request.args.get('template_id',  1, type = int)
     template = Task_templates.query.filter_by(id = template_id).first()
