@@ -72,7 +72,8 @@ class TaskForm_create(FlaskForm):
 class AddFieldForm(FlaskForm):
     add_field = SubmitField('Add field')
     fields_list = SelectField('Field type', 
-        choices=[('Text','Text'), ('TextArea','TextArea'),('Date','Date'),('File','File')])
+        choices=[('Text','Text'), ('TextArea','TextArea'),
+            ('Date','Date'),('File','File'),('Picture','Picture'),('Link','Link')])
 
 class TemplateForm(FlaskForm):
     name = TextField(label = "Template name")

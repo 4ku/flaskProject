@@ -52,6 +52,12 @@
 				<a href="{{ url_for('download_file', filename = content.encrypted_filename) }}">
 					<b>{{ content.filename }}</b>
 				</a>
+		{% elif content.picture %}
+				<img src="{{ url_for('static',filename = 'files/' + content.encrypted_filename) }}" width="200" height="200">
+		{% elif content.link %}
+				<a href="{{ content.link }}">
+					{{ content.link }}
+				</a>
 		{% endif %}
 	</p>
 {% endfor %}

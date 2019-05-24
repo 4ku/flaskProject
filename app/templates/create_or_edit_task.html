@@ -26,23 +26,32 @@
 		{% for field in extra_fields %}
 		 	 <p>
 				{% if field.type not in ['CSRFTokenField', 'HiddenField'] %}
-					{{ field() }}
-					{% if (field.type == "FileField") and (field.label) %}
-						<a href="{{ url_for('download_file', filename = field.label.encrypted_filename) }}">
-							<b>{{ field.label.filename }}</b>
-						</a>
-					{% endif %}
-					
+						
+						{% if (field.type != "FileField") %}
+							{{ field.label }}: 
+						{% else %}
+							{{ field.label.text['label'] }}:
+						{% endif %}
+
+						{{ field() }} 
+
+						{% if (field.type == "FileField") and (field.label.filename) %}
+							<a href="{{ url_for('download_file', filename = field.label.encrypted_filename) }}">
+								<b>{{ field.label.filename }}</b>
+							</a>
+						{% endif %}
+
 				{% endif %}
-				
+
 				{% for error in field.errors %}
-			  	 	<span style="color: red;">[{{ error }}]</span>
+				 	<span style="color: red;">[{{ error }}]</span>
 				{% endfor %}
 			 </p>  
 		{% endfor %}
-				{% for error in form.errors %}
-			  	 	<span style="color: red;">[{{ error }}]</span>
-				{% endfor %}
+		
+		{% for error in form.errors %}
+	  	 	<span style="color: red;">[{{ error }}]</span>
+		{% endfor %}
 		<p> {{ form.submit() }}</p>
 	</form>
 
