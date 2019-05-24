@@ -16,7 +16,7 @@ from validator_collection import checkers
 from app import app, db
 from app.forms import *
 from app.models import *
-
+# from app.task_routes import delete_task
 
 # Проверка роли пользователя
 def roles_required(roles):
@@ -249,18 +249,18 @@ def delete_menu_field(link_id):
 # Просто вспомогательные функции
 # ------------------------
 
-# Проверка, является ли текст ссылкой, а файл - картинкой
-def is_link(link):
+# добавление http перед ссылкой, если этого нет
+def append_http(link):
     if not (link.startswith("https://") or link.startswith("http://")):
         link = "http://" + link
-    return checkers.is_url(link)
+    return link
 
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
-def is_picture(picture_name):
-    return picture_name.rsplit('.', 1)[-1].lower() in ALLOWED_EXTENSIONS
+# Проверка, является ли текст ссылкой
+def is_link(link):
+    return checkers.is_url(append_http(link))
 
 app.jinja_env.globals.update(is_link = is_link)
-app.jinja_env.globals.update(is_picture = is_picture)
+app.jinja_env.globals.update(append_http = append_http)
 
 def encode_filename(filename):
     random_hex = secrets.token_hex(8)

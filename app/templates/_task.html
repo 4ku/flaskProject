@@ -38,7 +38,7 @@
 	<p>
 		{% if content.text %}
 			{% if is_link(content.text) %}
-				<a href="{{ content.text }}">
+				<a href="{{ append_http(content.text) }}">
 					{{ content.text }}
 				</a>
 			{% else %}
@@ -55,7 +55,7 @@
 		{% elif content.picture %}
 				<img src="{{ url_for('static',filename = 'files/' + content.encrypted_filename) }}" width="200" height="200">
 		{% elif content.link %}
-				<a href="{{ content.link }}">
+				<a href="{{ append_http(content.link) }}">
 					{{ content.link }}
 				</a>
 		{% endif %}

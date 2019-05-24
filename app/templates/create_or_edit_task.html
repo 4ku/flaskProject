@@ -35,9 +35,9 @@
 
 						{{ field() }} 
 
-						{% if (field.type == "FileField") and (field.label.filename) %}
-							<a href="{{ url_for('download_file', filename = field.label.encrypted_filename) }}">
-								<b>{{ field.label.filename }}</b>
+						{% if (field.type == "FileField") and (field.label.text['filename']) %}
+							<a href="{{ url_for('download_file', filename = field.label.text['encrypted_filename']) }}">
+								<b>{{ field.label.text['filename'] }}</b>
 							</a>
 						{% endif %}
 

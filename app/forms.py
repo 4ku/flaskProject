@@ -5,6 +5,7 @@ from app.models import User
 from wtforms import StringField, TextField, TextAreaField, SubmitField, RadioField, FieldList, FormField
 from wtforms.validators import DataRequired, Length
 from flask_wtf.file import FileField, FileAllowed
+from wtforms.fields.html5 import DateField
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])

@@ -7,9 +7,6 @@ from werkzeug.urls import url_parse
 from datetime import datetime
 from sqlalchemy import or_
 import os
-from flask_wtf import FlaskForm
-from wtforms import TextAreaField, TextField
-from wtforms.fields.html5 import DateField
 from shutil import copyfile
 
 from app import app, db
@@ -35,9 +32,9 @@ def save_file(form_field, field_filename, field_encrypted_filename, is_edit):
         return filename, encrypted_filename
     # Если хотим оставить файл, который был до этого при редактировании, то ничего не делаем
     # Если же оставляем пустым, то выполняем следущий код - копируем файл шаблона, если этот файл существует
-    elif not is_edit and form_field.label.text["filename"]:
-        src_path = os.path.join(app.root_path, 'static/files/', form_field.label.text["encrypted_filename"])
-        filename, encrypted_filename = encode_filename(form_field.label.text["filename"])
+    elif not is_edit and field_filename:
+        src_path = os.path.join(app.root_path, 'static/files/', field_encrypted_filename)
+        filename, encrypted_filename = encode_filename(field_filename)
         dst_path = os.path.join(app.root_path, 'static/files/', encrypted_filename)
         copyfile(src_path, dst_path)
         return filename, encrypted_filename
@@ -75,7 +72,7 @@ def create_media_by_tags(fields):
         elif field == "Date":
             media.append(Task_media(date = datetime(1,1,1)))
         elif field == "File":
-            media.append(Task_media(filename = "qq", encrypted_filename = "q"))
+            media.append(Task_media(filename = "", encrypted_filename = ""))
         elif field == "Picture":
             media.append(Task_media(picture = ""))
         elif field == "Link":
@@ -89,7 +86,7 @@ def create_fields_to_form(DynamicForm, fields, is_task):
     date_validator = [DataRequired()] if is_task else []
     file_validator = [check_file_label] if is_task else []
     link_validator = [DataRequired()] if is_task else []
-    picture_validator = [check_file_label] if is_task else []
+    picture_validator = [check_file_label, FileAllowed(['jpg', 'png','jpeg'])] if is_task else [FileAllowed(['jpg', 'png','jpeg'])]
 
     for i, field_data in enumerate(fields):
         field = None
@@ -140,9 +137,9 @@ def fill_data(dynamic_form, fields):
         elif field_data.date:
             dynamic_form[str(i)].data = field_data.date
         elif field_data.filename:
-            dynamic_form[str(i)].label = {"label": "File", "filename": field_data.filename, "encrypted_filename": field_data.encrypted_filename}
+            dynamic_form[str(i)].label.text = {"label": "File", "filename": field_data.filename, "encrypted_filename": field_data.encrypted_filename}
         elif field_data.picture:
-            dynamic_form[str(i)].label = {"label": "Picture", "filename": field_data.picture, "encrypted_filename": field_data.encrypted_filename}
+            dynamic_form[str(i)].label.text = {"label": "Picture", "filename": field_data.picture, "encrypted_filename": field_data.encrypted_filename}
         elif field_data.link:
             dynamic_form[str(i)].data = field_data.link
 
@@ -234,7 +231,7 @@ def edit_task(task_id):
 def delete_task(task_id):
     task = Task.query.filter(Task.id == task_id).first()
     for media in task.media:
-        if media.filename:
+        if media.encrypted_filename:
             os.remove(os.path.join(app.root_path, 'static/files/', media.encrypted_filename))
         db.session.delete(media)
     db.session.delete(task)
@@ -267,7 +264,7 @@ def prepare_template(template, is_edit):
     dynamic_form = DynamicForm()
 
     # Если нажата кнопка добавить задание
-    if form.submit.data and form.validate_on_submit() and (len(fields_objects)) > 0:
+    if form.submit.data and form.validate_on_submit() and dynamic_form.validate() and (len(fields_objects)) > 0:
         session[str(template_id)] = []
         template.name = form.name.data
         save_media(template.fields, dynamic_form, is_edit, 0)
@@ -311,6 +308,7 @@ def create_new_template():
 @roles_required(['Admin'])
 def edit_template(template_id):
     template = Task_templates.query.filter_by(id = template_id).first()
+    # print()
     return prepare_template(template, True)
 
 # Немножко говнокода (хз как нормально реализовать удаление одного поля)
@@ -324,6 +322,9 @@ def delete_field_in_template():
     if template_id!=-1 and field_id < length:
         for i, field in enumerate(template.fields):
             if i == field_id:
+                if field.encrypted_filename:
+                    os.remove(os.path.join(app.root_path, 'static/files/', field.encrypted_filename))
+                # Task_media.query.filter_by(id = field.id).delete()
                 db.session.delete(field)
                 db.session.commit()
     else:
@@ -336,7 +337,7 @@ def delete_template(template_id):
     template = Task_templates.query.filter_by(id = template_id).first()
     #Удаляем все файлы, которые принадлежат этому шаблону
     for media in template.fields:
-        if media.filename:
+        if media.encrypted_filename:
             os.remove(os.path.join(app.root_path, 'static/files/', media.encrypted_filename))
         db.session.delete(media)
     db.session.delete(template)

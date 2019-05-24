@@ -34,7 +34,8 @@ class Task_templates(db.Model):
         secondary = template_media_connection, 
         primaryjoin =(template_media_connection.c.template_id == id),
         secondaryjoin = (template_media_connection.c.media_id == Task_media.id),
-        cascade="all, delete, delete-orphan",single_parent=True)
+        cascade="all, delete-orphan",single_parent=True,
+        backref = "template")
 
 
 class Task(db.Model):
@@ -47,7 +48,8 @@ class Task(db.Model):
         secondary = task_media_connection, 
         primaryjoin =(task_media_connection.c.task_id == id),
         secondaryjoin = (task_media_connection.c.media_id == Task_media.id),
-        cascade="all, delete, delete-orphan",single_parent=True)
+        cascade="all, delete, delete-orphan",single_parent=True,
+        backref = "task")
 
     status = db.Column(db.String(140), default ="Issued")
 
