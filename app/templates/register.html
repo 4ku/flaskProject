@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Register</h1>
+    <h1>{{ _('Register')}}</h1>
     <form method="post">
         {{ form.hidden_tag() }}
         <p>
@@ -37,9 +37,6 @@
             {{ form.user_role() }}<br>
 
         </p>
-        <!-- <input type="radio" name="options" id="option1" value="opt1"> Admin </input><br>
-			<input type="radio" name="options" id="option2" value="opt2"> Usual </input><br>
-			<input type="radio" name="options" id="option3" value="opt3"> Client </input><br> -->
         <p>{{ form.submit() }}</p>
     </form>
 {% endblock %}

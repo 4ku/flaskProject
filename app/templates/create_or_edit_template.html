@@ -34,7 +34,7 @@
 						{% endif %}
 						
 						<a href="{{ url_for('delete_field_in_template', template_id = template_id,field_id = field.id) }}">
-							<b>Delete</b>
+							<b>{{ _('Delete')}}</b>
 						</a>
 					{% endif %}
 					{% for error in field.errors %}

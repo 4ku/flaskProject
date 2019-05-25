@@ -1,3 +1,4 @@
+from flask_babel import _, lazy_gettext as _l
 from flask import render_template, flash, redirect, url_for, request, session, send_from_directory
 from flask_login import current_user, login_user, logout_user, login_manager, login_required
 from functools import wraps
@@ -16,7 +17,6 @@ from validator_collection import checkers
 from app import app, db
 from app.forms import *
 from app.models import *
-# from app.task_routes import delete_task
 
 # Проверка роли пользователя
 def roles_required(roles):
@@ -33,7 +33,7 @@ def roles_required(roles):
                         access = True
             
             if not access:
-                flash('You do not have access to that page. Sorry!')
+                flash(_l('You do not have access to that page. Sorry!'))
                 return redirect(url_for('login'))
             return f(*args, **kwargs)
         return decorated_function
@@ -78,7 +78,7 @@ def register():
         user.roles.append(Role(name=form.user_role.data))
         db.session.add(user)
         db.session.commit()
-        flash('Congratulations, you are now a registered user!')
+        flash(_l('Congratulations, you are now a registered user!'))
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
@@ -102,13 +102,13 @@ def user(username):
 @roles_required(['Admin'])
 def all_users():
     all_users = User.query.filter(User.username!=current_user.username).all()
-    return render_template("all_users.html", title = "All users", users = all_users)
+    return render_template("all_users.html", title = _l("All users"), users = all_users)
 
 
 @app.route('/all_tasks', methods=['GET', 'POST'])
 @roles_required(['Admin'])
 def all_tasks():
-    return render_template("tasks.html", title = "All tasks",
+    return render_template("tasks.html", title = _l("All tasks"),
         tasks = Task.query.order_by(Task.timestamp.desc()).all())
 
 
@@ -119,21 +119,20 @@ def edit_user_admin(username):
     form = EditProfileForm_Admin(user.username)
     if form.validate_on_submit():
         if form.picture.data:
-            _ , encrypted_filename = encode_filename(form.picture.data.filename)
+            __ , encrypted_filename = encode_filename(form.picture.data.filename)
             image = Image.open(form.picture.data)
             image.save(os.path.join(app.root_path, 'static/avatars/', encrypted_filename))
             user.avatar_path = encrypted_filename
         user.username = form.username.data
         user.roles[0] = (Role(name=form.role_list.data))
         db.session.commit()
-        flash('Your changes have been saved.')
+        flash(_l('Your changes have been saved.'))
         return redirect(url_for('edit_user_admin', username = form.username.data))
     elif request.method == 'GET':
         # Предзаполнение полей
         form.username.data = user.username
         form.role_list.data = user.roles[0].name
-
-    return render_template('edit_user.html', title='Edit Profile',
+    return render_template('edit_user.html', title=_l('Edit Profile'),
                            form=form, user = user)
 
 
@@ -149,9 +148,9 @@ def edit_profile():
             image.save(os.path.join(app.root_path, 'static/avatars/', encrypted_filename))
             current_user.avatar_path = encrypted_filename
         db.session.commit()
-        flash('Your changes have been saved.')
+        flash(_l('Your changes have been saved.'))
         return redirect(url_for('edit_profile'))
-    return render_template('edit_user.html', title='Edit Profile',
+    return render_template('edit_user.html', title=_l('Edit Profile'),
                            form=form, user = current_user)
 
 # --- Удаление пользователя и заданий ----
@@ -193,7 +192,7 @@ def templates():
 @roles_required(['Admin', 'Usual'])
 def issued_tasks():
     tasks = current_user.assign.order_by(Task.timestamp.desc()).all()
-    return render_template("tasks.html", title='Issued tasks', tasks = tasks)
+    return render_template("tasks.html", title=_l('Issued tasks'), tasks = tasks)
 
 #-------------------------------------------------------------
 # Доступные всем зарегестрированным пользователям страницы 
@@ -203,7 +202,7 @@ def issued_tasks():
 @login_required
 def your_tasks():
     tasks = current_user.accept.order_by(Task.timestamp.desc()).all()
-    return render_template("tasks.html", title='My tasks', tasks = tasks)
+    return render_template("tasks.html", title=_l('My tasks'), tasks = tasks)
 
 
 #-------------------------------------------------------------
@@ -212,7 +211,7 @@ def your_tasks():
 @app.route('/toolbar_settings', methods=['GET'])
 @login_required
 def toolbar_settings():
-    return render_template("toolbar_settings.html", title='Toolbar settings')
+    return render_template("toolbar_settings.html", title=_l('Toolbar settings'))
 
 # Добавление в верхнее меню нового аттрибута
 @app.route('/add_extra_menu_field/')
@@ -236,7 +235,9 @@ def rename_menu_field(link_id):
         link.name = form.name.data
         db.session.commit()
         return redirect(url_for("toolbar_settings"))
-    return render_template("rename_link.html", title='Edit link', form = form)
+    elif request.method == 'GET':
+        form.name.data = link.name
+    return render_template("rename_link.html", title=_l('Edit link'), form = form)
 
 @app.route('/delete_link/<link_id>')
 @login_required
@@ -265,7 +266,7 @@ app.jinja_env.globals.update(append_http = append_http)
 def encode_filename(filename):
     random_hex = secrets.token_hex(8)
     filename = secure_filename(filename)
-    _, f_ext = os.path.splitext(filename)
+    __, f_ext = os.path.splitext(filename)
     encrypted_filename = random_hex + f_ext
     return (filename, encrypted_filename)
 
@@ -276,6 +277,11 @@ def download_file(filename):
     upload_folder = os.path.join(app.root_path, 'static/files/')
     return send_from_directory(upload_folder, filename, as_attachment=True)
 
+@app.route("/change_language/<language>")
+def change_language(language):
+    session["CURRENT_LANGUAGE"] = language
+    return redirect(request.referrer)
+
 # Обновление времени последнего запроса пользователя на сайте
 @app.before_request
 def before_request():
@@ -283,4 +289,5 @@ def before_request():
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
 
+from app.task_routes import delete_task
 

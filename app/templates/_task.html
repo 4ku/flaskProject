@@ -10,25 +10,25 @@
 				{{ task.assigner.username }}
 			</a>
 			<br>
-			<b>Assigned to: </b> 
+			<b>{{ _('Assigned to:')}} </b> 
 			<a href="{{ url_for('user', username=task.acceptor.username) }}">
 				{{ task.acceptor.username }}
 			</a>
 			<br>
-			<b>Status:</b> {{ task.status }} 
+			<b>{{ _('Status:')}}</b> {{ _(task.status)}} 
 			<br>
-			<b>Issued time:</b> {{ task.timestamp.strftime('%-d %B %Y at %-H:%-M') }}
+			<b>{{ _('Issued time:')}}</b> {{ task.timestamp.strftime('%-d %B %Y at %-H:%-M') }}
 		</td> 
 
 		{% if current_user.roles[0].name == "Admin" %}	
 			<td>
 				<a href="{{ url_for('edit_task', task_id=task.id) }}">
-					<b>Edit</b>
+					<b>{{ _('Edit')}}</b>
 				</a>
 			</td> 
 			<td>
 				<a href="{{ url_for('delete_task', task_id=task.id, next = request.path) }}">
-					<b>Delete task</b>
+					<b>{{ _('Delete task')}}</b>
 				</a>			
 			</td>   
 		{% endif %}  

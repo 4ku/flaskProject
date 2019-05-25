@@ -15,16 +15,16 @@
             </td>
             
             <td>
-            	<p> {{user.roles[0].name}}</p>
+            	<p> {{_(user.roles[0].name)}}</p>
             </td>
 				<td>
 					<a href="{{ url_for('edit_user_admin', username=user.username) }}">
-                    <b>Edit</b>
+                    <b>{{ _('Edit')}}</b>
                 </a>
 				</td> 
 				<td>
 					<a href="{{ url_for('delete_user', user_id=user.id) }}">
-                    <b>Delete user</b>
+                    <b>{{ _('Delete user')}}</b>
                 </a>
 				</td>  
         </tr>

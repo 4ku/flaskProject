@@ -2,7 +2,7 @@
 
 from flask import render_template, flash, redirect, url_for, request, session
 from flask_login import current_user, login_required
-
+from flask_babel import _, lazy_gettext as _l
 from werkzeug.urls import url_parse
 from datetime import datetime
 from sqlalchemy import or_
@@ -91,21 +91,21 @@ def create_fields_to_form(DynamicForm, fields, is_task):
     for i, field_data in enumerate(fields):
         field = None
         if field_data.text is not None:
-            field = TextField(label = "Text", 
+            field = TextField(label = _("Text"), 
                 validators=text_validator)
         if field_data.textArea is not None:
-            field = TextAreaField(label = "Text area", 
+            field = TextAreaField(label = _("Text area"), 
                 validators=textArea_validator)
         elif field_data.date:
-            field = DateField(label = "Date", validators=date_validator)
+            field = DateField(label = _("Date"), validators=date_validator)
         elif field_data.filename is not None:
-            label = {"label": 'File', "filename": field_data.filename, "encrypted_filename": field_data.encrypted_filename}
+            label = {"label": _('File'), "filename": field_data.filename, "encrypted_filename": field_data.encrypted_filename}
             field = FileField(label = label, validators=file_validator)
         elif field_data.link is not None:
-            field = TextField(label = "Link", 
+            field = TextField(label = _("Link"), 
                 validators=link_validator)
         elif field_data.picture is not None:
-            label = {"label": 'Picture', "filename": field_data.picture, "encrypted_filename": field_data.encrypted_filename}
+            label = {"label": _('Picture'), "filename": field_data.picture, "encrypted_filename": field_data.encrypted_filename}
             field = FileField(label = label, validators=picture_validator)
         setattr(DynamicForm, str(i), field)
 
@@ -137,9 +137,9 @@ def fill_data(dynamic_form, fields):
         elif field_data.date:
             dynamic_form[str(i)].data = field_data.date
         elif field_data.filename:
-            dynamic_form[str(i)].label.text = {"label": "File", "filename": field_data.filename, "encrypted_filename": field_data.encrypted_filename}
+            dynamic_form[str(i)].label.text = {"label": _("File"), "filename": field_data.filename, "encrypted_filename": field_data.encrypted_filename}
         elif field_data.picture:
-            dynamic_form[str(i)].label.text = {"label": "Picture", "filename": field_data.picture, "encrypted_filename": field_data.encrypted_filename}
+            dynamic_form[str(i)].label.text = {"label": _("Picture"), "filename": field_data.picture, "encrypted_filename": field_data.encrypted_filename}
         elif field_data.link:
             dynamic_form[str(i)].data = field_data.link
 
@@ -194,7 +194,7 @@ def prepare_task(task, is_edit):
         save_media(task.media, dynamic_form, is_edit, 0)    
 
         db.session.commit()
-        flash('Your changes have been saved.')
+        flash(_('Your changes have been saved.'))
         return redirect(url_for('login'))
     elif request.method == 'GET':
         # Заполнение полей существующими данными
@@ -205,7 +205,7 @@ def prepare_task(task, is_edit):
             form.assigner.data = task.assigner.id
             form.status.data = task.status
 
-    title = "Edit task" if is_edit else "Create task"
+    title = _("Edit task") if is_edit else _("Create task")
     return render_template('create_or_edit_task.html', title=title, form=form, 
         extra_fields = dynamic_form, edit_task = is_edit)
 
@@ -290,7 +290,7 @@ def prepare_template(template, is_edit):
             form.name.data = template.name
         fill_data(dynamic_form, template.fields)
 
-    title = "Edit template" if is_edit else "Create template"
+    title = _l("Edit template") if is_edit else _l("Create template")
 
     return render_template("create_or_edit_template.html", title= title, 
         form=form, add_field_form = add_field_form, 
@@ -324,7 +324,6 @@ def delete_field_in_template():
             if i == field_id:
                 if field.encrypted_filename:
                     os.remove(os.path.join(app.root_path, 'static/files/', field.encrypted_filename))
-                # Task_media.query.filter_by(id = field.id).delete()
                 db.session.delete(field)
                 db.session.commit()
     else:

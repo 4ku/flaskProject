@@ -1,3 +1,4 @@
+from flask_babel import _, lazy_gettext as _l
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
@@ -8,21 +9,21 @@ from flask_wtf.file import FileField, FileAllowed
 from wtforms.fields.html5 import DateField
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    remember_me = BooleanField('Remember Me')
-    submit = SubmitField('Sign In')
+    username = StringField(_l('Username'), validators=[DataRequired()])
+    password = PasswordField(_l('Password'), validators=[DataRequired()])
+    remember_me = BooleanField(_l('Remember Me'))
+    submit = SubmitField(_l('Sign In'))
 
 class RegistrationForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
+    username = StringField(_l('Username'), validators=[DataRequired()])
+    email = StringField(_l('Email'), validators=[DataRequired(), Email()])
+    password = PasswordField(_l('Password'), validators=[DataRequired()])
     password2 = PasswordField(
-        'Repeat Password', validators=[DataRequired(), EqualTo('password')])
-    user_role = RadioField('User role', 
-        choices=[('Admin','Admin'),('Usual','Usual user'),('Client','Client')])
+        _l('Repeat Password'), validators=[DataRequired(), EqualTo('password')])
+    user_role = RadioField(_l('User role'), 
+        choices=[('Admin',_l('Admin')),('Usual',_l('Usual user')),('Client',_l('Client'))])
     
-    submit = SubmitField('Register')
+    submit = SubmitField(_l('Register'))
     
 
     def validate_username(self, username):
@@ -31,19 +32,19 @@ class RegistrationForm(FlaskForm):
         except:
             user = None
         if user is not None:
-            raise ValidationError('Please use a different username.')
+            raise ValidationError(_l('Please use a different username.'))
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
-            raise ValidationError('Please use a different email address.')
+            raise ValidationError(_l('Please use a different email address.'))
 
 class EditProfileForm_Admin(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    role_list = SelectField('Role', 
-        choices=[('Admin','Admin'),('Usual','Usual user'),('Client','Client')])
-    picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png','jpeg'])])
-    submit = SubmitField('Submit')
+    username = StringField(_l('Username'), validators=[DataRequired()])
+    role_list = SelectField(_l('Role'), 
+        choices=[('Admin',_l('Admin')),('Usual',_l('Usual user')),('Client',_l('Client'))])
+    picture = FileField(_l('Update Profile Picture'), validators=[FileAllowed(['jpg', 'png','jpeg'])])
+    submit = SubmitField(_l('Submit'))
 
     def __init__(self, original_username, *args, **kwargs):
         super(EditProfileForm_Admin, self).__init__(*args, **kwargs)
@@ -53,38 +54,38 @@ class EditProfileForm_Admin(FlaskForm):
         if username.data != self.original_username:
             user = User.query.filter_by(username=self.username.data).first()
             if user is not None:
-                raise ValidationError('Please use a different username.')
+                raise ValidationError(_l('Please use a different username.'))
 
 class EditProfileForm(FlaskForm):
-    picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png','jpeg'])])
-    submit = SubmitField('Submit')
+    picture = FileField(_l('Update Profile Picture'), validators=[FileAllowed(['jpg', 'png','jpeg'])])
+    submit = SubmitField(_l('Submit'))
 
 class TaskForm_edit(FlaskForm):
-    assigner = SelectField('Assigner', choices=[], coerce=int)
-    acceptor = SelectField('Acceptor', choices=[], coerce = int)
-    status = SelectField('Status', 
-        choices=[('Issued','Issued'),('In progress','In progress'),('Done','Done')])
-    submit = SubmitField('Submit')
+    assigner = SelectField(_l('Assigner'), choices=[], coerce=int)
+    acceptor = SelectField(_l('Acceptor'), choices=[], coerce = int)
+    status = SelectField(_l('Status'), 
+        choices=[('Issued',_l('Issued')),('In progress',_l('In progress')),('Done',_l('Done'))])
+    submit = SubmitField(_l('Submit'))
 
 class TaskForm_create(FlaskForm):
-    acceptor = SelectField('Acceptor', choices=[], coerce = int)
-    submit = SubmitField('Submit')
+    acceptor = SelectField(_l('Acceptor'), choices=[], coerce = int)
+    submit = SubmitField(_l('Submit'))
 
 class AddFieldForm(FlaskForm):
-    add_field = SubmitField('Add field')
-    fields_list = SelectField('Field type', 
-        choices=[('Text','Text'), ('TextArea','TextArea'),
-            ('Date','Date'),('File','File'),('Picture','Picture'),('Link','Link')])
+    add_field = SubmitField(_l('Add field'))
+    fields_list = SelectField(_l('Field type'), 
+        choices=[('Text',_l('Text')), ('TextArea',_l('TextArea')),
+            ('Date',_l('Date')),('File',_l('File')),('Picture',_l('Picture')),('Link',_l('Link'))])
 
 class TemplateForm(FlaskForm):
-    name = TextField(label = "Template name")
-    submit = SubmitField('Submit')
+    name = TextField(label = _l("Template name"))
+    submit = SubmitField(_l('Submit'))
 
 class MenuForm(FlaskForm):
-    name = TextField(label = "Link name")
-    submit = SubmitField('Submit')
+    name = TextField(label = _l("Link name"))
+    submit = SubmitField(_l('Submit'))
 
 
 def check_file_label(form, field):
     if (field.label.text["filename"] == "") and (not field.data):
-        raise ValidationError('Please choose a file')
+        raise ValidationError(_l('Please choose a file'))

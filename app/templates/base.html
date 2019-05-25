@@ -4,50 +4,58 @@
         {% if title %}
         <title>{{ title }}</title>
         {% else %}
-        <title>Task manager</title>
+        <title>{{ _('Task manager')}}</title>
         {% endif %}
     </head>
     <body>
       <div width="100%">
          	{% if current_user.is_anonymous %}
-					<a href="{{ url_for('login') }}">Login</a>
+					<a href="{{ url_for('login') }}">{{ _('Login')}}</a>
 				{% else %}
 					
 					<a href="{{ url_for('user', username=current_user.username) }}">{{current_user.username}}</a>
 					
 					{% if current_user.roles[0].name == "Admin" %}
-						<a href="{{ url_for('all_users') }}">All users</a>
-						<a href="{{ url_for('all_tasks') }}">All tasks</a>
-						<a href="{{ url_for('templates') }}">Create task</a>
+						<a href="{{ url_for('all_users') }}">{{ _('All users')}}</a>
+						<a href="{{ url_for('all_tasks') }}">{{ _('All tasks')}}</a>
+						<a href="{{ url_for('templates') }}">{{ _('Create task')}}</a>
 						
 					{% elif current_user.roles[0].name == "Usual" %}
-						<a href="{{ url_for('templates') }}">Create task</a>
-						<a href="{{ url_for('issued_tasks') }}">Issued tasks</a>
-				   	<a href="{{ url_for('your_tasks') }}">My tasks</a>
+						<a href="{{ url_for('templates') }}">{{ _('Create task')}}</a>
+						<a href="{{ url_for('issued_tasks') }}">{{ _('Issued tasks')}}</a>
+				   	<a href="{{ url_for('your_tasks') }}">{{ _('My tasks')}}</a>
 						
 					{% elif current_user.roles[0].name == "Client" %}
-						<a href="{{ url_for('your_tasks') }}">My tasks</a>
+						<a href="{{ url_for('your_tasks') }}">{{ _('My tasks')}}</a>
 					{% endif %}
 					
-					<a href="{{ url_for('logout') }}">Logout</a>
+					<a href="{{ url_for('logout') }}">{{ _('Logout')}}</a>
+					
+					<a style = "height: 5px; border-left: 1px solid;"></a>
 					
 					{% for link in current_user.extra_menu_fields %}
 						<a href="{{ link.link }}">
 					 	  {% if link.name %}
 								{{ link.name }}
 							{% else %}
-						 	  Link_{{link.id}}
+						 	  {{ _('Link_')}}{{link.id}}
 						 	{% endif %}
 						</a>
 					{% endfor %}
 					
 					<a style = "float: right;" href="{{ url_for('add_extra_menu_field', name = title, next = request.path) }}">
-					 	 Add
+					 	 {{ _('Add')}}
 					</a>
 					<a style = "float: right;" href="{{ url_for('toolbar_settings') }}">
-					 	 Settings
+					 	{{ _('Settings')}}
 					</a>
 				{% endif %}
+				<a style = "height: 20px; border-left: 1px solid; float: right;"></a>
+				{% for language in LANGUAGES %}
+					<a style = "float: right;" href="{{ url_for('change_language', language = language)}}">
+					 	{{language}}
+					</a>
+				{% endfor %}
 
 		 </div>
 

@@ -3,30 +3,30 @@
 {% block content %}
     
     {% if current_user.roles[0].name == "Admin" %}
-    	<h3> Create new template </h3>
+    	<h3> {{ _('Create new template')}} </h3>
     	<div>
 		 	<a href="{{ url_for('create_new_template') }}">
-		 		New template
+				{{ _('New template')}}
 		 	</a>
     	</div>
     {% endif %}
     
-    <h3> Choose type of task </h3>
+    <h3> {{ _('Choose type of task')}} </h3>
 	{% for template in templates %}
 		<div>
 			<a style = "margin-right: 50px; " href="{{ url_for('create_task', template_id = template.id) }}">
 				{% if template.name %}
 					<b>{{ template.name }} </b>
 				{% else %}
-					<b> Template_{{template.id}} </b>
+					<b> {{_('Template_')}}{{template.id}} </b>
 				{% endif %}
 			</a>
 			{% if current_user.roles[0].name == "Admin" %}
 				<a style = "margin-right: 50px; "  href="{{ url_for('edit_template', template_id = template.id) }}">
-					Edit template
+					{{ _('Edit template')}}
 				</a>	
 				<a  style = "margin-right: 50px; " href="{{ url_for('delete_template', template_id = template.id) }}">
-					Delete template
+					{{ _('Delete template')}}
 				</a>	
 			{% endif %}
 		</div>

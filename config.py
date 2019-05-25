@@ -16,3 +16,4 @@ class Config(object):
     ADMINS = ['ef.i.a@ya.ru']
     SESSION_TYPE = 'filesystem'
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+    LANGUAGES = ['ru', 'en']

@@ -1,0 +1,326 @@
+# Russian translations for PROJECT.
+# Copyright (C) 2019 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-05-25 14:35+0300\n"
+"PO-Revision-Date: 2019-05-25 12:47+0300\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: ru\n"
+"Language-Team: ru <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: app/forms.py:12 app/forms.py:18 app/forms.py:43
+msgid "Username"
+msgstr "Имя пользователя"
+
+#: app/forms.py:13 app/forms.py:20
+msgid "Password"
+msgstr "Пароль"
+
+#: app/forms.py:14
+msgid "Remember Me"
+msgstr "Запомнить меня"
+
+#: app/forms.py:15
+msgid "Sign In"
+msgstr "Войти"
+
+#: app/forms.py:19
+msgid "Email"
+msgstr "Почта"
+
+#: app/forms.py:22
+msgid "Repeat Password"
+msgstr "Повторите пароль"
+
+#: app/forms.py:23
+msgid "User role"
+msgstr "Тип пользователя"
+
+#: app/forms.py:24 app/forms.py:45
+msgid "Admin"
+msgstr "Администратор"
+
+#: app/forms.py:24 app/forms.py:45
+msgid "Usual user"
+msgstr "Обычный пользоваетль"
+
+#: app/forms.py:24 app/forms.py:45
+msgid "Client"
+msgstr "Клиент"
+
+#: app/forms.py:26 app/templates/register.html:4
+msgid "Register"
+msgstr "Регистрация"
+
+#: app/forms.py:35 app/forms.py:57
+msgid "Please use a different username."
+msgstr "Пожалуйста, используйте другое имя пользователя"
+
+#: app/forms.py:40
+msgid "Please use a different email address."
+msgstr "Пожалуйста, используйте другой email"
+
+#: app/forms.py:44
+msgid "Role"
+msgstr "Тип"
+
+#: app/forms.py:46 app/forms.py:60
+msgid "Update Profile Picture"
+msgstr "Обновить фотокарточку"
+
+#: app/forms.py:47 app/forms.py:61 app/forms.py:68 app/forms.py:72
+#: app/forms.py:82 app/forms.py:86
+msgid "Submit"
+msgstr "Принять"
+
+#: app/forms.py:64
+msgid "Assigner"
+msgstr "Создатель"
+
+#: app/forms.py:65 app/forms.py:71
+msgid "Acceptor"
+msgstr "Принимающий"
+
+#: app/forms.py:66
+msgid "Status"
+msgstr "Статус"
+
+#: app/forms.py:67
+msgid "Issued"
+msgstr "Выпущено"
+
+#: app/forms.py:67
+msgid "In progress"
+msgstr "В процессе"
+
+#: app/forms.py:67
+msgid "Done"
+msgstr "Выполнено"
+
+#: app/forms.py:75
+msgid "Add field"
+msgstr "Добавить поле"
+
+#: app/forms.py:76
+msgid "Field type"
+msgstr "Тип поля"
+
+#: app/forms.py:77 app/task_routes.py:94
+msgid "Text"
+msgstr "Текст"
+
+#: app/forms.py:77
+msgid "TextArea"
+msgstr "Текстовое поле"
+
+#: app/forms.py:78 app/task_routes.py:100
+msgid "Date"
+msgstr "Дата"
+
+#: app/forms.py:78 app/task_routes.py:102 app/task_routes.py:140
+msgid "File"
+msgstr "Файл"
+
+#: app/forms.py:78 app/task_routes.py:108 app/task_routes.py:142
+msgid "Picture"
+msgstr "Картинка"
+
+#: app/forms.py:78 app/task_routes.py:105
+msgid "Link"
+msgstr "Ссылка"
+
+#: app/forms.py:81
+msgid "Template name"
+msgstr "Имя шаблона"
+
+#: app/forms.py:85
+msgid "Link name"
+msgstr "Название ссылки"
+
+#: app/forms.py:91
+msgid "Please choose a file"
+msgstr "Выберите файл"
+
+#: app/routes.py:36
+msgid "You do not have access to that page. Sorry!"
+msgstr "Нет прав доступа к этой странице"
+
+#: app/routes.py:81
+msgid "Congratulations, you are now a registered user!"
+msgstr "Поздравляем, вы зарегистрировались!"
+
+#: app/routes.py:105 app/templates/base.html:19
+msgid "All users"
+msgstr "Пользователи"
+
+#: app/routes.py:111 app/templates/base.html:20
+msgid "All tasks"
+msgstr "Задания"
+
+#: app/routes.py:129 app/routes.py:151 app/task_routes.py:197
+msgid "Your changes have been saved."
+msgstr "Изменения сохранены"
+
+#: app/routes.py:135 app/routes.py:153 app/templates/edit_user.html:4
+msgid "Edit Profile"
+msgstr "Редактировать профиль"
+
+#: app/routes.py:195 app/templates/base.html:25
+msgid "Issued tasks"
+msgstr "Выданные задания"
+
+#: app/routes.py:205 app/templates/base.html:26 app/templates/base.html:29
+msgid "My tasks"
+msgstr "Мои задания"
+
+#: app/routes.py:214
+msgid "Toolbar settings"
+msgstr "Найстройки панели"
+
+#: app/routes.py:238
+msgid "Edit link"
+msgstr "Редактировать ссылку"
+
+#: app/task_routes.py:97
+msgid "Text area"
+msgstr "Текстовое поле"
+
+#: app/task_routes.py:208
+msgid "Edit task"
+msgstr "Редактировать задание"
+
+#: app/task_routes.py:208 app/templates/base.html:21 app/templates/base.html:24
+msgid "Create task"
+msgstr "Создать задание"
+
+#: app/task_routes.py:293 app/templates/templates.html:26
+msgid "Edit template"
+msgstr "Редактировать шаблон"
+
+#: app/task_routes.py:293
+msgid "Create template"
+msgstr "Создать шаблон"
+
+#: app/templates/_task.html:13
+msgid "Assigned to:"
+msgstr "Автор"
+
+#: app/templates/_task.html:18
+msgid "Status:"
+msgstr "Статус:"
+
+#: app/templates/_task.html:20
+msgid "Issued time:"
+msgstr "Время выдачи:"
+
+#: app/templates/_task.html:26 app/templates/all_users.html:22
+#: app/templates/user.html:21 app/templates/user.html:32
+msgid "Edit"
+msgstr "Изменить"
+
+#: app/templates/_task.html:31
+msgid "Delete task"
+msgstr "Удалить задание"
+
+#: app/templates/all_users.html:27 app/templates/user.html:26
+msgid "Delete user"
+msgstr "Удалить пользователя"
+
+#: app/templates/base.html:7
+msgid "Task manager"
+msgstr "Менеджер заданий"
+
+#: app/templates/base.html:13
+msgid "Login"
+msgstr "Войти"
+
+#: app/templates/base.html:32
+msgid "Logout"
+msgstr "Уйти"
+
+#: app/templates/base.html:39 app/templates/toolbar_settings.html:11
+msgid "Link_"
+msgstr "Ссылка_"
+
+#: app/templates/base.html:45
+msgid "Add"
+msgstr "Добавить"
+
+#: app/templates/base.html:48
+msgid "Settings"
+msgstr "Настройки"
+
+#: app/templates/create_or_edit_template.html:37
+msgid "Delete"
+msgstr "Удалить"
+
+#: app/templates/login.html:4
+msgid "Sign in"
+msgstr "Войти"
+
+#: app/templates/login.html:24
+msgid "New User?"
+msgstr "Новый пользователь?"
+
+#: app/templates/login.html:24
+msgid "Click to Register!"
+msgstr "Зарегистрируйся!"
+
+#: app/templates/tasks.html:39
+msgid "Assign to:"
+msgstr "Назначить:"
+
+#: app/templates/templates.html:6
+msgid "Create new template"
+msgstr "Создать новый шаблон"
+
+#: app/templates/templates.html:9
+msgid "New template"
+msgstr "Новый шаблон"
+
+#: app/templates/templates.html:14
+msgid "Choose type of task"
+msgstr "Выберите тип задания"
+
+#: app/templates/templates.html:21
+msgid "Template_"
+msgstr "Шаблон_"
+
+#: app/templates/templates.html:29
+msgid "Delete template"
+msgstr "Удалить шаблон"
+
+#: app/templates/toolbar_settings.html:14
+msgid "Rename link"
+msgstr "Переименовать"
+
+#: app/templates/toolbar_settings.html:15
+msgid "Delete link"
+msgstr "Удалить"
+
+#: app/templates/user.html:12
+msgid "Role:"
+msgstr "Тип:"
+
+#: app/templates/user.html:14
+msgid "Last seen on:"
+msgstr "Последняя активность:"
+
+#: app/templates/user.html:41
+msgid "All tasks related with that user"
+msgstr "Все задания, связанные с этим пользователем"
+
+msgid "Usual"
+msgstr "Обычный пользоваетль"
+
