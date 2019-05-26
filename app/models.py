@@ -26,6 +26,9 @@ class Task_media(db.Model):
     link = db.Column(db.String(50))
     picture = db.Column(db.String())
 
+    def __repr__(self):
+        return '<Task_media {}, {}, {}, {}, {}, {}, {}>'.format(self.text, self.textArea, 
+                self.date, self.encrypted_filename, self.filename, self.link, self.picture)
 
 class Task_templates(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -35,7 +38,7 @@ class Task_templates(db.Model):
         primaryjoin =(template_media_connection.c.template_id == id),
         secondaryjoin = (template_media_connection.c.media_id == Task_media.id),
         cascade="all, delete-orphan",single_parent=True,
-        backref = "template")
+        backref = "template", order_by = "Task_media.id")
 
 
 class Task(db.Model):
@@ -49,7 +52,7 @@ class Task(db.Model):
         primaryjoin =(task_media_connection.c.task_id == id),
         secondaryjoin = (task_media_connection.c.media_id == Task_media.id),
         cascade="all, delete, delete-orphan",single_parent=True,
-        backref = "task")
+        backref = "task", order_by = "Task_media.id")
 
     status = db.Column(db.String(140), default ="Issued")
 

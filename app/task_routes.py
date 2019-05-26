@@ -4,6 +4,7 @@ from flask import render_template, flash, redirect, url_for, request, session
 from flask_login import current_user, login_required
 from flask_babel import _, lazy_gettext as _l
 from werkzeug.urls import url_parse
+from wtforms import validators
 from datetime import datetime
 from sqlalchemy import or_
 import os
@@ -83,7 +84,7 @@ def create_media_by_tags(fields):
 def create_fields_to_form(DynamicForm, fields, is_task):
     text_validator = [Length(max=50), DataRequired()] if is_task else [Length(max=50)]
     textArea_validator = [Length(max=140), DataRequired()] if is_task else [Length(max=50)]
-    date_validator = [DataRequired()] if is_task else []
+    date_validator = [DataRequired()] if is_task else [validators.Optional()]
     file_validator = [check_file_label] if is_task else []
     link_validator = [DataRequired()] if is_task else []
     picture_validator = [check_file_label, FileAllowed(['jpg', 'png','jpeg'])] if is_task else [FileAllowed(['jpg', 'png','jpeg'])]
@@ -308,7 +309,6 @@ def create_new_template():
 @roles_required(['Admin'])
 def edit_template(template_id):
     template = Task_templates.query.filter_by(id = template_id).first()
-    # print()
     return prepare_template(template, True)
 
 # Немножко говнокода (хз как нормально реализовать удаление одного поля)

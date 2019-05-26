@@ -11,7 +11,7 @@
 				  <h1>{{ user.username }}</h1>
 				  <p> {{ _('Role:')}} {{_(user.roles[0].name)}}</p>			  
 				  {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
-				  {% if user.last_seen %}<p>{{ _('Last seen on:')}} {{ user.last_seen.strftime('%-d %B %Y at %-H:%M') }}</p>{% endif %}
+				  {% if user.last_seen %}<p>{{ _('Last seen on:')}} {{ user.last_seen.strftime('%d %B %Y at %H:%M') }}</p>{% endif %}
 				  
             </td>
 

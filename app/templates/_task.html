@@ -17,7 +17,7 @@
 			<br>
 			<b>{{ _('Status:')}}</b> {{ _(task.status)}} 
 			<br>
-			<b>{{ _('Issued time:')}}</b> {{ task.timestamp.strftime('%-d %B %Y at %-H:%-M') }}
+			<b>{{ _('Issued time:')}}</b> {{ task.timestamp.strftime('%d %B %Y at %H:%M') }}
 		</td> 
 
 		{% if current_user.roles[0].name == "Admin" %}	
@@ -47,7 +47,7 @@
 		{% elif content.textArea %}
 			{{ content.textArea }}
 		{% elif content.date %}
-			{{ content.date.strftime('%-d %B %Y') }}
+			{{ content.date.strftime('%d %B %Y') }}
 		{% elif content.filename %}
 				<a href="{{ url_for('download_file', filename = content.encrypted_filename) }}">
 					<b>{{ content.filename }}</b>
