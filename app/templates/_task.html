@@ -35,6 +35,7 @@
 	</tr>
 </table>
 {% for content in task.media %}
+	<b>{{content.label}}</b>
 	<p>
 		{% if content.text %}
 			{% if is_link(content.text) %}

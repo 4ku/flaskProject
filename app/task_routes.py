@@ -42,7 +42,7 @@ def save_file(form_field, field_filename, field_encrypted_filename, is_edit):
     return field_filename, field_encrypted_filename
 
 # Сохранение данных в fields - массив экземпляров класса Task_media
-def save_media(fields, dynamic_form, is_edit, start_ind):
+def save_media(fields, dynamic_form, label_form, is_edit, start_ind):
     i = start_ind
     for field in fields:
         form_field = dynamic_form[str(i)]
@@ -60,6 +60,7 @@ def save_media(fields, dynamic_form, is_edit, start_ind):
         elif field.picture is not None:
             field.picture, field.encrypted_filename = save_file(form_field, 
                     field.picture, field.encrypted_filename, is_edit)
+        field.label = label_form["label" + str(i)].data
         i+=1
 
 # Создание Task_media по тэгу из списка
@@ -81,7 +82,7 @@ def create_media_by_tags(fields):
     return media
 
 # Создание динамических полей
-def create_fields_to_form(DynamicForm, fields, is_task):
+def create_fields_to_form(DynamicForm, LabelForm, fields, is_task):
     text_validator = [Length(max=50), DataRequired()] if is_task else [Length(max=50)]
     textArea_validator = [Length(max=140), DataRequired()] if is_task else [Length(max=50)]
     date_validator = [DataRequired()] if is_task else [validators.Optional()]
@@ -108,28 +109,29 @@ def create_fields_to_form(DynamicForm, fields, is_task):
         elif field_data.picture is not None:
             label = {"label": _('Picture'), "filename": field_data.picture, "encrypted_filename": field_data.encrypted_filename}
             field = FileField(label = label, validators=picture_validator)
+        setattr(LabelForm, "label" + str(i), TextField())
         setattr(DynamicForm, str(i), field)
 
 # Копирование Task_media - используется пока только при создании задания (create_task)
 def copy_media(fields, media):
     for field in fields:
         if field.text is not None:
-            media.append(Task_media(text = field.text))
+            media.append(Task_media(text = field.text, label = field.label))
         elif field.textArea is not None:
-            media.append(Task_media(textArea = field.textArea))
+            media.append(Task_media(textArea = field.textArea, label = field.label))
         elif field.date:
-            media.append(Task_media(date = field.date))
+            media.append(Task_media(date = field.date, label = field.label))
         elif field.filename is not None:
             media.append(Task_media(filename = field.filename,
-                     encrypted_filename = field.encrypted_filename))
+                     encrypted_filename = field.encrypted_filename, label = field.label))
         elif field.link is not None:
-            media.append(Task_media(link = field.link))
+            media.append(Task_media(link = field.link, label = field.label))
         elif field.picture is not None:
             media.append(Task_media(picture = field.picture,
-                     encrypted_filename = field.encrypted_filename))
+                     encrypted_filename = field.encrypted_filename, label = field.label))
 
 # Заполнение динамических полей данными
-def fill_data(dynamic_form, fields):
+def fill_data(dynamic_form, label_form, fields):
     for i, field_data in enumerate(fields):
         if field_data.text:
             dynamic_form[str(i)].data = field_data.text
@@ -143,6 +145,7 @@ def fill_data(dynamic_form, fields):
             dynamic_form[str(i)].label.text = {"label": _("Picture"), "filename": field_data.picture, "encrypted_filename": field_data.encrypted_filename}
         elif field_data.link:
             dynamic_form[str(i)].data = field_data.link
+        label_form["label" + str(i)].data = field_data.label        
 
 #-------------------------------------------------------
 # Функции, связанные с task
@@ -152,11 +155,14 @@ def fill_data(dynamic_form, fields):
 def prepare_task(task, is_edit):
     class DynamicForm(FlaskForm):
         pass
+    class LabelForm(FlaskForm):
+        pass
 
     # Создание новых полей для задания
-    create_fields_to_form(DynamicForm, task.media, True)
+    create_fields_to_form(DynamicForm, LabelForm, task.media, True)
 
     dynamic_form = DynamicForm()
+    label_form = LabelForm()
     form = TaskForm_edit() if is_edit else TaskForm_create()
 
     # Создание списка кто создаёт задание и кто принимает это задание
@@ -192,14 +198,14 @@ def prepare_task(task, is_edit):
             task.status = form.status.data
 
         # Сохранение task.media в БД
-        save_media(task.media, dynamic_form, is_edit, 0)    
+        save_media(task.media, dynamic_form, label_form, is_edit, 0)    
 
         db.session.commit()
         flash(_('Your changes have been saved.'))
         return redirect(url_for('login'))
     elif request.method == 'GET':
         # Заполнение полей существующими данными
-        fill_data(dynamic_form, task.media)
+        fill_data(dynamic_form, label_form, task.media)
 
         if is_edit:
             form.acceptor.data = task.acceptor.id
@@ -208,7 +214,7 @@ def prepare_task(task, is_edit):
 
     title = _("Edit task") if is_edit else _("Create task")
     return render_template('create_or_edit_task.html', title=title, form=form, 
-        extra_fields = dynamic_form, edit_task = is_edit)
+        extra_fields = zip(dynamic_form, label_form), edit_task = is_edit)
 
 # Сразу же после выбора шаблона, можем создать задание по выбранному шаблону
 @app.route('/create_task/<template_id>', methods=['GET', 'POST'])
@@ -250,6 +256,9 @@ def delete_task(task_id):
 def prepare_template(template, is_edit):
     class DynamicForm(FlaskForm):
         pass
+    class LabelForm(FlaskForm):
+        pass
+
     template_id = template.id if is_edit else -1
     extra_fields = []
     if str(template_id) in session:
@@ -258,20 +267,22 @@ def prepare_template(template, is_edit):
     fields_objects = [field for field in template.fields] + extra_fields_objects
     
     # Создание полей для шаблона
-    create_fields_to_form(DynamicForm, fields_objects, False)
+    create_fields_to_form(DynamicForm, LabelForm, fields_objects, False)
 
     form = TemplateForm()
     add_field_form = AddFieldForm()
     dynamic_form = DynamicForm()
+    label_form = LabelForm()
 
     # Если нажата кнопка добавить задание
-    if form.submit.data and form.validate_on_submit() and dynamic_form.validate() and (len(fields_objects)) > 0:
+    if form.submit.data and form.validate_on_submit() and label_form.validate() \
+         and dynamic_form.validate() and (len(fields_objects)) > 0:
         session[str(template_id)] = []
         template.name = form.name.data
-        save_media(template.fields, dynamic_form, is_edit, 0)
+        save_media(template.fields, dynamic_form, label_form, is_edit, 0)
         
         #Обновление полей, которые были созданы дополнительно
-        save_media(extra_fields_objects, dynamic_form, is_edit, len(template.fields))
+        save_media(extra_fields_objects, dynamic_form, label_form, is_edit, len(template.fields))
         for field in extra_fields_objects:
             template.fields.append(field)
 
@@ -289,13 +300,13 @@ def prepare_template(template, is_edit):
         # Заполнение полей существующими данными
         if template.name:
             form.name.data = template.name
-        fill_data(dynamic_form, template.fields)
+        fill_data(dynamic_form, label_form, template.fields)
 
     title = _l("Edit template") if is_edit else _l("Create template")
 
     return render_template("create_or_edit_template.html", title= title, 
         form=form, add_field_form = add_field_form, 
-        extra_fields = dynamic_form, template_id = template_id)
+        extra_fields = zip(dynamic_form, label_form), template_id = template_id)
 
 # Создание шаблона
 @app.route('/create_new_template', methods=['GET', 'POST'])

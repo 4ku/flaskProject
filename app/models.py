@@ -25,6 +25,7 @@ class Task_media(db.Model):
     filename = db.Column(db.String())
     link = db.Column(db.String(50))
     picture = db.Column(db.String())
+    label = db.Column(db.String())
 
     def __repr__(self):
         return '<Task_media {}, {}, {}, {}, {}, {}, {}>'.format(self.text, self.textArea, 
