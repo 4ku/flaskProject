@@ -1,6 +1,6 @@
 <html>
     <head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/stylevo.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
         {% if title %}
         <title>{{ title }}</title>
         {% else %}
@@ -8,56 +8,72 @@
         {% endif %}
     </head>
     <body>
-      <div width="100%">
-         	{% if current_user.is_anonymous %}
-					<a href="{{ url_for('login') }}">{{ _('Login')}}</a>
-				{% else %}
-					
-					<a href="{{ url_for('user', username=current_user.username) }}">{{current_user.username}}</a>
-					
-					{% if current_user.roles[0].name == "Admin" %}
-						<a href="{{ url_for('all_users') }}">{{ _('All users')}}</a>
-						<a href="{{ url_for('all_tasks') }}">{{ _('All tasks')}}</a>
-						<a href="{{ url_for('templates') }}">{{ _('Create task')}}</a>
-						
-					{% elif current_user.roles[0].name == "Usual" %}
-						<a href="{{ url_for('templates') }}">{{ _('Create task')}}</a>
-						<a href="{{ url_for('issued_tasks') }}">{{ _('Issued tasks')}}</a>
-				   	<a href="{{ url_for('your_tasks') }}">{{ _('My tasks')}}</a>
-						
-					{% elif current_user.roles[0].name == "Client" %}
-						<a href="{{ url_for('your_tasks') }}">{{ _('My tasks')}}</a>
-					{% endif %}
-					
-					<a href="{{ url_for('logout') }}">{{ _('Logout')}}</a>
-					
-					<a style = "height: 5px; border-left: 1px solid;"></a>
-					
-					{% for link in current_user.extra_menu_fields %}
-						<a href="{{ link.link }}">
-					 	  {% if link.name %}
-								{{ link.name }}
-							{% else %}
-						 	  {{ _('Link_')}}{{link.id}}
-						 	{% endif %}
+	
+	<header>
+		<h1>{{ title }}</h1>
+		<div class="menu">
+			<ul>
+				<li>12 : 24</li>
+				<li><a href="{{ url_for('user', username=current_user.username) }}"><i class="fa fa-user-circle" aria-hidden="true"></i>  {{current_user.username}}</a></li>
+				<li><a href="{{ url_for('toolbar_settings') }}"><i class="fa fa-cogs" aria-hidden="true"></i> {{ _('Settings')}}</a></li>
+				<li><a href="{{ url_for('login') }}"><i class="fa fa-chevron-right" aria-hidden="true"></i> {{ _('Login')}}</a></li>
+				<li><a href="{{ url_for('logout') }}"><i class="fa fa-power-off" aria-hidden="true"></i> {{ _('Logout')}}</a></li>
+				<li>
+					{% for language in LANGUAGES %}
+						<a style = "float: right;" href="{{ url_for('change_language', language = language)}}">
+							{{language}}
 						</a>
-					{% endfor %}
-					
-					<a style = "float: right;" href="{{ url_for('add_extra_menu_field', name = title, next = request.path) }}">
-					 	 {{ _('Add')}}
-					</a>
-					<a style = "float: right;" href="{{ url_for('toolbar_settings') }}">
-					 	{{ _('Settings')}}
-					</a>
-				{% endif %}
-				<a style = "height: 20px; border-left: 1px solid; float: right;"></a>
-				{% for language in LANGUAGES %}
-					<a style = "float: right;" href="{{ url_for('change_language', language = language)}}">
-					 	{{language}}
-					</a>
-				{% endfor %}
-
-		 </div>
+					{% endfor %}				
+				</li>
+			</ul>
+		</div>
+	</header>
+	
+	<div id="left">
+	
+		<div class="logo">
+			<a href="#"><img src="{{ url_for('static', filename='images/logo.svg') }}"></a>
+		</div>
+	
+		<div class="nav">
+			<ul>
+				{% if current_user.is_anonymous %}
+					{% else %}
+												
+						{% if current_user.roles[0].name == "Admin" %}
+							<li><a href="{{ url_for('all_users') }}">{{ _('All users')}}</a></li>
+							<li><a href="{{ url_for('all_tasks') }}">{{ _('All tasks')}}</a></li>
+							<li><a href="{{ url_for('templates') }}">{{ _('Create task')}}</a></li>
+							
+						{% elif current_user.roles[0].name == "Usual" %}
+							<li><a href="{{ url_for('templates') }}">{{ _('Create task')}}</a></li>
+							<li><a href="{{ url_for('issued_tasks') }}">{{ _('Issued tasks')}}</a></li>
+							<li><a href="{{ url_for('your_tasks') }}">{{ _('My tasks')}}</a></li>
+							
+						{% elif current_user.roles[0].name == "Client" %}
+							<li><a href="{{ url_for('your_tasks') }}">{{ _('My tasks')}}</a></li>
+						{% endif %}
+						
+						{% for link in current_user.extra_menu_fields %}
+							<li><a href="{{ link.link }}">
+								  {% if link.name %}
+										{{ link.name }}
+									{% else %}
+									  {{ _('Link_')}}{{link.id}}
+									{% endif %}
+								</a></li>
+						{% endfor %}
+						
+							<li><a href="{{ url_for('add_extra_menu_field', name = title, next = request.path) }}">
+									 {{ _('Add')}}
+								</a></li>
+					{% endif %}
+			</ul>
+		</div>
+		
+	</div>
+	
+	<div id="body">
 
         <hr>
         {% with messages = get_flashed_messages() %}
@@ -70,6 +86,12 @@
         {% endif %}
         {% endwith %}
         {% block content %}{% endblock %}
+		<div class="test">123</div>
+		
+	</div>
+	
+	<script src="https://use.fontawesome.com/fc5a4d0310.js"></script>
+	
     </body>
 </html>
 

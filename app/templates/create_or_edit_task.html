@@ -24,10 +24,9 @@
 		{% endif %}
 
 		{% for field, label in extra_fields %}
-		 	
 				{% if field.type not in ['CSRFTokenField', 'HiddenField'] %}
-					<p>Label: {{ label() }}</p>
-					<p>
+				<p>Label: {{ label() }}</p>
+				<p>
 						{% if (field.type != "FileField") %}
 							{{ field.label }}: 
 						{% else %}
@@ -41,13 +40,12 @@
 								<b>{{ field.label.text['filename'] }}</b>
 							</a>
 						{% endif %}
-					</p>  
+				</p>
 				{% endif %}
 
 				{% for error in field.errors %}
 				 	<span style="color: red;">[{{ error }}]</span>
 				{% endfor %}
-			
 		{% endfor %}
 		
 		{% for error in form.errors %}

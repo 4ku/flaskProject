@@ -145,7 +145,7 @@ def fill_data(dynamic_form, label_form, fields):
             dynamic_form[str(i)].label.text = {"label": _("Picture"), "filename": field_data.picture, "encrypted_filename": field_data.encrypted_filename}
         elif field_data.link:
             dynamic_form[str(i)].data = field_data.link
-        label_form["label" + str(i)].data = field_data.label        
+        label_form["label" + str(i)].data = field_data.label
 
 #-------------------------------------------------------
 # Функции, связанные с task
@@ -258,7 +258,6 @@ def prepare_template(template, is_edit):
         pass
     class LabelForm(FlaskForm):
         pass
-
     template_id = template.id if is_edit else -1
     extra_fields = []
     if str(template_id) in session:
@@ -275,8 +274,8 @@ def prepare_template(template, is_edit):
     label_form = LabelForm()
 
     # Если нажата кнопка добавить задание
-    if form.submit.data and form.validate_on_submit() and label_form.validate() \
-         and dynamic_form.validate() and (len(fields_objects)) > 0:
+    if form.submit.data and form.validate_on_submit() and dynamic_form.validate() \
+        and dynamic_form.validate() and (len(fields_objects)) > 0:
         session[str(template_id)] = []
         template.name = form.name.data
         save_media(template.fields, dynamic_form, label_form, is_edit, 0)

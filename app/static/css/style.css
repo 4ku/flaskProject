@@ -1,4 +1,4 @@
-/* сброс стилей от Эрика Майера */
+/* сброс стилей */
 html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {margin: 0; padding: 0; border: 0; font-size: 100%; font: inherit; vertical-align: baseline;} article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {display: block;} body {line-height: 1;} ol, ul {list-style: none;} blockquote, q {quotes: none;} blockquote:before, blockquote:after, q:before, q:after {content: ''; content: none;} table {border-collapse: collapse;	border-spacing: 0;}
 
 /* шрифты */
@@ -7,5 +7,33 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
 @font-face {font-family: 'light'; src: url('../fonts/light.eot'); src: local('O'), url('../fonts/light.woff') format('woff'), url('../fonts/light.ttf') format('truetype'), url('../fonts/light.svg') format('svg'); font-weight: normal; font-style: normal;} 
 
 /* базовые стили */
-body {background: #fff; font-family: 'regular', sans-serif; font-size: 0.9vw; padding: 1vw;}
+body {background: #fff; font-family: 'regular', sans-serif; font-size: 0.9vw;}
 
+.nav {padding: 2vw 0 0 3vw;}
+.nav ul li {margin: 0 0 1.25vw 0; font-family: 'light', sans-serif;}
+.nav ul li:last-child {margin: 5vw 0 0 0; font-family: 'light', sans-serif;}
+.nav ul li a {color: #fff;}
+
+
+header {position: fixed; width: 100%; height: 4.5vw; background: #717984; margin: 0; padding: 0; overflow: hidden;}
+header h1 {position: absolute; padding: 1.5vw 0 0 18vw; font-family: 'light', sans-serif; color: #fff; font-size: 150%;}
+
+header .menu {float: right; color: #fff; padding: 1.7vw 3vw 0 0; overflow: hidden; height: auto; font-family: 'light', sans-serif;}
+header .menu a {color: #fff; text-decoration: none;}
+header .menu ul {float: right; width: auto; overflow: hidden;}
+header .menu ul li {float: left; margin: 0 2vw 0 0; overflow: hidden;}
+header .menu ul li:first-child {padding: 0 2.75vw 0 0; border-right: 0.075vw solid #fff; font-family: 'bold', sans-serif;}
+header .menu ul li:last-child {margin: 0; padding: 0 0 0 2vw; border-left: 0.075vw solid #baddff; font-family: 'regular', sans-serif; color: #baddff;}
+header .menu ul li:last-child a {margin: 0 0 0 0.75vw; color: #baddff;}
+header .menu ul li img {position: absolute; width: 3vw; border-radius: 2vw; margin: -1vw 0 0 -3.5vw;}
+header .menu ul li i {color: #baddff; margin: 0 0.25vw 0 0;}
+
+
+
+#left {position: fixed; width: 15vw; height: 100%; background: #535d69; margin: 0; padding: 0;}
+#left .logo {margin: 1.2vw 2.5vw 2.5vw 2.5vw; width: 10vw; height: auto;}
+#left .logo img {width: 100%;}
+
+
+
+#body {padding: 6vw 3vw 3vw 18vw;}
