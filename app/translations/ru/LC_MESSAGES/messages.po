@@ -263,7 +263,7 @@ msgstr "Войти"
 
 #: app/templates/base.html:20
 msgid "Logout"
-msgstr "Уйти"
+msgstr "Выйти"
 
 #: app/templates/base.html:62 app/templates/toolbar_settings.html:11
 msgid "Link_"

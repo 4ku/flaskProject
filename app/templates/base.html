@@ -14,17 +14,24 @@
 		<div class="menu">
 			<ul>
 				<li>12 : 24</li>
-				<li><a href="{{ url_for('user', username=current_user.username) }}"><i class="fa fa-user-circle" aria-hidden="true"></i>  {{current_user.real_name}}</a></li>
-				<li><a href="{{ url_for('toolbar_settings') }}"><i class="fa fa-cogs" aria-hidden="true"></i> {{ _('Settings')}}</a></li>
-				<li><a href="{{ url_for('login') }}"><i class="fa fa-chevron-right" aria-hidden="true"></i> {{ _('Sign in')}}</a></li>
-				<li><a href="{{ url_for('logout') }}"><i class="fa fa-power-off" aria-hidden="true"></i> {{ _('Logout')}}</a></li>
-				<li>
-					{% for language in LANGUAGES %}
-						<a style = "float: right;" href="{{ url_for('change_language', language = language)}}">
-							{{language}}
-						</a>
-					{% endfor %}				
-				</li>
+				{% if current_user.is_anonymous %}
+					<li><a href="{{ url_for('login') }}"><i class="fa fa-chevron-right" aria-hidden="true"></i> {{ _('Sign in')}}</a></li>
+				{% else %}
+					<li><a href="{{ url_for('user', username=current_user.username) }}"><i class="fa fa-user-circle" aria-hidden="true"></i>  {{current_user.real_name}}</a></li>
+					<li><a href="{{ url_for('toolbar_settings') }}"><i class="fa fa-cogs" aria-hidden="true"></i> {{ _('Settings')}}</a></li>
+					<li><a href="{{ url_for('logout') }}"><i class="fa fa-power-off" aria-hidden="true"></i> {{ _('Logout')}}</a></li>
+				{% endif %}
+
+
+
+					<li>
+						{% for language in LANGUAGES %}
+							<a style = "float: right;" href="{{ url_for('change_language', language = language)}}">
+								{{language}}
+							</a>
+						{% endfor %}				
+					</li>
+				
 			</ul>
 		</div>
 	</header>
@@ -36,10 +43,8 @@
 		</div>
 	
 		<div class="nav">
+			{% if not current_user.is_anonymous %}
 			<ul>
-				{% if current_user.is_anonymous %}
-					{% else %}
-												
 						{% if current_user.roles[0].name == "Admin" %}
 							<li><a href="{{ url_for('all_users') }}">{{ _('All users')}}</a></li>
 							<li><a href="{{ url_for('all_tasks') }}">{{ _('All tasks')}}</a></li>
@@ -67,8 +72,8 @@
 							<li><a href="{{ url_for('add_extra_menu_field', name = title, next = request.path) }}">
 									 {{ _('Add')}}
 								</a></li>
-					{% endif %}
 			</ul>
+			{% endif %}
 		</div>
 		
 	</div>
