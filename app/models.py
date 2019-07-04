@@ -4,6 +4,9 @@ from flask_login import UserMixin
 from hashlib import md5
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import url_for
+from PIL import Image
+import requests
+from io import BytesIO
 
 
 template_media_connection = db.Table("template_media_connection",
@@ -70,6 +73,7 @@ class Menu_field(db.Model):
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    real_name = db.Column(db.String(64))
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True)
     email_confirmed_at = db.Column(db.DateTime())
@@ -106,7 +110,20 @@ class User(UserMixin, db.Model):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
         return 'https://www.gravatar.com/avatar/{}?d=identicon&s=200'.format(
             digest)
+    # def avatar(self):
+        #if self.avatar_path is None:
+            #digest = md5(self.email.lower().encode('utf-8')).hexdigest()
+            #requested_url = 'https://www.gravatar.com/avatar/{}?d=identicon&s=200'.format(digest)
+            #response = requests.get(requested_url)
+           # img = Image.open(BytesIO(response.content))
+            #image_name = "default" + self.username + ".jpg"
+            #self.avatar_path = image_name
+            #avatar_path = os.path.join(app.root_path, 'static/avatar/', image_name )
+            #img.save(avatar_path)
+        #return url_for('static', filename="avatars/"+self.avatar_path)
 
+#        output_size = (32, 32)
+#        i.thumbnail(output_size)
 
 class Role(db.Model):
     __tablename__ = 'roles'

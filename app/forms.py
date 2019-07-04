@@ -14,8 +14,22 @@ class LoginForm(FlaskForm):
     remember_me = BooleanField(_l('Remember Me'))
     submit = SubmitField(_l('Sign In'))
 
+
+def isEnglish(form, field):
+    english_alphabet = "abcdefghijklmnopqrstuvwxyz1234567890"
+    for letter in str(field.data).lower():
+        if letter not in english_alphabet:
+            raise ValidationError(_l('English letters or numbers required'))
+
+def isRussian(form, field):
+    russian_alphabet = "йцукенгшщзхъфывапролджэячсмитьбю"
+    for letter in str(field.data).lower():
+        if letter not in russian_alphabet:
+            raise ValidationError(_l('Russian letters required'))
+
 class RegistrationForm(FlaskForm):
-    username = StringField(_l('Username'), validators=[DataRequired()])
+    real_name = StringField(_l('Username'), validators=[DataRequired(), isRussian])
+    username = StringField(_l('Login'), validators=[DataRequired(), isEnglish])
     email = StringField(_l('Email'), validators=[DataRequired(), Email()])
     password = PasswordField(_l('Password'), validators=[DataRequired()])
     password2 = PasswordField(

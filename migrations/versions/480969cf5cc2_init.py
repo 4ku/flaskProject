@@ -1,8 +1,8 @@
 """init
 
-Revision ID: 4ad1f8280e00
+Revision ID: 480969cf5cc2
 Revises: 
-Create Date: 2019-06-12 00:44:47.030621
+Create Date: 2019-07-04 01:53:29.925438
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '4ad1f8280e00'
+revision = '480969cf5cc2'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -32,6 +32,7 @@ def upgrade():
     sa.Column('filename', sa.String(), nullable=True),
     sa.Column('link', sa.String(length=50), nullable=True),
     sa.Column('picture', sa.String(), nullable=True),
+    sa.Column('label', sa.String(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('task_templates',
@@ -41,6 +42,7 @@ def upgrade():
     )
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('real_name', sa.String(length=64), nullable=True),
     sa.Column('username', sa.String(length=64), nullable=True),
     sa.Column('email', sa.String(length=120), nullable=True),
     sa.Column('email_confirmed_at', sa.DateTime(), nullable=True),

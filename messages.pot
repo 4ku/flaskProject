@@ -1,19 +1,17 @@
-# Russian translations for PROJECT.
+# Translations template for PROJECT.
 # Copyright (C) 2019 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 #
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-07-04 02:20-0400\n"
-"PO-Revision-Date: 2019-05-25 12:47+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language: ru\n"
-"Language-Team: ru <LL@li.org>\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -21,317 +19,311 @@ msgstr ""
 
 #: app/forms.py:12 app/forms.py:31 app/forms.py:57
 msgid "Username"
-msgstr "Имя пользователя"
+msgstr ""
 
 #: app/forms.py:13 app/forms.py:34
 msgid "Password"
-msgstr "Пароль"
+msgstr ""
 
 #: app/forms.py:14
 msgid "Remember Me"
-msgstr "Запомнить меня"
+msgstr ""
 
 #: app/forms.py:15
 msgid "Sign In"
-msgstr "Войти"
+msgstr ""
 
 #: app/forms.py:22
 msgid "English letters or numbers required"
-msgstr "Логин может содержать только латинские буквы и цифры"
+msgstr ""
 
 #: app/forms.py:28
 msgid "Russian letters required"
-msgstr "Имя пользователя может содержать только буквы на кириллице"
+msgstr ""
 
 #: app/forms.py:32
 msgid "Login"
-msgstr "Логин"
+msgstr ""
 
 #: app/forms.py:33
 msgid "Email"
-msgstr "Почта"
+msgstr ""
 
 #: app/forms.py:36
 msgid "Repeat Password"
-msgstr "Повторите пароль"
+msgstr ""
 
 #: app/forms.py:37
 msgid "User role"
-msgstr "Тип пользователя"
+msgstr ""
 
 #: app/forms.py:38 app/forms.py:59
 msgid "Admin"
-msgstr "Администратор"
+msgstr ""
 
 #: app/forms.py:38 app/forms.py:59
 msgid "Usual user"
-msgstr "Обычный пользоваетль"
+msgstr ""
 
 #: app/forms.py:38 app/forms.py:59
 msgid "Client"
-msgstr "Клиент"
+msgstr ""
 
 #: app/forms.py:40 app/templates/register.html:4
 msgid "Register"
-msgstr "Регистрация"
+msgstr ""
 
 #: app/forms.py:49 app/forms.py:71
 msgid "Please use a different username."
-msgstr "Пожалуйста, используйте другое имя пользователя"
+msgstr ""
 
 #: app/forms.py:54
 msgid "Please use a different email address."
-msgstr "Пожалуйста, используйте другой email"
+msgstr ""
 
 #: app/forms.py:58
 msgid "Role"
-msgstr "Тип"
+msgstr ""
 
 #: app/forms.py:60 app/forms.py:74
 msgid "Update Profile Picture"
-msgstr "Обновить фотокарточку"
+msgstr ""
 
 #: app/forms.py:61 app/forms.py:75 app/forms.py:82 app/forms.py:86
 #: app/forms.py:96 app/forms.py:100
 msgid "Submit"
-msgstr "Принять"
+msgstr ""
 
 #: app/forms.py:78
 msgid "Assigner"
-msgstr "Создатель"
+msgstr ""
 
 #: app/forms.py:79 app/forms.py:85
 msgid "Acceptor"
-msgstr "Принимающий"
+msgstr ""
 
 #: app/forms.py:80
 msgid "Status"
-msgstr "Статус"
+msgstr ""
 
 #: app/forms.py:81
 msgid "Issued"
-msgstr "Выпущено"
+msgstr ""
 
 #: app/forms.py:81
 msgid "In progress"
-msgstr "В процессе"
+msgstr ""
 
 #: app/forms.py:81
 msgid "Done"
-msgstr "Выполнено"
+msgstr ""
 
 #: app/forms.py:89
 msgid "Add field"
-msgstr "Добавить поле"
+msgstr ""
 
 #: app/forms.py:90
 msgid "Field type"
-msgstr "Тип поля"
+msgstr ""
 
 #: app/forms.py:91 app/task_routes.py:96
 msgid "Text"
-msgstr "Текст"
+msgstr ""
 
 #: app/forms.py:91
 msgid "TextArea"
-msgstr "Текстовое поле"
+msgstr ""
 
 #: app/forms.py:92 app/task_routes.py:102
 msgid "Date"
-msgstr "Дата"
+msgstr ""
 
 #: app/forms.py:92 app/task_routes.py:104 app/task_routes.py:143
 msgid "File"
-msgstr "Файл"
+msgstr ""
 
 #: app/forms.py:92 app/task_routes.py:110 app/task_routes.py:145
 msgid "Picture"
-msgstr "Картинка"
+msgstr ""
 
 #: app/forms.py:92 app/task_routes.py:107
 msgid "Link"
-msgstr "Ссылка"
+msgstr ""
 
 #: app/forms.py:95
 msgid "Template name"
-msgstr "Имя шаблона"
+msgstr ""
 
 #: app/forms.py:99
 msgid "Link name"
-msgstr "Название ссылки"
+msgstr ""
 
 #: app/forms.py:105
 msgid "Please choose a file"
-msgstr "Выберите файл"
+msgstr ""
 
 #: app/routes.py:36
 msgid "You do not have access to that page. Sorry!"
-msgstr "Нет прав доступа к этой странице"
+msgstr ""
 
 #: app/routes.py:81
 msgid "Congratulations, you are now a registered user!"
-msgstr "Поздравляем, вы зарегистрировались!"
+msgstr ""
 
 #: app/routes.py:105 app/templates/base.html:44
 msgid "All users"
-msgstr "Пользователи"
+msgstr ""
 
 #: app/routes.py:111 app/templates/base.html:45
 msgid "All tasks"
-msgstr "Задания"
+msgstr ""
 
 #: app/routes.py:129 app/routes.py:151 app/task_routes.py:204
 msgid "Your changes have been saved."
-msgstr "Изменения сохранены"
+msgstr ""
 
 #: app/routes.py:135 app/routes.py:153 app/templates/edit_user.html:4
 msgid "Edit Profile"
-msgstr "Редактировать профиль"
+msgstr ""
 
 #: app/routes.py:195 app/templates/base.html:50
 msgid "Issued tasks"
-msgstr "Выданные задания"
+msgstr ""
 
 #: app/routes.py:205 app/templates/base.html:51 app/templates/base.html:54
 msgid "My tasks"
-msgstr "Мои задания"
+msgstr ""
 
 #: app/routes.py:214
 msgid "Toolbar settings"
-msgstr "Найстройки панели"
+msgstr ""
 
 #: app/routes.py:240
 msgid "Edit link"
-msgstr "Редактировать ссылку"
+msgstr ""
 
 #: app/task_routes.py:99
 msgid "Text area"
-msgstr "Текстовое поле"
+msgstr ""
 
 #: app/task_routes.py:215
 msgid "Edit task"
-msgstr "Редактировать задание"
+msgstr ""
 
 #: app/task_routes.py:215 app/templates/base.html:46 app/templates/base.html:49
 msgid "Create task"
-msgstr "Создать задание"
+msgstr ""
 
 #: app/task_routes.py:304 app/templates/templates.html:26
 msgid "Edit template"
-msgstr "Редактировать шаблон"
+msgstr ""
 
 #: app/task_routes.py:304
 msgid "Create template"
-msgstr "Создать шаблон"
+msgstr ""
 
 #: app/templates/_task.html:13
 msgid "Assigned to:"
-msgstr "Автор"
+msgstr ""
 
 #: app/templates/_task.html:18
 msgid "Status:"
-msgstr "Статус:"
+msgstr ""
 
 #: app/templates/_task.html:20
 msgid "Issued time:"
-msgstr "Время выдачи:"
+msgstr ""
 
 #: app/templates/_task.html:26 app/templates/all_users.html:22
 #: app/templates/user.html:21 app/templates/user.html:32
 msgid "Edit"
-msgstr "Изменить"
+msgstr ""
 
 #: app/templates/_task.html:31
 msgid "Delete task"
-msgstr "Удалить задание"
+msgstr ""
 
 #: app/templates/all_users.html:27 app/templates/user.html:26
 msgid "Delete user"
-msgstr "Удалить пользователя"
+msgstr ""
 
 #: app/templates/base.html:7
 msgid "Task manager"
-msgstr "Менеджер заданий"
+msgstr ""
 
 #: app/templates/base.html:18
 msgid "Settings"
-msgstr "Настройки"
+msgstr ""
 
 #: app/templates/base.html:19 app/templates/login.html:4
 msgid "Sign in"
-msgstr "Войти"
+msgstr ""
 
 #: app/templates/base.html:20
 msgid "Logout"
-msgstr "Уйти"
+msgstr ""
 
 #: app/templates/base.html:62 app/templates/toolbar_settings.html:11
 msgid "Link_"
-msgstr "Ссылка_"
+msgstr ""
 
 #: app/templates/base.html:68
 msgid "Add"
-msgstr "Добавить"
+msgstr ""
 
 #: app/templates/create_or_edit_template.html:38
 msgid "Delete"
-msgstr "Удалить"
+msgstr ""
 
 #: app/templates/login.html:24
 msgid "New User?"
-msgstr "Новый пользователь?"
+msgstr ""
 
 #: app/templates/login.html:24
 msgid "Click to Register!"
-msgstr "Зарегистрируйся!"
+msgstr ""
 
 #: app/templates/tasks.html:39
 msgid "Assign to:"
-msgstr "Назначить:"
+msgstr ""
 
 #: app/templates/templates.html:6
 msgid "Create new template"
-msgstr "Создать новый шаблон"
+msgstr ""
 
 #: app/templates/templates.html:9
 msgid "New template"
-msgstr "Новый шаблон"
+msgstr ""
 
 #: app/templates/templates.html:14
 msgid "Choose type of task"
-msgstr "Выберите тип задания"
+msgstr ""
 
 #: app/templates/templates.html:21
 msgid "Template_"
-msgstr "Шаблон_"
+msgstr ""
 
 #: app/templates/templates.html:29
 msgid "Delete template"
-msgstr "Удалить шаблон"
+msgstr ""
 
 #: app/templates/toolbar_settings.html:14
 msgid "Rename link"
-msgstr "Переименовать"
+msgstr ""
 
 #: app/templates/toolbar_settings.html:15
 msgid "Delete link"
-msgstr "Удалить"
+msgstr ""
 
 #: app/templates/user.html:12
 msgid "Role:"
-msgstr "Тип:"
+msgstr ""
 
 #: app/templates/user.html:14
 msgid "Last seen on:"
-msgstr "Последняя активность:"
+msgstr ""
 
 #: app/templates/user.html:41
 msgid "All tasks related with that user"
-msgstr "Все задания, связанные с этим пользователем"
-
-#~ msgid "Usual"
-#~ msgstr "Обычный пользоваетль"
-
-#~ msgid "Russian letters or numbers required"
-#~ msgstr "Имя пользователя может содержать только буквы на кириллице и цифры"
+msgstr ""
 

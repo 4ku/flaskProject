@@ -73,7 +73,7 @@ def register():
         return redirect(url_for('user', username=current_user.username))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data, email_confirmed_at=datetime.utcnow() )
+        user = User(real_name = form.real_name.data, username=form.username.data, email=form.email.data, email_confirmed_at=datetime.utcnow() )
         user.set_password(form.password.data)
         user.roles.append(Role(name=form.user_role.data))
         db.session.add(user)

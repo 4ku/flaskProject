@@ -14,9 +14,9 @@
 		<div class="menu">
 			<ul>
 				<li>12 : 24</li>
-				<li><a href="{{ url_for('user', username=current_user.username) }}"><i class="fa fa-user-circle" aria-hidden="true"></i>  {{current_user.username}}</a></li>
+				<li><a href="{{ url_for('user', username=current_user.username) }}"><i class="fa fa-user-circle" aria-hidden="true"></i>  {{current_user.real_name}}</a></li>
 				<li><a href="{{ url_for('toolbar_settings') }}"><i class="fa fa-cogs" aria-hidden="true"></i> {{ _('Settings')}}</a></li>
-				<li><a href="{{ url_for('login') }}"><i class="fa fa-chevron-right" aria-hidden="true"></i> {{ _('Login')}}</a></li>
+				<li><a href="{{ url_for('login') }}"><i class="fa fa-chevron-right" aria-hidden="true"></i> {{ _('Sign in')}}</a></li>
 				<li><a href="{{ url_for('logout') }}"><i class="fa fa-power-off" aria-hidden="true"></i> {{ _('Logout')}}</a></li>
 				<li>
 					{% for language in LANGUAGES %}
