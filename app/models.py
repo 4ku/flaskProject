@@ -4,9 +4,6 @@ from flask_login import UserMixin
 from hashlib import md5
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import url_for
-from PIL import Image
-import requests
-from io import BytesIO
 
 
 template_media_connection = db.Table("template_media_connection",
@@ -21,14 +18,14 @@ task_media_connection = db.Table("task_media_connection",
 
 class Task_media(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    text = db.Column(db.String(50))
-    textArea = db.Column(db.String(140))
+    text = db.Column(db.String(255))
+    textArea = db.Column(db.String(255))
     date = db.Column(db.DateTime())
-    encrypted_filename = db.Column(db.String())
-    filename = db.Column(db.String())
-    link = db.Column(db.String(50))
-    picture = db.Column(db.String())
-    label = db.Column(db.String())
+    encrypted_filename = db.Column(db.String(255))
+    filename = db.Column(db.String(255))
+    link = db.Column(db.String(255))
+    picture = db.Column(db.String(255))
+    label = db.Column(db.String(64))
 
     def __repr__(self):
         return '<Task_media {}, {}, {}, {}, {}, {}, {}>'.format(self.text, self.textArea, 
@@ -36,7 +33,7 @@ class Task_media(db.Model):
 
 class Task_templates(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String())
+    name = db.Column(db.String(64))
     fields = db.relationship("Task_media", 
         secondary = template_media_connection, 
         primaryjoin =(template_media_connection.c.template_id == id),
@@ -58,7 +55,7 @@ class Task(db.Model):
         cascade="all, delete, delete-orphan",single_parent=True,
         backref = "task", order_by = "Task_media.id")
 
-    status = db.Column(db.String(140), default ="Issued")
+    status = db.Column(db.String(32), default ="Issued")
 
     def __repr__(self):
         return '<Task {}>'.format(self.description)
@@ -67,20 +64,23 @@ class Task(db.Model):
 class Menu_field(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    name = db.Column(db.String())
-    link = db.Column(db.String())
+    name = db.Column(db.String(64))
+    link = db.Column(db.String(255))
 
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    real_name = db.Column(db.String(64))
-    username = db.Column(db.String(64), index=True, unique=True)
-    email = db.Column(db.String(120), index=True)
-    email_confirmed_at = db.Column(db.DateTime())
-    password = db.Column(db.String(128))
-    about_me = db.Column(db.String(140))
+    #Обязательные поля
+    email = db.Column(db.String(64), index=True, unique=True)
+    first_name = db.Column(db.String(64))
+    last_name = db.Column(db.String(64))
+    password = db.Column(db.String(255))
+
+    # Второстепенные
+    # Здесь должно быть media
+    registered = db.Column(db.Boolean, unique=False, default=False)
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
-    avatar_path = db.Column(db.String(), default = None)
+    avatar_path = db.Column(db.String(255), default = None)
     roles = db.relationship('Role', secondary='user_roles')
     extra_menu_fields = db.relationship("Menu_field")
 
@@ -110,25 +110,12 @@ class User(UserMixin, db.Model):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
         return 'https://www.gravatar.com/avatar/{}?d=identicon&s=200'.format(
             digest)
-    # def avatar(self):
-        #if self.avatar_path is None:
-            #digest = md5(self.email.lower().encode('utf-8')).hexdigest()
-            #requested_url = 'https://www.gravatar.com/avatar/{}?d=identicon&s=200'.format(digest)
-            #response = requests.get(requested_url)
-           # img = Image.open(BytesIO(response.content))
-            #image_name = "default" + self.username + ".jpg"
-            #self.avatar_path = image_name
-            #avatar_path = os.path.join(app.root_path, 'static/avatar/', image_name )
-            #img.save(avatar_path)
-        #return url_for('static', filename="avatars/"+self.avatar_path)
 
-#        output_size = (32, 32)
-#        i.thumbnail(output_size)
 
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String(50))
+    name = db.Column(db.String(64))
 
 
 class UserRoles(db.Model):
@@ -136,6 +123,7 @@ class UserRoles(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     user_id = db.Column(db.Integer(), db.ForeignKey('user.id', ondelete='CASCADE'))
     role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
+
 
 # Хз почему это здесь, нужно разобраться что это вообще делает
 @login.user_loader

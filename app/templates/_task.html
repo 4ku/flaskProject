@@ -1,65 +1,78 @@
-<hr>
-<table>
-	<tr valign="top">
-		<td>
-			<img src="{{ task.assigner.avatar() }}" width="50" height="50">
-		</td>
-
-		<td>
-			<a href="{{ url_for('user', username=task.assigner.username) }}">
-				{{ task.assigner.username }}
-			</a>
-			<br>
-			<b>{{ _('Assigned to:')}} </b> 
-			<a href="{{ url_for('user', username=task.acceptor.username) }}">
-				{{ task.acceptor.username }}
-			</a>
-			<br>
-			<b>{{ _('Status:')}}</b> {{ _(task.status)}} 
-			<br>
-			<b>{{ _('Issued time:')}}</b> {{ task.timestamp.strftime('%d %B %Y at %H:%M') }}
-		</td> 
-
-		{% if current_user.roles[0].name == "Admin" %}	
-			<td>
-				<a href="{{ url_for('edit_task', task_id=task.id) }}">
-					<b>{{ _('Edit')}}</b>
-				</a>
-			</td> 
-			<td>
-				<a href="{{ url_for('delete_task', task_id=task.id, next = request.path) }}">
-					<b>{{ _('Delete task')}}</b>
-				</a>			
-			</td>   
-		{% endif %}  
-	</tr>
-</table>
+<div id="task_full">
 {% for content in task.media %}
-	<b>{{content.label}}</b>
-	<p>
-		{% if content.text %}
-			{% if is_link(content.text) %}
-				<a href="{{ append_http(content.text) }}">
-					{{ content.text }}
-				</a>
-			{% else %}
-				{{ content.text }}
-			{% endif %}
-		{% elif content.textArea %}
-			{{ content.textArea }}
-		{% elif content.date %}
-			{{ content.date.strftime('%d %B %Y') }}
-		{% elif content.filename %}
-				<a href="{{ url_for('download_file', filename = content.encrypted_filename) }}">
-					<b>{{ content.filename }}</b>
-				</a>
-		{% elif content.picture %}
-				<img src="{{ url_for('static',filename = 'files/' + content.encrypted_filename) }}" width="200" height="200">
-		{% elif content.link %}
-				<a href="{{ append_http(content.link) }}">
-					{{ content.link }}
-				</a>
-		{% endif %}
-	</p>
+	
+		<div id="task">
+				<div class="label">
+						{{content.label}}
+				</div>
+				<div class="info">
+					{% if content.text %}
+						{% if is_link(content.text) %}
+							<a href="{{ append_http(content.text) }}">
+								{{ content.text }}
+							</a>
+						{% else %}
+							{{ content.text }}
+						{% endif %}
+					{% elif content.textArea %}
+						{{ content.textArea }}
+					{% elif content.date %}
+						{{ content.date.strftime('%d %B %Y') }}
+					{% elif content.filename %}
+							<a href="{{ url_for('download_file', filename = content.encrypted_filename) }}">
+								<b>{{ content.filename }}</b>
+							</a>
+					{% elif content.picture %}
+							<img src="{{ url_for('static',filename = 'files/' + content.encrypted_filename) }}" width="200" height="200">
+					{% elif content.link %}
+							<a href="{{ append_http(content.link) }}">
+								{{ content.link }}
+							</a>
+					{% endif %}
+				</div>
+				
+		</div>
+		
 {% endfor %}
-<hr>
+</div>
+
+<div class="task_info">
+
+		<div class="avatar">
+				<img src="{{ task.assigner.avatar() }}">
+		</div>
+		
+		<div class="user_name">
+				<a href="{{ url_for('user', id=task.assigner.id) }}">{{ task.assigner.email }}</a> | {{ _('Assigned to:')}} <a href="{{ url_for('user', id=task.acceptor.id) }}">{{ task.acceptor.email }}</a>
+		</div>
+		
+		<div class="task_status">
+				<div class="label">
+						{{ _('Status:')}}
+				</div>
+				<div class="info">
+						{{ _(task.status)}}
+				</div>
+		</div>
+
+		<div class="task_issuid_time">
+				<div class="label">
+						{{ _('Issued time:')}}
+				</div>
+				<div class="info">
+						{{ task.timestamp.strftime('%d %B %Y at %H:%M') }}
+				</div>
+		</div>
+							
+		<div class="user_edit">
+				{% if current_user.roles[0].name == "Admin" %}
+				<div class="edit">
+						<a href="{{ url_for('edit_task', task_id=task.id) }}">{{ _('Edit')}}</a>
+				</div>
+				<div class="delete">
+						<a href="{{ url_for('delete_task', task_id=task.id, next = request.path) }}">{{ _('Delete task')}}</a>	
+				</div>
+				{% endif %}  
+		</div>
+
+</div>

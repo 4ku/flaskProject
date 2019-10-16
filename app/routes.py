@@ -47,17 +47,17 @@ def unauthorized_callback():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('user', username=current_user.username))
+        return redirect(url_for('user', id=current_user.id))
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
-        if user is None or not user.check_password(form.password.data):
-            flash('Invalid username or password')
+        user = User.query.filter_by(email=form.email.data).first()
+        if user is None or not user.check_password(form.password.data) or user.roles[0].name == 'Not confirmed':
+            flash('Invalid email or password')
             return redirect(url_for('login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('user', username=user.username)
+            next_page = url_for('user', id=user.id)
         return redirect(next_page)
     return render_template('login.html', title='Login', form=form)
 
@@ -70,28 +70,29 @@ def logout():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('user', username=current_user.username))
+        return redirect(url_for('user', id=current_user.id))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(real_name = form.real_name.data, username=form.username.data, email=form.email.data, email_confirmed_at=datetime.utcnow() )
+        user = User(email = form.email.data, last_name=form.last_name.data,
+            first_name=form.first_name.data)
         user.set_password(form.password.data)
-        user.roles.append(Role(name=form.user_role.data))
+        user.roles.append(Role(name="Not confirmed"))
         db.session.add(user)
         db.session.commit()
-        flash(_l('Congratulations, you are now a registered user!'))
+        flash(_l('Wait for administrator register confirmation.'))
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
 
 # Главная страница пользователя, с заданиями, которые он выдал
-@app.route('/user/<username>', methods=['GET', 'POST'])
+@app.route('/user/<id>', methods=['GET', 'POST'])
 @login_required
-def user(username):
-    user = User.query.filter_by(username=username).first_or_404()
+def user(id):
+    user = User.query.filter_by(id=id).first_or_404()
     tasks = Task.query.filter(or_(Task.assigner_id == user.id, 
         Task.acceptor_id == user.id)).order_by(Task.timestamp.desc()).all()
-    return render_template('user.html', title = user.username, user=user, 
-        tasks = tasks)
+    return render_template('user.html', title = user.last_name+" "+ user.first_name, 
+        user=user, tasks = tasks)
 
 
 #-------------------------------------------------------------
@@ -101,7 +102,7 @@ def user(username):
 @app.route('/all_users', methods=['GET', 'POST'])
 @roles_required(['Admin'])
 def all_users():
-    all_users = User.query.filter(User.username!=current_user.username).all()
+    all_users = User.query.filter(User.id!=current_user.id).all()
     return render_template("all_users.html", title = _l("All users"), users = all_users)
 
 
@@ -112,25 +113,25 @@ def all_tasks():
         tasks = Task.query.order_by(Task.timestamp.desc()).all())
 
 
-@app.route('/edit_user_admin/<username>', methods=['GET', 'POST'])
+@app.route('/edit_user_admin/<id>', methods=['GET', 'POST'])
 @roles_required(['Admin'])
-def edit_user_admin(username):
-    user = User.query.filter_by(username=username).first()
-    form = EditProfileForm_Admin(user.username)
+def edit_user_admin(id):
+    user = User.query.filter_by(id=id).first()
+    form = EditProfileForm_Admin(user.email)
     if form.validate_on_submit():
         if form.picture.data:
             __ , encrypted_filename = encode_filename(form.picture.data.filename)
             image = Image.open(form.picture.data)
             image.save(os.path.join(app.root_path, 'static/avatars/', encrypted_filename))
             user.avatar_path = encrypted_filename
-        user.username = form.username.data
+        user.email = form.email.data
         user.roles[0] = (Role(name=form.role_list.data))
         db.session.commit()
         flash(_l('Your changes have been saved.'))
-        return redirect(url_for('edit_user_admin', username = form.username.data))
+        return redirect(url_for('edit_user_admin', id = user.id))
     elif request.method == 'GET':
         # Предзаполнение полей
-        form.username.data = user.username
+        form.email.data = user.email
         form.role_list.data = user.roles[0].name
     return render_template('edit_user.html', title=_l('Edit Profile'),
                            form=form, user = user)
@@ -262,6 +263,7 @@ def is_link(link):
 
 app.jinja_env.globals.update(is_link = is_link)
 app.jinja_env.globals.update(append_http = append_http)
+app.jinja_env.globals.update(now = datetime.utcnow)
 
 def encode_filename(filename):
     random_hex = secrets.token_hex(8)

@@ -13,11 +13,11 @@
 		<h1>{{ title }}</h1>
 		<div class="menu">
 			<ul>
-				<li>12 : 24</li>
+				<li>{{ now().strftime('%H:%M') }}</li>
 				{% if current_user.is_anonymous %}
 					<li><a href="{{ url_for('login') }}"><i class="fa fa-chevron-right" aria-hidden="true"></i> {{ _('Sign in')}}</a></li>
 				{% else %}
-					<li><a href="{{ url_for('user', username=current_user.username) }}"><i class="fa fa-user-circle" aria-hidden="true"></i>  {{current_user.real_name}}</a></li>
+					<li><a href="{{ url_for('user', id=current_user.id) }}"><i class="fa fa-user-circle" aria-hidden="true"></i>  							{{current_user.real_name}}</a></li>
 					<li><a href="{{ url_for('toolbar_settings') }}"><i class="fa fa-cogs" aria-hidden="true"></i> {{ _('Settings')}}</a></li>
 					<li><a href="{{ url_for('logout') }}"><i class="fa fa-power-off" aria-hidden="true"></i> {{ _('Logout')}}</a></li>
 				{% endif %}
@@ -30,8 +30,7 @@
 								{{language}}
 							</a>
 						{% endfor %}				
-					</li>
-				
+					</li>			
 			</ul>
 		</div>
 	</header>
@@ -44,54 +43,58 @@
 	
 		<div class="nav">
 			{% if not current_user.is_anonymous %}
-			<ul>
-						{% if current_user.roles[0].name == "Admin" %}
-							<li><a href="{{ url_for('all_users') }}">{{ _('All users')}}</a></li>
-							<li><a href="{{ url_for('all_tasks') }}">{{ _('All tasks')}}</a></li>
-							<li><a href="{{ url_for('templates') }}">{{ _('Create task')}}</a></li>
+				<ul>
+						{% if current_user.roles %}
+							{% if current_user.roles[0].name == "Admin" %}
+								<li><a href="{{ url_for('all_users') }}">{{ _('All users')}}</a></li>
+								<li><a href="{{ url_for('all_tasks') }}">{{ _('All tasks')}}</a></li>
+								<li><a href="{{ url_for('templates') }}">{{ _('Create task')}}</a></li>
+								
+								<li><a href="{{ url_for('your_tasks') }}">{{ _('My tasks')}}</a></li>
+								<li><a href="{{ url_for('issued_tasks') }}">{{ _('Issued tasks')}}</a></li>
+								
+								
+							{% elif current_user.roles[0].name == "Usual" %}
+								<li><a href="{{ url_for('templates') }}">{{ _('Create task')}}</a></li>
+								<li><a href="{{ url_for('your_tasks') }}">{{ _('My tasks')}}</a></li>
+								<li><a href="{{ url_for('issued_tasks') }}">{{ _('Issued tasks')}}</a></li>
+								
+								
+							{% elif current_user.roles[0].name == "Client" %}
+								<li><a href="{{ url_for('your_tasks') }}">{{ _('My tasks')}}</a></li>
+							{% endif %}
 							
-						{% elif current_user.roles[0].name == "Usual" %}
-							<li><a href="{{ url_for('templates') }}">{{ _('Create task')}}</a></li>
-							<li><a href="{{ url_for('issued_tasks') }}">{{ _('Issued tasks')}}</a></li>
-							<li><a href="{{ url_for('your_tasks') }}">{{ _('My tasks')}}</a></li>
+							{% for link in current_user.extra_menu_fields %}
+								<li><a href="{{ link.link }}">
+									{% if link.name %}
+											{{ link.name }}
+										{% else %}
+										{{ _('Link_')}}{{link.id}}
+										{% endif %}
+									</a></li>
+							{% endfor %}
 							
-						{% elif current_user.roles[0].name == "Client" %}
-							<li><a href="{{ url_for('your_tasks') }}">{{ _('My tasks')}}</a></li>
+								<li><a href="{{ url_for('add_extra_menu_field', name = title, next = request.path) }}">
+										{{ _('Add')}}
+								</a></li>
 						{% endif %}
-						
-						{% for link in current_user.extra_menu_fields %}
-							<li><a href="{{ link.link }}">
-								  {% if link.name %}
-										{{ link.name }}
-									{% else %}
-									  {{ _('Link_')}}{{link.id}}
-									{% endif %}
-								</a></li>
-						{% endfor %}
-						
-							<li><a href="{{ url_for('add_extra_menu_field', name = title, next = request.path) }}">
-									 {{ _('Add')}}
-								</a></li>
-			</ul>
+				</ul>
 			{% endif %}
-		</div>
-		
+		</div>	
 	</div>
 	
 	<div id="body">
 
-        <hr>
         {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        <ul>
-            {% for message in messages %}
-            <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
+		{% if messages %}
+		<ul>
+		    {% for message in messages %}
+		    <li>{{ message }}</li>
+		    {% endfor %}
+		</ul>
+		{% endif %}
         {% endwith %}
         {% block content %}{% endblock %}
-		<div class="test">123</div>
 		
 	</div>
 	

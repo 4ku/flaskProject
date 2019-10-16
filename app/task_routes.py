@@ -60,7 +60,8 @@ def save_media(fields, dynamic_form, label_form, is_edit, start_ind):
         elif field.picture is not None:
             field.picture, field.encrypted_filename = save_file(form_field, 
                     field.picture, field.encrypted_filename, is_edit)
-        field.label = label_form["label" + str(i)].data
+        if label_form is not None:
+            field.label = label_form["label" + str(i)].data
         i+=1
 
 # Создание Task_media по тэгу из списка
@@ -109,8 +110,10 @@ def create_fields_to_form(DynamicForm, LabelForm, fields, is_task):
         elif field_data.picture is not None:
             label = {"label": _('Picture'), "filename": field_data.picture, "encrypted_filename": field_data.encrypted_filename}
             field = FileField(label = label, validators=picture_validator)
-        setattr(LabelForm, "label" + str(i), TextField())
         setattr(DynamicForm, str(i), field)
+        if LabelForm is not None:
+            setattr(LabelForm, "label" + str(i), TextField())
+
 
 # Копирование Task_media - используется пока только при создании задания (create_task)
 def copy_media(fields, media):
@@ -145,7 +148,8 @@ def fill_data(dynamic_form, label_form, fields):
             dynamic_form[str(i)].label.text = {"label": _("Picture"), "filename": field_data.picture, "encrypted_filename": field_data.encrypted_filename}
         elif field_data.link:
             dynamic_form[str(i)].data = field_data.link
-        label_form["label" + str(i)].data = field_data.label
+        if label_form is not None:
+            label_form["label" + str(i)].data = field_data.label
 
 #-------------------------------------------------------
 # Функции, связанные с task
@@ -155,25 +159,22 @@ def fill_data(dynamic_form, label_form, fields):
 def prepare_task(task, is_edit):
     class DynamicForm(FlaskForm):
         pass
-    class LabelForm(FlaskForm):
-        pass
 
     # Создание новых полей для задания
-    create_fields_to_form(DynamicForm, LabelForm, task.media, True)
+    create_fields_to_form(DynamicForm, None, task.media, True)
 
     dynamic_form = DynamicForm()
-    label_form = LabelForm()
     form = TaskForm_edit() if is_edit else TaskForm_create()
 
     # Создание списка кто создаёт задание и кто принимает это задание
     assigners = User.query.join(User.roles).filter(or_(Role.name == "Admin", Role.name == "Usual")).all()
-    assigner_choices =  [ (user.id, user.username) for user in assigners ]
+    assigner_choices =  [ (user.id, user.email) for user in assigners ]
 
     acceptors = User.query.join(User.roles).filter(or_(Role.name == "Client", Role.name == "Usual")).all()
-    acceptor_choices = [ (user.id, user.username) for user in acceptors ]
+    acceptor_choices = [ (user.id, user.email) for user in acceptors ]
     # Удаление текущего пользователя из списка
-    if (current_user.id, current_user.username) in acceptor_choices:
-        acceptor_choices.remove((current_user.id, current_user.username))
+    if (current_user.id, current_user.email) in acceptor_choices:
+        acceptor_choices.remove((current_user.id, current_user.email))
         
     form.acceptor.choices = acceptor_choices    
     if is_edit:
@@ -198,14 +199,14 @@ def prepare_task(task, is_edit):
             task.status = form.status.data
 
         # Сохранение task.media в БД
-        save_media(task.media, dynamic_form, label_form, is_edit, 0)    
+        save_media(task.media, dynamic_form, None, is_edit, 0)    
 
         db.session.commit()
         flash(_('Your changes have been saved.'))
         return redirect(url_for('login'))
     elif request.method == 'GET':
         # Заполнение полей существующими данными
-        fill_data(dynamic_form, label_form, task.media)
+        fill_data(dynamic_form, None, task.media)
 
         if is_edit:
             form.acceptor.data = task.acceptor.id
@@ -214,7 +215,7 @@ def prepare_task(task, is_edit):
 
     title = _("Edit task") if is_edit else _("Create task")
     return render_template('create_or_edit_task.html', title=title, form=form, 
-        extra_fields = zip(dynamic_form, label_form), edit_task = is_edit)
+        extra_fields = zip(dynamic_form, task.media), edit_task = is_edit)
 
 # Сразу же после выбора шаблона, можем создать задание по выбранному шаблону
 @app.route('/create_task/<template_id>', methods=['GET', 'POST'])

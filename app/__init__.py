@@ -7,15 +7,11 @@ from flask import session
 from flask_babel import Babel
 from config import Config
 
-import logging
-from logging.handlers import SMTPHandler
-from logging.handlers import RotatingFileHandler
-import os
-
 
 app = Flask(__name__)
 app.config.from_object(Config)
 db = SQLAlchemy(app)
+db.create_all()
 migrate = Migrate(app, db)
 babel = Babel(app)
 login = LoginManager(app)

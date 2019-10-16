@@ -1,47 +1,82 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <table>
-        <tr valign="top">
-            <td>
-		         <img src="{{ user.avatar() }}" width="128" height="128">
-		         
-            </td>
-            <td>
-				  <h1>{{ user.username }}</h1>
-				  <p> {{ _('Role:')}} {{_(user.roles[0].name)}}</p>			  
-				  {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
-				  {% if user.last_seen %}<p>{{ _('Last seen on:')}} {{ user.last_seen.strftime('%d %B %Y at %H:%M') }}</p>{% endif %}
-				  
-            </td>
+		
+		<div id="user">
+		
+				<div class="avatar">
+						<img src="{{ user.avatar() }}">
+				</div>
+				
+				<div class="user_info">
+				
+						<div class="real_name">
+								<div class="label">
+										Ф.И.О.:
+								</div>
+								<div class="info">
+										{{current_user.last_name}} {{current_user.first_name}}
+								</div>
+						</div>
+				
+						<div class="user_name">
+								<div class="label">
+										Логин в системе:
+								</div>
+								<div class="info">
+										{{ user.email }}
+								</div>
+						</div>
 
+						{% if user.roles %}
+							<div class="user_role">
+									<div class="label">
+											{{ _('Role:')}}
+									</div>
+									<div class="info">
+											{{_(user.roles[0].name)}}
+									</div>
+							</div>
+						{% endif %}
+						
+						
+						{% if user.last_seen %}
+						<div class="last_session">
+								<div class="label">
+										{{ _('Last seen on:')}}
+								</div>
+								<div class="info">
+										{{ user.last_seen.strftime('%d %B %Y at %H:%M') }}
+								</div>
+						</div>
+						{% endif %}
+						
+				</div>
+		
+		</div>
+		{% if user.roles %}
+			<div class="user_edit">
+			
+					{% if current_user.roles[0].name == "Admin" %}
+					<div class="edit">
+							<a href="{{ url_for('edit_user_admin', id=user.id) }}">{{ _('Edit')}}</a>
+					</div>
+					<div class="delete">
+							<a href="{{ url_for('delete_user', user_id=user.id) }}">{{ _('Delete user')}}</a>
+					</div>
+					{% else %}
+							<a href="{{ url_for('edit_profile') }}">{{ _('Edit')}}</a>
+					{% endif %}
+			</div>
+		
+			<div class="tasks">
 				{% if current_user.roles[0].name == "Admin" %}
-					<td>
-						<a href="{{ url_for('edit_user_admin', username=user.username) }}">
-			              <b>{{ _('Edit')}}</b>
-			          </a>
-					</td> 
-					<td>
-						<a href="{{ url_for('delete_user', user_id=user.id) }}">
-		                 <b>{{ _('Delete user')}}</b>
-		             </a>
-					</td>
-				{% else %}
-					<td>
-						<a href="{{ url_for('edit_profile') }}">
-			              <b>{{ _('Edit')}}</b>
-			          </a>
-					</td> 
+						<h3> {{ _('All tasks related with that user')}} </h3>
+						{% for task in tasks %}
+								{% include '_task.html' %}
+						{% endfor %}
 				{% endif %}
-        </tr>
-    </table>
-    <hr>
-   
-   {% if current_user.roles[0].name == "Admin" %}
-   	<h3> {{ _('All tasks related with that user')}} </h3>
-		 {% for task in tasks %}
-				{% include '_task.html' %}
-		 {% endfor %}
-   {% endif %}
+			</div>
+		{% endif %}
     
 {% endblock %}

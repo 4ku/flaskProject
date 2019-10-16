@@ -36,4 +36,95 @@ header .menu ul li i {color: #baddff; margin: 0 0.25vw 0 0;}
 
 
 
-#body {padding: 6vw 3vw 3vw 18vw;}
+#body {padding: 7vw 0 3vw 18vw; background: #eef2f5; min-height: 100vh;}
+
+#user {background: #fff; padding: 2vw 3vw 2vw 3vw; overflow: hidden;}
+#user .avatar {float: left; margin: 0 2.5vw 0 0;}
+#user .avatar img {width: 5vw; height: auto; border-radius: 3vw;}
+
+#user .user_info {margin: 1.25vw 0 0 0; overflow: hidden;}
+#user .user_info .real_name {float: left; margin: 0 2vw 0 0; padding: 0 2vw 0 0; border-right: 1px solid #f5f5f5;}
+#user .user_info .real_name .label {font-size: 75%; margin: 0 0 0.5vw 0; color: #c5c5c5;}
+#user .user_info .user_name {float: left; margin: 0 2vw 0 0; padding: 0 2vw 0 0; border-right: 1px solid #f5f5f5;}
+#user .user_info .user_name .label {font-size: 75%; margin: 0 0 0.5vw 0; color: #c5c5c5;}
+#user .user_info .user_role {float: left; margin: 0 2vw 0 0; padding: 0 2vw 0 0; border-right: 1px solid #f5f5f5;}
+#user .user_info .user_role .label {font-size: 75%; margin: 0 0 0.5vw 0; color: #c5c5c5;}
+#user .user_info .last_session {float: left; margin: 0 2vw 0 0; padding: 0 2vw 0 0; border-right: 1px solid #f5f5f5;}
+#user .user_info .last_session .label {font-size: 75%; margin: 0 0 0.5vw 0; color: #c5c5c5;}
+
+.user_edit {float: right; overflow: hidden; margin: 0 3vw 0 0;}
+.user_edit .edit {float: left; margin: 0.5vw 0.5vw 0 0;}
+.user_edit .edit a {padding: 0.75vw 1.5vw; color: #fff; background: #b5b5b5; display: inline-block; text-decoration: none; font-size: 75%;}
+.user_edit .delete {display: inline-block; margin: 0.5vw 0 0 0;}
+.user_edit .delete a {padding: 0.75vw 1.5vw; color: #fff; background: #ff0000; display: inline-block; text-decoration: none; font-size: 75%;}
+.user_edit .edit a:hover, .user_edit .delete a:hover {background: #535d69;}
+
+.tasks {background: #fff; margin: 4vw 0 0 0; padding: 2vw 3vw 2vw 3vw; overflow: hidden;}
+.tasks h3 {color: #717984; font-family: 'light', sans-serif; padding: 0 0 1vw 0; border-bottom: 1px solid #f5f5f5; display: block;}
+
+#task_full {background: #fff; padding: 2vw 3vw 2vw 3vw; overflow: hidden;}
+#task_full #task {overflow: hidden; margin: 0 0 1vw 0;}
+#task_full #task .label {float: left; margin: 0 2vw 0 0; color: #c5c5c5; font-family: 'light', sans-serif; width: 10vw;}
+
+.task_info {overflow: hidden; margin: 1vw 0 2vw 15vw; font-size: 75%;}
+.task_info .avatar {float: left; margin: 0 1.5vw 0 0;}
+.task_info .avatar img {width: 3vw; height: auto; border-radius: 2vw;}
+.task_info .user_name {float: left; margin: 1vw 1.5vw 0 0;}
+.task_info .task_status {float: left; overflow: hidden; margin: 1vw 1.5vw 0 0;}
+.task_info .task_status .label {float: left; margin: 0 0.25vw 0 0;}
+.task_info .task_status .info {display: inline-block; }
+.task_info .task_issuid_time {float: left; margin: 1vw 1.5vw 0 0;}
+.task_info .task_issuid_time .label {float: left; margin: 0 0.25vw 0 0;}
+.task_info .task_issuid_time .info {display: inline-block; }
+
+#templates {background: #fff; padding: 2vw 3vw 2vw 3vw; overflow: hidden;}
+#templates h3 {color: #717984; font-family: 'light', sans-serif; margin: 0 0 1vw 0; padding: 0 0 1vw 0; border-bottom: 1px solid #f5f5f5; display: block;}
+#templates .templates_line {overflow: hidden; margin: 0 0 0vw 0;}
+#templates .templates_line .template_create {float: left; min-width: 15vw; margin: 0 0 1vw 0;}
+#templates .templates_line .template_create a {padding: 0.75vw 1.5vw; color: #fff; background: #b5b5b5; display: inline-block; text-decoration: none;}
+#templates .templates_line .template_create a:hover {background: #535d69;}
+#templates .templates_line .template_edit, #templates .templates_line .template_delete {float: left; margin: 0.75vw 3vw 0 0;}
+#templates .templates_line .template_edit a, #templates .templates_line .template_delete a {color: #c5c5c5; font-family: 'light', sans-serif;}
+#templates .template_new {margin: 3vw 0 0 0;}
+#templates .template_new a {padding: 0.75vw 1.5vw; color: #fff; background: #50ab5b; display: inline-block; text-decoration: none;}
+#templates .template_new a:hover {background: #535d69;}
+
+#create_task {background: #fff; padding: 2vw 3vw 2vw 3vw; overflow: hidden;}
+#create_task h3 {color: #717984; font-family: 'light', sans-serif; margin: 0 0 1vw 0; padding: 0 0 1vw 0; border-bottom: 1px solid #f5f5f5; display: block;}
+
+#create_task .acceptor {overflow: hidden; margin: 0 0 1vw 0;}
+#create_task .acceptor .label {min-width: 11vw; float: left; margin: 0.75vw 0 1vw 0;}
+#create_task .acceptor select {padding: 0.75vw 1.5vw 0.75vw 0.75vw;}
+
+#create_task .line {overflow: hidden; margin: 0 0 1vw 0;}
+#create_task .line .label {min-width: 11vw; float: left; margin: 0.75vw 0 1vw 0;}
+#create_task .line .info input {padding: 0.75vw; width: 20vw;}
+
+#create_task .btn input[type=submit] {margin: 2vw 0 0 0; padding: 0.75vw 1.5vw; background: #50ab5b; color: #fff; border: none; cursor: pointer;}
+#create_task .btn input[type=submit]:hover {background: #535d69;}
+
+
+.enter {background: #fff; width: 15vw; height: auto; padding: 3vw 5vw; font-family: 'light', sans-serif;}
+.enter h1 {color: #717984; font-family: 'light', sans-serif; margin: 0 0 1vw 0; padding: 0 0 1vw 0; border-bottom: 1px solid #f5f5f5; display: block; font-size: 125%;}
+.enter .login_label {margin: 2vw 0 1vw 0;}
+.enter .login_label label {line-height: 200%;}
+.enter .login_label input {padding: 1vw;}
+.enter .password {margin: 1vw 0 1vw 0;}
+.enter .password label {line-height: 200%;}
+.enter .password input {padding: 1vw;}
+.enter .remember_me {margin: 1vw 0 0vw 0;}
+
+.enter .btn input[type=submit] {margin: 0.5vw 0 0 0; padding: 0.75vw 1.5vw; background: #50ab5b; color: #fff; border: none; cursor: pointer;}
+.enter .btn input[type=submit]:hover {background: #535d69;}
+
+.enter .new_user {margin: 2vw 0 0 0; padding: 0.75vw 1vw 0 0; border-top: 1px solid #f5f5f5; display: inline-block; font-size: 75%;}
+
+
+
+
+
+
+
+
+
+
