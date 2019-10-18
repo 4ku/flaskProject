@@ -202,6 +202,8 @@ def prepare_task(task, is_edit):
         # Сохранение task.media в БД
         save_media(task.media, dynamic_form, None, is_edit, 0)    
 
+        if not is_edit:
+            db.session.add(task)    
         db.session.commit()
         flash(_('Your changes have been saved.'))
         return redirect(url_for('login'))
@@ -226,7 +228,6 @@ def create_task(template_id):
     task = Tasks()
     # Копируем task_media из fields, которые взяли из шаблона, в новый Tasks
     copy_media(fields, task.media)
-    db.session.add(task)    
     return prepare_task(task, False)
 
 @app.route('/edit_task/<task_id>', methods=['GET', 'POST'])

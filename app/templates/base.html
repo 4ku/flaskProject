@@ -48,14 +48,14 @@
 							{% if current_user.roles[0].name == "Admin" %}
 								<li><a href="{{ url_for('all_users') }}">{{ _('All users')}}</a></li>
 								<li><a href="{{ url_for('all_tasks') }}">{{ _('All tasks')}}</a></li>
-								<li><a href="{{ url_for('templates') }}">{{ _('Create task')}}</a></li>
+								<li><a href="{{ url_for('task_templates') }}">{{ _('Create task')}}</a></li>
 								
 								<li><a href="{{ url_for('your_tasks') }}">{{ _('My tasks')}}</a></li>
 								<li><a href="{{ url_for('issued_tasks') }}">{{ _('Issued tasks')}}</a></li>
 								
 								
 							{% elif current_user.roles[0].name == "Usual" %}
-								<li><a href="{{ url_for('templates') }}">{{ _('Create task')}}</a></li>
+								<li><a href="{{ url_for('task_templates') }}">{{ _('Create task')}}</a></li>
 								<li><a href="{{ url_for('your_tasks') }}">{{ _('My tasks')}}</a></li>
 								<li><a href="{{ url_for('issued_tasks') }}">{{ _('Issued tasks')}}</a></li>
 								

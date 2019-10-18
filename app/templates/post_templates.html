@@ -8,20 +8,20 @@
 			
 			<div class="templates_line">
 					<div class="template_create">
-							<a href="{{ url_for('create_task', template_id = template.id) }}">
+							<a href="{{ url_for('create_post', template_id = template.id) }}">
 										{% if template.name %}
 											{{ template.name }}
 										{% else %}
-											{{_('Template_')}}{{template.id}}
+											{{_('Template_')}}{{loop.index}}
 										{% endif %}
 							</a>
 					</div>
 					{% if current_user.roles[0].name == "Admin" %}
 					<div class="template_edit">
-							<a href="{{ url_for('edit_template', template_id = template.id) }}">{{ _('Edit template')}}</a>	
+							<a href="{{ url_for('edit_post_template', template_id = template.id) }}">{{ _('Edit template')}}</a>	
 					</div>
 					<div class="template_delete">
-							<a  href="{{ url_for('delete_template', template_id = template.id) }}">{{ _('Delete template')}}</a>	
+							<a  href="{{ url_for('delete_post_template', template_id = template.id) }}">{{ _('Delete template')}}</a>	
 					</div>
 					{% endif %}
 			</div>
@@ -31,7 +31,7 @@
 		{% if current_user.roles[0].name == "Admin" %}
 			<!--<h3> {{ _('Create new template')}} </h3>-->
 			<div class="template_new">
-					<a href="{{ url_for('create_new_template') }}">	{{ _('New template')}}</a>
+					<a href="{{ url_for('create_new_post_template') }}">	{{ _('New template')}}</a>
 			</div>
 		{% endif %}
 	

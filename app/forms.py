@@ -2,7 +2,7 @@ from flask_babel import _, lazy_gettext as _l
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
-from app.models import User
+from app.models import Users
 from wtforms import StringField, TextField, TextAreaField, SubmitField, RadioField, FieldList, FormField
 from wtforms.validators import DataRequired, Length
 from flask_wtf.file import FileField, FileAllowed
@@ -37,7 +37,7 @@ class RegistrationForm(FlaskForm):
     
     def validate_email(self, email):
         try:
-            user = User.query.filter_by(email=email.data).first()
+            user = Users.query.filter_by(email=email.data).first()
         except:
             user = None
         if user is not None:
@@ -56,7 +56,7 @@ class EditProfileForm_Admin(FlaskForm):
 
     def validate_email(self, email):
         if email.data != self.original_email:
-            user = User.query.filter_by(email=self.email.data).first()
+            user = Users.query.filter_by(email=self.email.data).first()
             if user is not None:
                 raise ValidationError(_l('Please use a different email.'))
 
@@ -73,6 +73,13 @@ class TaskForm_edit(FlaskForm):
 
 class TaskForm_create(FlaskForm):
     acceptor = SelectField(_l('Acceptor'), choices=[], coerce = int)
+    submit = SubmitField(_l('Submit'))
+
+class PostForm_edit(FlaskForm):
+    assigner = SelectField(_l('Assigner'), choices=[], coerce=int)
+    submit = SubmitField(_l('Submit'))
+
+class PostForm_create(FlaskForm):
     submit = SubmitField(_l('Submit'))
 
 class AddFieldForm(FlaskForm):

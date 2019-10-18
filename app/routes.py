@@ -2,6 +2,7 @@ from flask_babel import _, lazy_gettext as _l
 from flask import render_template, flash, redirect, url_for, request, session, send_from_directory
 from flask_login import current_user, login_user, logout_user, login_manager, login_required
 from functools import wraps
+from flask import abort
 
 from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
@@ -50,7 +51,7 @@ def login():
         return redirect(url_for('user', id=current_user.id))
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        user = Users.query.filter_by(email=form.email.data).first()
         if user is None or not user.check_password(form.password.data) or user.roles[0].name == 'Not confirmed':
             flash('Invalid email or password')
             return redirect(url_for('login'))
@@ -73,10 +74,10 @@ def register():
         return redirect(url_for('user', id=current_user.id))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(email = form.email.data, last_name=form.last_name.data,
+        user = Users(email = form.email.data, last_name=form.last_name.data,
             first_name=form.first_name.data)
         user.set_password(form.password.data)
-        user.roles.append(Role(name="Not confirmed"))
+        user.roles.append(Roles(name="Not confirmed"))
         db.session.add(user)
         db.session.commit()
         flash(_l('Wait for administrator register confirmation.'))
@@ -88,9 +89,12 @@ def register():
 @app.route('/user/<id>', methods=['GET', 'POST'])
 @login_required
 def user(id):
-    user = User.query.filter_by(id=id).first_or_404()
-    tasks = Task.query.filter(or_(Task.assigner_id == user.id, 
-        Task.acceptor_id == user.id)).order_by(Task.timestamp.desc()).all()
+    user = Users.query.filter_by(id=id).first_or_404()
+    user_roles = [role.name for role in user.roles]
+    if "God" in user_roles and current_user.id != user.id:
+        return abort(404)
+    tasks = Tasks.query.filter(or_(Tasks.assigner_id == user.id, 
+        Tasks.acceptor_id == user.id)).order_by(Tasks.timestamp.desc()).all()
     return render_template('user.html', title = user.last_name+" "+ user.first_name, 
         user=user, tasks = tasks)
 
@@ -102,7 +106,7 @@ def user(id):
 @app.route('/all_users', methods=['GET', 'POST'])
 @roles_required(['Admin'])
 def all_users():
-    all_users = User.query.filter(User.id!=current_user.id).all()
+    all_users = Users.query.filter(Users.id!=current_user.id, ~Users.roles.any(Roles.name == "God")).all()
     return render_template("all_users.html", title = _l("All users"), users = all_users)
 
 
@@ -110,13 +114,13 @@ def all_users():
 @roles_required(['Admin'])
 def all_tasks():
     return render_template("tasks.html", title = _l("All tasks"),
-        tasks = Task.query.order_by(Task.timestamp.desc()).all())
+        tasks = Tasks.query.order_by(Tasks.timestamp.desc()).all())
 
 
 @app.route('/edit_user_admin/<id>', methods=['GET', 'POST'])
 @roles_required(['Admin'])
 def edit_user_admin(id):
-    user = User.query.filter_by(id=id).first()
+    user = Users.query.filter_by(id=id).first()
     form = EditProfileForm_Admin(user.email)
     if form.validate_on_submit():
         if form.picture.data:
@@ -125,7 +129,7 @@ def edit_user_admin(id):
             image.save(os.path.join(app.root_path, 'static/avatars/', encrypted_filename))
             user.avatar_path = encrypted_filename
         user.email = form.email.data
-        user.roles[0] = (Role(name=form.role_list.data))
+        user.roles[0] = (Roles(name=form.role_list.data))
         db.session.commit()
         flash(_l('Your changes have been saved.'))
         return redirect(url_for('edit_user_admin', id = user.id))
@@ -159,21 +163,21 @@ def edit_profile():
 @roles_required(['Admin'])
 def delete_user(user_id):
 
-    user = User.query.filter_by(id=user_id).first()
+    user = Users.query.filter_by(id=user_id).first()
 
     # Удаление аватарки
     if user.avatar_path:
         os.remove(os.path.join(app.root_path, 'static/avatars/', user.avatar_path))
 
     #Удаление всех заданий пользователя
-    acceptor_tasks = Task.query.filter(Task.acceptor_id == user.id).all()
-    assigner_tasks = Task.query.filter(Task.assigner_id == user.id).all()
+    acceptor_tasks = Tasks.query.filter(Tasks.acceptor_id == user.id).all()
+    assigner_tasks = Tasks.query.filter(Tasks.assigner_id == user.id).all()
     for task in acceptor_tasks:
         delete_task(task.id)
     for task in assigner_tasks:
         delete_task(task.id)
     
-    User.query.filter_by(id=user_id).delete()
+    Users.query.filter_by(id=user_id).delete()
     db.session.commit()
     return redirect(url_for("all_users"))
 
@@ -182,17 +186,17 @@ def delete_user(user_id):
 #-------------------------------------------------------------
 
 # Страница с выбором существующего шаблона задания или создание нового шаблона (создание только для админа)
-@app.route('/templates', methods=['GET', 'POST'])
+@app.route('/task_templates', methods=['GET', 'POST'])
 @roles_required(['Admin', 'Usual'])
-def templates():
+def task_templates():
     templates = Task_templates.query.all()
-    return render_template('templates.html', templates = templates)
+    return render_template('task_templates.html', templates = templates)
 
 
 @app.route('/issued_tasks', methods=['GET', 'POST'])
 @roles_required(['Admin', 'Usual'])
 def issued_tasks():
-    tasks = current_user.assign.order_by(Task.timestamp.desc()).all()
+    tasks = current_user.assign.order_by(Tasks.timestamp.desc()).all()
     return render_template("tasks.html", title=_l('Issued tasks'), tasks = tasks)
 
 #-------------------------------------------------------------
@@ -202,7 +206,7 @@ def issued_tasks():
 @app.route('/your_tasks', methods=['GET', 'POST'])
 @login_required
 def your_tasks():
-    tasks = current_user.accept.order_by(Task.timestamp.desc()).all()
+    tasks = current_user.accept.order_by(Tasks.timestamp.desc()).all()
     return render_template("tasks.html", title=_l('My tasks'), tasks = tasks)
 
 
@@ -219,7 +223,7 @@ def toolbar_settings():
 @login_required
 def add_extra_menu_field():
     name  = request.args.get('name', None)
-    current_user.extra_menu_fields.append(Menu_field(link = request.referrer, name = name))
+    current_user.extra_menu_fields.append(Menu_fields(link = request.referrer, name = name))
     db.session.commit()
     next_page = request.args.get('next')
     if not next_page or url_parse(next_page).netloc != '':
@@ -229,7 +233,7 @@ def add_extra_menu_field():
 @app.route('/rename_link/<link_id>',methods=['GET', 'POST'])
 @login_required
 def rename_menu_field(link_id):
-    link = Menu_field.query.filter_by(id = link_id).first()
+    link = Menu_fields.query.filter_by(id = link_id).first()
     form = MenuForm()
 
     if form.validate_on_submit():
@@ -243,7 +247,7 @@ def rename_menu_field(link_id):
 @app.route('/delete_link/<link_id>')
 @login_required
 def delete_menu_field(link_id):
-    Menu_field.query.filter_by(id = link_id).delete()
+    Menu_fields.query.filter_by(id = link_id).delete()
     db.session.commit()
     return redirect(url_for("toolbar_settings"))
 
@@ -292,4 +296,25 @@ def before_request():
         db.session.commit()
 
 from app.task_routes import delete_task
+
+
+
+
+
+
+# #Здесь тупо отображение постов
+# @app.route('/main', methods=['GET'])
+# @login_required
+# def main():
+#     templates = Task_templates.query.all()
+#     return render_template('templates.html', templates = templates)
+
+
+#Это страничка с отображением всех шаблонов для постов
+@app.route('/post_templates', methods=['GET', 'POST'])
+@roles_required(['Admin', 'Usual'])
+def post_templates():
+    templates = Post_templates.query.all()
+    return render_template('post_templates.html', templates = templates)
+
 
