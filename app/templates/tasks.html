@@ -1,46 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-    
-    {% if add_field_form %}
-			<form method="post">
-				{{ form.hidden_tag() }}
-				<p>{{add_field_form.fields_list.label}}: {{add_field_form.fields_list()}}</p>
-		      <p>{{add_field_form.add_field()}}</p>
-			</form>
-	{% endif %}
-	
- 	{% if form %}
-     <form method="post" enctype="multipart/form-data">
-			{{ form.hidden_tag() }}
- 			<p>
-	 			{{ form.post.label }}
-				{{ form.post() }}
-			</p>
-			{% for error in form.post.errors %}
-	     	 	<span style="color: red;">[{{ error }}]</span>
-	      {% endfor %}
-	      <hr>
-			{% for field in extra_fields %}
-			 	 <p>
-					{% if field.type not in ['CSRFTokenField', 'HiddenField'] %}
-						{{ field.label }}  
-						{{ field() }}
-						{% if field.type != "TextField" %}
-							<hr>
-						{% endif %}
-					{% endif %}
-					
-					{% for error in field.errors %}
-			     	 	<span style="color: red;">[{{ error }}]</span>
-			      {% endfor %}
-				 </p>  
-			{% endfor %}
-       <p> {{ _('Assign to:')}} {{ form.user_list() }} </p>
-       <p>{{ form.submit() }}</p>
-		<hr>
-     </form>
-   {% endif %}
       
     {% for task in tasks %}
     		{% include '_task.html' %}

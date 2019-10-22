@@ -310,11 +310,11 @@ from app.task_routes import delete_task
 #     return render_template('templates.html', templates = templates)
 
 
-#Это страничка с отображением всех шаблонов для постов
-@app.route('/post_templates', methods=['GET', 'POST'])
-@roles_required(['Admin', 'Usual'])
-def post_templates():
-    templates = Post_templates.query.all()
-    return render_template('post_templates.html', templates = templates)
+# #Это страничка с отображением всех шаблонов для постов
+# @app.route('/post_templates', methods=['GET', 'POST'])
+# @roles_required(['Admin', 'Usual'])
+# def post_templates():
+#     templates = Post_templates.query.all()
+#     return render_template('post_templates.html', templates = templates)
 
 

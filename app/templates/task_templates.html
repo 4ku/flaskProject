@@ -29,9 +29,8 @@
 		{% endfor %}	
 		
 		{% if current_user.roles[0].name == "Admin" %}
-			<!--<h3> {{ _('Create new template')}} </h3>-->
 			<div class="template_new">
-					<a href="{{ url_for('create_new_template') }}">	{{ _('New template')}}</a>
+					<a href="{{ url_for('create_task_template') }}">	{{ _('New template')}}</a>
 			</div>
 		{% endif %}
 	

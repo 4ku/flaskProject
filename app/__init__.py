@@ -20,6 +20,12 @@ login.login_view = 'login'
 Session(app)
 app.jinja_env.globals['LANGUAGES'] = app.config['LANGUAGES']
 
+from app.models import Users
+@login.user_loader
+def load_user(id):
+    return Users.query.get(int(id))
+
+
 @babel.localeselector
 def get_locale():
     if "CURRENT_LANGUAGE" in session:

@@ -1,10 +1,10 @@
 from flask_babel import _, lazy_gettext as _l
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from wtforms import PasswordField, BooleanField,SelectField
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length
 from app.models import Users
-from wtforms import StringField, TextField, TextAreaField, SubmitField, RadioField, FieldList, FormField
-from wtforms.validators import DataRequired, Length
+from wtforms import Form, StringField, TextField, TextAreaField, SubmitField, \
+    RadioField, FieldList, FormField, Field
 from flask_wtf.file import FileField, FileAllowed
 from wtforms.fields.html5 import DateField
 
@@ -75,18 +75,11 @@ class TaskForm_create(FlaskForm):
     acceptor = SelectField(_l('Acceptor'), choices=[], coerce = int)
     submit = SubmitField(_l('Submit'))
 
-class PostForm_edit(FlaskForm):
-    assigner = SelectField(_l('Assigner'), choices=[], coerce=int)
-    submit = SubmitField(_l('Submit'))
-
-class PostForm_create(FlaskForm):
-    submit = SubmitField(_l('Submit'))
-
 class AddFieldForm(FlaskForm):
-    add_field = SubmitField(_l('Add field'))
     fields_list = SelectField(_l('Field type'), 
         choices=[('Text',_l('Text')), ('TextArea',_l('TextArea')),
             ('Date',_l('Date')),('File',_l('File')),('Picture',_l('Picture')),('Link',_l('Link'))])
+    add_field = SubmitField(_l('Add field'))
 
 class TemplateForm(FlaskForm):
     name = TextField(label = _l("Template name"))
@@ -95,6 +88,18 @@ class TemplateForm(FlaskForm):
 class MenuForm(FlaskForm):
     name = TextField(label = _l("Link name"))
     submit = SubmitField(_l('Submit'))
+
+
+
+class FieldForm(Form):
+    label = TextField(label = _l("Label"),validators=[DataRequired(),Length(max=50)])
+    is_displayed =  BooleanField(_l('Display'))
+    content_field = Field()
+
+class ContentForm(FlaskForm):
+    fields = FieldList(
+        FormField(FieldForm)
+    )
 
 
 def check_file_label(form, field):
