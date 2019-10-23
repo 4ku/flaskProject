@@ -1,80 +1,51 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div id="create_task">
 
-	{% if title %}
-		<h3>{{ title }} </h3>
-	{% endif %}
 	
-		<form action="" method="post" enctype="multipart/form-data">
-				{{ form.hidden_tag() }}
-
-				{% if edit_task %}
-				<div class="line">
-						<div class="assigner">
-								<div class="label">
-										{{ form.assigner.label }}:
-								</div>
-								<div class="info">
-										{{ form.assigner() }}
-								</div>
-						</div>
-						<div class="acceptor">
-								<div class="label">
-										{{ form.acceptor.label }}:
-								</div>
-								<div class="info">
-										{{ form.acceptor() }}
-						</div>
-						<div class="status">
-								<div class="label">
-										{{ form.status.label }}:
-								</div>
-								<div class="info">
-										{{ form.status() }}
-								</div>
-				{% else %}
-						<div class="acceptor">
-								<div class="label">
-										{{ form.acceptor.label }}:
-								</div>
-								<div class="info">
-										{{ form.acceptor() }}
-						</div>
-				</div>
-				{% endif %}
-
-				{% for field, label in extra_fields %}
-						{% if field.type not in ['CSRFTokenField', 'HiddenField'] %}
-						<div class="line"> 
-								<div class="label">
-										{{ label.label }}
-								</div>
-								<div class="info">
-
-										{{ field() }} 
-
-										{% if (field.type == "FileField") and (field.label.text['filename']) %}
-											<a href="{{ url_for('download_file', filename = field.label.text['encrypted_filename']) }}">{{ field.label.text['filename'] }}</a>
-										{% endif %}
-								</div>
-						</div>
+     <form method="post" enctype="multipart/form-data">
+		{{ form.hidden_tag() }} {{ fields_form.hidden_tag() }}
+		{{form.acceptor}}
+		<div id="fields-container">
+			{% for field_form in fields_form.fields %}
+				<div id="field-{{ loop.index0 }}-form" class="field" data-index="{{ loop.index0 }}">
+					{% for field in field_form %}
+						{% if (field.type == "FileField") %}
+							{{ field.label.text['label'] }}:
+							{% if (field.label.text['filename']) %}
+								<a href="{{ url_for('download_file', filename = field.label.text['encrypted_filename']) }}">
+									<b>{{ field.label.text['filename'] }}</b>
+								</a>
+							{% endif %}
+						{% else %}
+							{{ field.label }}:
 						{% endif %}
+
+						{{ field() }} 
 
 						{% for error in field.errors %}
 							<span style="color: red;">[{{ error }}]</span>
 						{% endfor %}
-				{% endfor %}
-				
-				{% for error in form.errors %}
-					<span style="color: red;">[{{ error }}]</span>
-				{% endfor %}
-				
-				<div class="btn">
-						{{ form.submit() }}
+					{% endfor %}
 				</div>
-		</form>
+				<a class="remove" href="#">Remove</a>
+			{% endfor %}
+		</div>	
 
-</div>
+	   <p>{{ form.submit() }}</p>
+	   {% for error in form.errors %}
+	  		<span style="color: red;">[{{ error }}]</span>
+		{% endfor %}
+     </form>
+
+	 
+	 {# Form template #}
+	 <div style="display: none;" id="field-_-form" data-index="_">
+		 <label style = "order: 1;" for="fields-_-label">Label: </label>
+		 <input style = "order: 2;" id="fields-_-label" name="fields-_-label" type="text" value="">
+		 <label style = "order: 5;" for="fields-_-is_displayed">Display: </label>
+		 <input style = "order: 6;" id="fields-_-is_displayed" name="fields-_-is_displayed" type="checkbox" value="y">
+		 <a style = "order: 7;" class="remove" href="#">Remove</a>
+	 </div>
+
 {% endblock %}

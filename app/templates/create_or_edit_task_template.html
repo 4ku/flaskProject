@@ -31,7 +31,12 @@
 
 			});
 
-			$form.find('input','textarea').each(function(idx) {
+			$form.find('input').each(function(idx) {
+				var $item = $(this);
+				$item.attr('id', $item.attr('id').replace(index, newIndex));
+				$item.attr('name', $item.attr('name').replace(index, newIndex));
+			});
+			$form.find('textarea').each(function(idx) {
 				var $item = $(this);
 				$item.attr('id', $item.attr('id').replace(index, newIndex));
 				$item.attr('name', $item.attr('name').replace(index, newIndex));
@@ -51,6 +56,7 @@
 
 	function addForm(e) {
 		e.preventDefault();
+
 		var $templateForm = $('#field-_-form');
 		var $lastForm = $('.field').last();
 		var newIndex = 0;
@@ -102,10 +108,15 @@
 
 		});
 
-		$newForm.find('input','textarea').each(function(idx) {
+		$newForm.find('input').each(function(idx) {
 			var $item = $(this);
 			$item.attr('id', $item.attr('id').replace('_', newIndex));
 			$item.attr('name', $item.attr('name').replace('_', newIndex));
+		});
+		$newForm.find('textarea').each(function(idx) {
+				var $item = $(this);
+				$item.attr('id', $item.attr('id').replace('_', newIndex));
+				$item.attr('name', $item.attr('name').replace('_', newIndex));
 		});
 
 		$('#fields-container').append($newForm);
@@ -127,8 +138,7 @@
 	<form method="post">
 		{{ form.hidden_tag() }}
 		<p>{{add_field_form.fields_list.label}}: {{add_field_form.fields_list()}}</p>
-		{{add_field_form.add_field()}}
-		<!-- <button id="add_field">Add field</button> -->
+		{{add_field_form.add_field}}
 		
 		{% for error in add_field_form.errors %}
 					<span style="color: red;">[{{ error }}]</span>

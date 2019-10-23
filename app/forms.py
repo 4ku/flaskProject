@@ -92,9 +92,8 @@ class MenuForm(FlaskForm):
 
 
 class FieldForm(Form):
-    label = TextField(label = _l("Label"),validators=[DataRequired(),Length(max=50)])
+    label = TextField(label = _l("Label"),validators=[Length(max=50)])
     is_displayed =  BooleanField(_l('Display'))
-    content_field = Field()
 
 class ContentForm(FlaskForm):
     fields = FieldList(

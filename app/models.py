@@ -56,7 +56,7 @@ class Tasks(db.Model):
     assigner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     acceptor_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     status = db.Column(db.Unicode(32), default ="Issued")
-    media = db.relationship("Fields", 
+    fields = db.relationship("Fields", 
         secondary = task_field_connection, 
         primaryjoin =(task_field_connection.c.task_id == id),
         secondaryjoin = (task_field_connection.c.field_id == Fields.id),

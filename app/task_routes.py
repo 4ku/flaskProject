@@ -13,6 +13,7 @@ from shutil import copyfile
 from app import app, db
 from app.forms import *
 from app.models import *
+import re
 
 from app.routes import roles_required, encode_filename
 
@@ -51,21 +52,56 @@ def add_and_fill_fields_to_form(FieldForm, form, fields, is_task):
             label = {"label": _('Picture'), "filename": field_data.picture, \
                 "encrypted_filename": field_data.encrypted_filename}
             extra_field = FileField(label = label, validators=picture_validator)
-        # setattr(FieldForm, extra_field_name, extra_field)
-        FieldForm.content_field = extra_field
+        setattr(FieldForm, extra_field_name, extra_field)
         data = {'label': field.label, 'is_displayed': field.display}
         form.fields.append_entry(data)
-        # delattr(FieldForm, extra_field_name)
+        delattr(FieldForm, extra_field_name)
 
+def save_fields(content):
+    fields = []
+    forms_names = " ".join([x for x in request.form])
+    ind_names = re.compile(r"fields-([\d]+)-([\S]+)").findall(forms_names)
+    ind_names = [x for x in ind_names if x[1]!='label']
+    idx = [int(x[0]) for x in ind_names]
+    field_types = [x[1] for x in ind_names]
 
-def create_or_edit_dynamic_content(fields):
-    form = ContentForm()
-    if request.method == "GET":
-        add_and_fill_fields_to_form(FieldForm, form,fields,False)
+    forms_names = " ".join([x for x in request.files])
+    ind_names = re.compile(r"fields-([\d]+)-([\S]+)").findall(forms_names)
+    idx_files = [int(x[0]) for x in ind_names]
+    field_types_files = [x[1] for x in ind_names]
 
+    idx = idx + idx_files
+    field_types = field_types + field_types_files
+    
+    for index, field_type in sorted(zip(idx, field_types)):
+        media = None
+        value = request.form.get("fields-"+str(index)+"-"+field_type)
+        if field_type == "text":
+            value = request.form.get("fields-"+str(index)+"-"+field_type) 
+            media = Media(text = value)
+        elif field_type =="textArea":
+            value = request.form.get("fields-"+str(index)+"-"+field_type) 
+            media = Media(textArea = value)
+        elif field_type =="date":
+            value = request.form.get("fields-"+str(index)+"-"+field_type) 
+            media = Media(date = value)
+        elif field_type =="file":
+            media = Media(filename = "", encrypted_filename = "")
+        elif field_type =="picture":
+            media = Media(picture = "")
+        elif field_type =="link":
+            value = request.form.get("fields-"+str(index)+"-"+field_type) 
+            media = Media(link = value)
+        label = request.form.get("fields-"+str(index)+"-label")
+        is_displayed = "fields-"+str(index)+"-is_displayed" in request.form 
+        field = Fields(label = label, display = is_displayed, media = media)
+        content.fields.append(field)
+    return fields
+
+def create_dynamic_content(content, form, fields):
+    add_and_fill_fields_to_form(FieldForm, form,fields,False)
     if form.validate_on_submit():
-        for field in form.fields:
-            pass
+        save_fields(content)
 
 
 @app.route('/create_task/<template_id>', methods=['GET', 'POST'])
@@ -74,10 +110,11 @@ def create_task(template_id):
     
     task = Tasks()
     form = TaskForm_create()
+    fields_form = ContentForm()
     is_edit = False
   
     fields = Task_templates.query.filter_by(id = template_id).first().fields
-    create_or_edit_dynamic_content(fields)
+    create_dynamic_content(task, fields_form, fields)
 
     if request.method == 'GET':
         #QuerySelectField
@@ -109,42 +146,9 @@ def create_task(template_id):
         db.session.commit()
         flash(_('Your changes have been saved.'))
         return redirect(url_for('login'))
+    return render_template("create_or_edit_task.html", form = form, fields_form = fields_form)
+    
 
-
-
-
-
-# def create_template(template):
-#     add_field_form = AddFieldForm()
-#     form = ContentForm()
-#     # if form.validate_on_submit():
-
-
-
-#     return render_template("create_or_edit_task_template.html", 
-#         add_field_form = add_field_form, form = form)
-
-
-
-def add_field_to_form(form, field_type):
-    print(field_type)
-    media = None
-    if field_type == "Text":
-        media = Media(text = "")
-    elif field_type == "TextArea":
-        media = Media(textArea = "")
-    elif field_type == "Date":
-        media = Media(date = datetime(1,1,1))
-    elif field_type == "File":
-        media = Media(filename = "", encrypted_filename = "")
-    elif field_type == "Picture":
-        media = Media(picture = "")
-    elif field_type == "Link":
-        media = Media(link = "")
-    field = Fields(media = media)
-    add_and_fill_fields_to_form(FieldForm, form, [field], False)
-
-app.jinja_env.globals.update(add_field_to_form = add_field_to_form)
 
 
 # Создание шаблона
@@ -155,31 +159,30 @@ def create_task_template():
     add_field_form = AddFieldForm()
     form = TemplateForm()
     fields_form = ContentForm()
-    
 
-
-    if add_field_form.add_field.data:
-        add_field_to_form(fields_form, add_field_form.fields_list.data)
-        # item = []
-        # fields_form.populate_obj(item)
-        # print(item)
-    elif form.submit.data and form.validate_on_submit():
-        for field in fields_form.fields:
-            print(field)
-            print()
-        print("request.form")
-        for field in request.form:
-            print(field)
-            print(request.form.get(field))
-            print()
-        print(request.files)
-    
+    if form.validate_on_submit():
+        save_fields(template)
+        db.session.add(template)
+        db.session.commit()
+        return redirect(url_for('login'))
+        
     return render_template("create_or_edit_task_template.html", 
             add_field_form = add_field_form, form = form, fields_form = fields_form)
 
 
 
-    
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -307,11 +310,11 @@ def delete_task(task_id):
 
 # Используется при создании шаблона и его редактировани
 
-# @app.route('/edit_template/<template_id>', methods=['GET', 'POST'])
-# @roles_required(['Admin'])
-# def edit_template(template_id):
-#     template = Task_templates.query.filter_by(id = template_id).first()
-#     return prepare_template(template, True)
+@app.route('/edit_template/<template_id>', methods=['GET', 'POST'])
+@roles_required(['Admin'])
+def edit_template(template_id):
+    template = Task_templates.query.filter_by(id = template_id).first()
+    return 1
 
 # Немножко говнокода (хз как нормально реализовать удаление одного поля)
 @app.route('/delete_field_in_template/', methods=['GET', 'POST'])
