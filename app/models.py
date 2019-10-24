@@ -20,6 +20,7 @@ class Media(db.Model):
         return '<Media {}, {}, {}, {}, {}, {}, {}>'.format(self.text, self.textArea, 
                 self.date, self.encrypted_filename, self.filename, self.link, self.picture)
 
+
 class Fields(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     label = db.Column(db.Unicode(64))
@@ -103,6 +104,8 @@ class Users(UserMixin, db.Model):
         return 'https://www.gravatar.com/avatar/{}?d=identicon&s=200'.format(
             digest)
 
+    def __repr__(self):
+        return '<User {}>'.format(self.email)
 
 #Дополнительные ссылки пользователя
 class Menu_fields(db.Model):

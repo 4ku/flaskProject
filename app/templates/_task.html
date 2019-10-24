@@ -1,37 +1,38 @@
 <div id="task_full">
-{% for content in task.media %}
-	
+{% for field in task.fields %}
+	{% if field.display %}
 		<div id="task">
 				<div class="label">
-						{{content.label}}
+						{{field.label}}
 				</div>
 				<div class="info">
-					{% if content.text %}
-						{% if is_link(content.text) %}
-							<a href="{{ append_http(content.text) }}">
-								{{ content.text }}
+					{% if field.media.text %}
+						{% if is_link(field.media.text) %}
+							<a href="{{ append_http(field.media.text) }}">
+								{{ field.media.text }}
 							</a>
 						{% else %}
-							{{ content.text }}
+							{{ field.media.text }}
 						{% endif %}
-					{% elif content.textArea %}
-						{{ content.textArea }}
-					{% elif content.date %}
-						{{ content.date.strftime('%d %B %Y') }}
-					{% elif content.filename %}
-							<a href="{{ url_for('download_file', filename = content.encrypted_filename) }}">
-								<b>{{ content.filename }}</b>
+					{% elif field.media.textArea %}
+						{{ field.media.textArea }}
+					{% elif field.media.date %}
+						{{ field.media.date.strftime('%d %B %Y') }}
+					{% elif field.media.filename %}
+							<a href="{{ url_for('download_file', filename = field.media.encrypted_filename) }}">
+								<b>{{ field.media.filename }}</b>
 							</a>
-					{% elif content.picture %}
-							<img src="{{ url_for('static',filename = 'files/' + content.encrypted_filename) }}" width="200" height="200">
-					{% elif content.link %}
-							<a href="{{ append_http(content.link) }}">
-								{{ content.link }}
+					{% elif field.media.picture %}
+							<img src="{{ url_for('static',filename = 'files/' + field.media.encrypted_filename) }}" width="200" height="200">
+					{% elif field.media.link %}
+							<a href="{{ append_http(field.media.link) }}">
+								{{ field.media.link }}
 							</a>
 					{% endif %}
 				</div>
 				
 		</div>
+	{% endif %}
 		
 {% endfor %}
 </div>

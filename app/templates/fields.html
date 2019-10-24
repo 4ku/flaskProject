@@ -1,0 +1,51 @@
+<div id="fields-container">
+	{% for field_form in text_form.text_fields %}
+	<div class="line"> 
+		<div id="text_fields-{{ loop.index0 }}-form" class="text_fields" data-index="{{ loop.index0 }}">			
+			{% if is_template %}
+				{{ field_form.label_.label }}
+				{{ field_form.label_}}
+				{{ field_form.text.label }}
+			{% else %}
+				{{ field_form.label_(style = "display: none;") }}
+				{{ field_form.label_.data}}
+			{% endif %}
+
+			{{ field_form.text }}
+			{{ field_form.is_displayed.label }}		
+			{{ field_form.is_displayed() }}		
+			
+			{% for field in field_form %}					
+				{% for error in field.errors %}
+					<span style="color: red;">[{{ error }}]</span>
+				{% endfor %}
+			{% endfor %}
+		</div>
+	</div>
+	{% endfor %}
+
+	{% for field_form in textArea_form.textArea_fields %}
+	<div class="line"> 			
+		<div id="textArea_fields-{{ loop.index0 }}-form" class="textArea_fields" data-index="{{ loop.index0 }}">			
+			{% if is_template %}
+				{{ field_form.label_.label }}
+				{{ field_form.label_}}
+				{{ field_form.textArea.label }}
+			{% else %}
+				{{ field_form.label_(style = "display: none;") }}
+				{{ field_form.label_.data}}
+			{% endif %}
+
+			{{ field_form.textArea }}	
+			{{ field_form.is_displayed.label }}
+			{{ field_form.is_displayed }}		
+				
+			{% for field in field_form %}					
+				{% for error in field.errors %}
+					<span style="color: red;">[{{ error }}]</span>
+				{% endfor %}
+			{% endfor %}
+		</div>
+	</div>
+	{% endfor %}
+</div>	

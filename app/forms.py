@@ -2,11 +2,15 @@ from flask_babel import _, lazy_gettext as _l
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, BooleanField,SelectField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length
-from app.models import Users
+from app.models import Users, Roles
 from wtforms import Form, StringField, TextField, TextAreaField, SubmitField, \
     RadioField, FieldList, FormField, Field
 from flask_wtf.file import FileField, FileAllowed
 from wtforms.fields.html5 import DateField
+from wtforms_sqlalchemy.fields import QuerySelectField
+from sqlalchemy import or_
+from flask_login import current_user
+
 
 class LoginForm(FlaskForm):
     email = StringField(_l('Email'), validators=[DataRequired()])
@@ -64,15 +68,30 @@ class EditProfileForm(FlaskForm):
     picture = FileField(_l('Update Profile Picture'), validators=[FileAllowed(['jpg', 'png','jpeg'])])
     submit = SubmitField(_l('Submit'))
 
+
+def assigners_query():
+    return Users.query.join(Users.roles).filter(or_(Roles.name == "Admin", 
+        Roles.name == "Usual"), ~Users.roles.any(Roles.name == "God"))
+
+def get_pk(obj):
+    return str(obj)
+
+def acceptors_query():
+    return Users.query.join(Users.roles).filter(or_(Roles.name == "Client", 
+        Roles.name == "Usual"), ~Users.roles.any(Roles.name == "God"), Users.id != current_user.id)
+
 class TaskForm_edit(FlaskForm):
-    assigner = SelectField(_l('Assigner'), choices=[], coerce=int)
-    acceptor = SelectField(_l('Acceptor'), choices=[], coerce = int)
+    assigner = QuerySelectField(_l('Assigner'), query_factory=assigners_query, 
+        get_pk = get_pk, get_label ="email")
+    acceptor = QuerySelectField(_l('Acceptor'), query_factory=acceptors_query, 
+        get_pk = get_pk, get_label ="email")
     status = SelectField(_l('Status'), 
         choices=[('Issued',_l('Issued')),('In progress',_l('In progress')),('Done',_l('Done'))])
     submit = SubmitField(_l('Submit'))
 
 class TaskForm_create(FlaskForm):
-    acceptor = SelectField(_l('Acceptor'), choices=[], coerce = int)
+    acceptor = QuerySelectField(_l('Acceptor'), query_factory=acceptors_query, 
+        get_pk = get_pk, get_label ="email")
     submit = SubmitField(_l('Submit'))
 
 class AddFieldForm(FlaskForm):
@@ -92,12 +111,24 @@ class MenuForm(FlaskForm):
 
 
 class FieldForm(Form):
-    label = TextField(label = _l("Label"),validators=[Length(max=50)])
+    label_ = TextField(label = _l("Label"),validators=[Length(max=50)])
     is_displayed =  BooleanField(_l('Display'))
 
-class ContentForm(FlaskForm):
-    fields = FieldList(
-        FormField(FieldForm)
+
+class ExtTextField(FieldForm):
+    text = TextField()
+
+class TextsForm(FlaskForm):
+    text_fields = FieldList(
+        FormField(ExtTextField)
+    )
+
+class ExtTextAreaField(FieldForm):
+    textArea = TextAreaField()
+
+class TextAreasForm(FlaskForm):
+    textArea_fields = FieldList(
+        FormField(ExtTextAreaField)
     )
 
 
