@@ -4,7 +4,7 @@ from wtforms import PasswordField, BooleanField,SelectField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length
 from app.models import Users, Roles
 from wtforms import Form, StringField, TextField, TextAreaField, SubmitField, \
-    RadioField, FieldList, FormField, Field
+    RadioField, FieldList, FormField, Field, HiddenField
 from flask_wtf.file import FileField, FileAllowed
 from wtforms.fields.html5 import DateField
 from wtforms_sqlalchemy.fields import QuerySelectField
@@ -110,11 +110,19 @@ class MenuForm(FlaskForm):
 
 
 
+
+
+#______________________________________
+#             Main Forms
+# -------------------------------------
+
 class FieldForm(Form):
     label_ = TextField(label = _l("Label"),validators=[Length(max=50)])
     is_displayed =  BooleanField(_l('Display'))
+    order = HiddenField()
 
 
+# text form
 class ExtTextField(FieldForm):
     text = TextField()
 
@@ -123,6 +131,8 @@ class TextsForm(FlaskForm):
         FormField(ExtTextField)
     )
 
+
+# text area form
 class ExtTextAreaField(FieldForm):
     textArea = TextAreaField()
 
@@ -132,6 +142,49 @@ class TextAreasForm(FlaskForm):
     )
 
 
+# date form
+class ExtDateField(FieldForm):
+    date = DateField()
+
+class DatesForm(FlaskForm):
+    date_fields = FieldList(
+        FormField(ExtDateField)
+    )
+
+
+# link form
+class LinkField(FieldForm):
+    link = TextField()
+
+class LinksForm(FlaskForm):
+    link_fields = FieldList(
+        FormField(LinkField)
+    )
+
+
+# file form
+class ExtFileField(FieldForm):
+    file_ = FileField()
+    filename = HiddenField()
+    encrypted_filename = HiddenField()
+
+class FilesForm(FlaskForm):
+    file_fields = FieldList(
+        FormField(ExtFileField)
+    )
+
+
+# picture form
+class PictureField(FieldForm):
+    picture = FileField()
+    filename = HiddenField()
+    encrypted_filename = HiddenField()
+
+class PicturesForm(FlaskForm):
+    picture_fields = FieldList(
+        FormField(PictureField)
+    )
+
 def check_file_label(form, field):
-    if (field.label.text["filename"] == "") and (not field.data):
+    if (form.filename.data == "") and (not field.data):
         raise ValidationError(_l('Please choose a file'))

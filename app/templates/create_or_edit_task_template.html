@@ -69,6 +69,22 @@
 			id_ = "textArea_fields-___-form"
 			class_ = "textArea_fields"
 		}
+		else if (field_type === "Date"){
+			id_ = "date_fields-___-form"
+			class_ = "date_fields"
+		}
+		else if (field_type === "Link"){
+			id_ = "link_fields-___-form"
+			class_ = "link_fields"
+		}
+		else if (field_type === "File"){
+			id_ = "file_fields-___-form"
+			class_ = "file_fields"
+		}
+		else if (field_type === "Picture"){
+			id_ = "picture_fields-___-form"
+			class_ = "picture_fields"
+		}
 		var $templateForm = $('#'+id_);
 		var $lastForm = $('.'+class_).last();
 		var newIndex = 0;
@@ -151,6 +167,66 @@
 		<label for="textArea_fields-___-is_displayed">Display</label>:
 		<input checked id="textArea_fields-___-is_displayed" name="textArea_fields-___-is_displayed" type="checkbox" value="y"> 
 		
+		<a class="remove" href="#">Remove</a>
+	</div>
+
+	<div style="display: none;" id="date_fields-___-form" data-index="___">	
+		<label for="date_fields-___-label_">Label</label>:
+		<input id="date_fields-___-label_" name="date_fields-___-label_" type="text" value=""> 
+		
+		<label for="date_fields-___-date">Date</label>:
+		<input id="date_fields-___-date" name="date_fields-___-date" type="date" value="">
+
+		<label for="date_fields-___-is_displayed">Display</label>:
+		<input checked id="date_fields-___-is_displayed" name="date_fields-___-is_displayed" type="checkbox" value="y"> 
+		
+		<a class="remove" href="#">Remove</a>
+	</div>
+
+	<div style="display: none;" id="link_fields-___-form" data-index="___">	
+		<label for="link_fields-___-label_">Label</label>:
+		<input id="link_fields-___-label_" name="link_fields-___-label_" type="text" value=""> 
+		
+		<label for="link_fields-___-link">Link</label>:
+		<input id="link_fields-___-link" name="link_fields-___-link" type="text" value=""> 
+
+		<label for="link_fields-___-is_displayed">Display</label>:
+		<input checked id="link_fields-___-is_displayed" name="link_fields-___-is_displayed" type="checkbox" value="y"> 
+		
+		<a class="remove" href="#">Remove</a>
+	</div>
+
+	<div style="display: none;" id="file_fields-___-form" data-index="___">	
+		<label for="file_fields-___-label_">Label</label>:
+		<input id="file_fields-___-label_" name="file_fields-___-label_" type="text" value=""> 
+		
+		<label for="file_fields-___-file_">File</label>:
+		<input id="file_fields-___-file_" name="file_fields-___-file_" type="file">
+
+		<label for="file_fields-___-is_displayed">Display</label>:
+		<input checked id="file_fields-___-is_displayed" name="file_fields-___-is_displayed" type="checkbox" value="y"> 
+		
+
+		<input id="file_fields-___-order" name="file_fields-___-order" type="hidden">
+		<input id="file_fields-___-filename" name="file_fields-___-filename" type="hidden">
+		<input id="file_fields-___-encrypted_filename" name="file_fields-___-encrypted_filename" type="hidden">
+		<a class="remove" href="#">Remove</a>
+	</div>
+
+	<div style="display: none;" id="picture_fields-___-form" data-index="___">	
+		<label for="picture_fields-___-label_">Label</label>:
+		<input id="picture_fields-___-label_" name="picture_fields-___-label_" type="text" value=""> 
+		
+		<label for="picture_fields-___-picture">Picture</label>:
+		<input id="picture_fields-___-picture" name="picture_fields-___-picture" type="file">
+
+		<label for="picture_fields-___-is_displayed">Display</label>:
+		<input checked id="picture_fields-___-is_displayed" name="picture_fields-___-is_displayed" type="checkbox" value="y"> 
+		
+
+		<input id="picture_fields-___-order" name="picture_fields-___-order" type="hidden">
+		<input id="picture_fields-___-filename" name="picture_fields-___-filename" type="hidden">
+		<input id="picture_fields-___-encrypted_filename" name="picture_fields-___-encrypted_filename" type="hidden">
 		<a class="remove" href="#">Remove</a>
 	</div>
 

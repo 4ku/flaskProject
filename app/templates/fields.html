@@ -20,6 +20,9 @@
 					<span style="color: red;">[{{ error }}]</span>
 				{% endfor %}
 			{% endfor %}
+			{% if is_template %}
+				<a class="remove" href="#">Remove</a>
+			{% endif %}
 		</div>
 	</div>
 	{% endfor %}
@@ -45,7 +48,141 @@
 					<span style="color: red;">[{{ error }}]</span>
 				{% endfor %}
 			{% endfor %}
+			{% if is_template %}
+				<a class="remove" href="#">Remove</a>
+			{% endif %}
 		</div>
 	</div>
 	{% endfor %}
+
+	{% for field_form in date_form.date_fields %}
+	<div class="line"> 
+		<div id="date_fields-{{ loop.index0 }}-form" class="date_fields" data-index="{{ loop.index0 }}">			
+			{% if is_template %}
+				{{ field_form.label_.label }}
+				{{ field_form.label_}}
+				{{ field_form.date.label }}
+			{% else %}
+				{{ field_form.label_(style = "display: none;") }}
+				{{ field_form.label_.data}}
+			{% endif %}
+
+			{{ field_form.date }}
+			{{ field_form.is_displayed.label }}		
+			{{ field_form.is_displayed() }}		
+			
+			{% for field in field_form %}					
+				{% for error in field.errors %}
+					<span style="color: red;">[{{ error }}]</span>
+				{% endfor %}
+			{% endfor %}
+			{% if is_template %}
+				<a class="remove" href="#">Remove</a>
+			{% endif %}
+		</div>
+	</div>
+	{% endfor %}
+
+	{% for field_form in link_form.link_fields %}
+	<div class="line"> 
+		<div id="link_fields-{{ loop.index0 }}-form" class="link_fields" data-index="{{ loop.index0 }}">			
+			{% if is_template %}
+				{{ field_form.label_.label }}
+				{{ field_form.label_}}
+				{{ field_form.link.label }}
+			{% else %}
+				{{ field_form.label_(style = "display: none;") }}
+				{{ field_form.label_.data}}
+			{% endif %}
+
+			{{ field_form.link }}
+			{{ field_form.is_displayed.label }}		
+			{{ field_form.is_displayed() }}		
+			
+			{% for field in field_form %}					
+				{% for error in field.errors %}
+					<span style="color: red;">[{{ error }}]</span>
+				{% endfor %}
+			{% endfor %}
+
+			{% if is_template %}
+				<a class="remove" href="#">Remove</a>
+			{% endif %}
+		</div>
+	</div>
+	{% endfor %}
+
+	{% for field_form in file_form.file_fields %}
+	<div class="line"> 
+		<div id="file_fields-{{ loop.index0 }}-form" class="file_fields" data-index="{{ loop.index0 }}">			
+			{% if is_template %}
+				{{ field_form.label_.label }}
+				{{ field_form.label_}}
+				{{ field_form.file_.label }}
+			{% else %}
+				{{ field_form.label_(style = "display: none;") }}
+				{{ field_form.label_.data}}
+			{% endif %}
+
+			{{ field_form.file_() }}
+			{{ field_form.is_displayed.label }}		
+			{{ field_form.is_displayed() }}
+
+			{{ field_form.filename() }}
+			{{ field_form.encrypted_filename() }}
+			{{ field_form.order() }}	
+			
+			{% if field_form.filename.data %}
+				<a href="{{ url_for('download_file', filename = field_form.encrypted_filename.data) }}">{{ field_form.filename.data }}</a>
+			{% endif %}
+
+			{% for field in field_form %}					
+				{% for error in field.errors %}
+					<span style="color: red;">[{{ error }}]</span>
+				{% endfor %}
+			{% endfor %}
+			{% if is_template %}
+				<a class="remove" href="#">Remove</a>
+			{% endif %}
+		</div>
+	</div>
+	{% endfor %}
+
+
+	{% for field_form in picture_form.picture_fields %}
+	<div class="line"> 
+		<div id="picture_fields-{{ loop.index0 }}-form" class="picture_fields" data-index="{{ loop.index0 }}">			
+			{% if is_template %}
+				{{ field_form.label_.label }}
+				{{ field_form.label_}}
+				{{ field_form.picture.label }}
+			{% else %}
+				{{ field_form.label_(style = "display: none;") }}
+				{{ field_form.label_.data}}
+			{% endif %}
+
+			{{ field_form.picture }}
+			{{ field_form.is_displayed.label }}		
+			{{ field_form.is_displayed() }}
+
+			{{ field_form.filename() }}
+			{{ field_form.encrypted_filename() }}
+			{{ field_form.order() }}	
+			
+			{% if field_form.filename.data %}
+				<a href="{{ url_for('download_file', filename = field_form.encrypted_filename.data) }}">{{ field_form.filename.data }}</a>
+			{% endif %}
+
+			{% for field in field_form %}					
+				{% for error in field.errors %}
+					<span style="color: red;">[{{ error }}]</span>
+				{% endfor %}
+			{% endfor %}
+			{% if is_template %}
+				<a class="remove" href="#">Remove</a>
+			{% endif %}
+		</div>
+	</div>
+	{% endfor %}
+
 </div>	
