@@ -164,7 +164,7 @@ class LinksForm(FlaskForm):
 
 # file form
 class ExtFileField(FieldForm):
-    file_ = FileField()
+    file = FileField()
     filename = HiddenField()
     encrypted_filename = HiddenField()
 

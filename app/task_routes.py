@@ -22,13 +22,12 @@ from app.routes import roles_required, encode_filename
 #---------------------------------------------
 
 def add_and_fill_fields_to_form(fields, is_task, text_form, textArea_form, date_form, link_form, file_form, picture_form):
-    is_task = True
     text_validator = [Length(max=50), DataRequired()] if is_task else [Length(max=50)]
     textArea_validator = [Length(max=255), DataRequired()] if is_task else [Length(max=255)]
     date_validator = [DataRequired()] if is_task else [validators.Optional()]
     link_validator = [DataRequired()] if is_task else []
     file_validator = [check_file_label] if is_task else []
-    picture_validator = [DataRequired(), FileAllowed(['jpg', 'png','jpeg'])] if is_task else []
+    picture_validator = [DataRequired(), FileAllowed(['jpg', 'png','jpeg'])] if is_task else [FileAllowed(['jpg', 'png','jpeg'])]
 
     delattr(ExtTextField, "text")
     setattr(ExtTextField, "text", TextField(label = _("Text"), validators = text_validator))
@@ -38,37 +37,33 @@ def add_and_fill_fields_to_form(fields, is_task, text_form, textArea_form, date_
     setattr(ExtDateField, "date", DateField(label = _("Date"), validators=date_validator))
     delattr(LinkField, "link")
     setattr(LinkField, "link", TextField(label = _("Link"), validators=link_validator))
-    delattr(ExtFileField, "file_")
-    setattr(ExtFileField, "file_", FileField(label = _('File'), validators=file_validator))
+    delattr(ExtFileField, "file")
+    setattr(ExtFileField, "file", FileField(label = _('File'), validators=file_validator))
     delattr(PictureField, "picture")
     setattr(PictureField, "picture", FileField(label =_('Picture'), validators=picture_validator))
 
-    for i, field in enumerate(fields):
-        data = None
+    for field in fields:
         field_data = field.media
+        data = {'label_': field.label, 'is_displayed': field.display,"order": field.order}
         if field_data.text is not None:
-            data = {'label_': field.label, 'is_displayed': field.display, 
-                "text": field_data.text, "order": str(i)}
+            data["text"] = field_data.text
             text_form.text_fields.append_entry(data)
         if field_data.textArea is not None:
-            data = {'label_': field.label, 'is_displayed': field.display, 
-                "textArea": field_data.textArea, "order": str(i)}
+            data["textArea"] = field_data.textArea
             textArea_form.textArea_fields.append_entry(data)
         elif field_data.date:
-            data = {'label_': field.label, 'is_displayed': field.display,
-                "date": field_data.date, "order": str(i)}
+            data["date"] = field_data.date 
             date_form.date_fields.append_entry(data)
         elif field_data.link is not None:
-            data = {'label_': field.label, 'is_displayed': field.display,
-            "link": field_data.link, "order": str(i)}
+            data["link"] = field_data.link 
             link_form.link_fields.append_entry(data)
         elif field_data.filename is not None:
-            data = {'label_': field.label, 'is_displayed': field.display, "order": str(i),
-                "filename": field_data.filename, "encrypted_filename": field_data.encrypted_filename}
+            data["filename"] = field_data.filename
+            data["encrypted_filename"] = field_data.encrypted_filename
             file_form.file_fields.append_entry(data)
         elif field_data.picture is not None:
-            data = {'label_': field.label, 'is_displayed': field.display, "order": str(i),
-                "filename": field_data.picture, "encrypted_filename": field_data.encrypted_filename}
+            data["filename"] = field_data.picture
+            data["encrypted_filename"] = field_data.encrypted_filename
             picture_form.picture_fields.append_entry(data)
 
 
@@ -80,8 +75,6 @@ def save_file(file, field_filename, field_encrypted_filename):
         filename, encrypted_filename = encode_filename(file.filename)
         file.save(os.path.join(app.root_path, 'static/files/',  encrypted_filename))
         return filename, encrypted_filename
-    # Если хотим оставить файл, который был до этого при редактировании, то ничего не делаем
-    # Если же оставляем пустым, то выполняем следущий код - копируем файл шаблона, если этот файл существует
 
     # Если есть предыдущий файл, то делаем его копию, оригинал позже удалится.
     elif field_filename:
@@ -96,50 +89,39 @@ def save_file(file, field_filename, field_encrypted_filename):
 def save_fields(content, text_form, textArea_form,  date_form, link_form, file_form, picture_form):
     old_fields_id = [field.id for field in content.fields] 
 
+    def save_field(field, media):
+            label = field.label_.data
+            is_displayed = field.is_displayed.data
+            order = field.order.data
+            field = Fields(label = label, display = is_displayed, media = media, order = order)
+            content.fields.append(field)
+
     for field in text_form.text_fields:
-        label = field.label_.data
-        is_displayed = field.is_displayed.data
         media = Media(text = field.text.data)
-        field = Fields(label = label, display = is_displayed, media = media)
-        content.fields.append(field)
+        save_field(field, media)
 
     for field in textArea_form.textArea_fields:
-        label = field.label_.data
-        is_displayed = field.is_displayed.data
         media = Media(textArea = field.textArea.data)
-        field = Fields(label = label, display = is_displayed, media = media)
-        content.fields.append(field)
+        save_field(field, media)
 
     for field in date_form.date_fields:
-        label = field.label_.data
-        is_displayed = field.is_displayed.data
         date = field.date.data if field.date.data else datetime(2000,1,1)
         media = Media(date = date)
-        field = Fields(label = label, display = is_displayed, media = media)
-        content.fields.append(field)
+        save_field(field, media)
 
     for field in link_form.link_fields:
-        label = field.label_.data
-        is_displayed = field.is_displayed.data
         media = Media(link = field.link.data)
-        field = Fields(label = label, display = is_displayed, media = media)
-        content.fields.append(field)
-    
+        save_field(field, media)
+
     for field in file_form.file_fields:
-        label = field.label_.data
-        is_displayed = field.is_displayed.data
-        filename, encrypted_filename = save_file(field.file_.data, field.filename.data, field.encrypted_filename.data)
+        filename, encrypted_filename = save_file(field.file.data, field.filename.data, field.encrypted_filename.data)
         media = Media(filename = filename, encrypted_filename = encrypted_filename) 
-        field = Fields(label = label, display = is_displayed, media = media)
-        content.fields.append(field)
+        save_field(field, media)
 
     for field in picture_form.picture_fields:
-        label = field.label_.data
-        is_displayed = field.is_displayed.data
         filename, encrypted_filename = save_file(field.picture.data, field.filename.data, field.encrypted_filename.data)
         media = Media(picture = filename, encrypted_filename = encrypted_filename) 
-        field = Fields(label = label, display = is_displayed, media = media)
-        content.fields.append(field)
+        save_field(field, media)
 
     old_fields = []
     for id_ in old_fields_id:
@@ -267,6 +249,20 @@ def process_task(form, task, fields, is_edit):
         db.session.commit()
         flash(_('Your changes have been saved.'))
         return redirect(url_for('login'))
+
+    # all_fields = []
+    # for field in text_form:
+    #     all_fields.append(field)
+    # for field in textArea_form:
+    #     all_fields.append(field)
+    # for field in date_form:
+    #     all_fields.append(field)
+    # for field in link_form:
+    #     all_fields.append(field)
+    # for field in file_form:
+    #     all_fields.append(field)
+    # for field in picture_form:
+    #     all_fields.append(field)
     
     return render_template("create_or_edit_task.html", form = form, is_edit = is_edit,
                 text_form = text_form, textArea_form = textArea_form,

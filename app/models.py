@@ -20,6 +20,8 @@ class Media(db.Model):
         return '<Media {}, {}, {}, {}, {}, {}, {}>'.format(self.text, self.textArea, 
                 self.date, self.encrypted_filename, self.filename, self.link, self.picture)
 
+def default_order_value():
+    return Fields.query.count()
 
 class Fields(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -27,6 +29,8 @@ class Fields(db.Model):
     media_id = db.Column(db.Integer, db.ForeignKey('media.id'))
     media = db.relationship("Media", backref=db.backref("field", uselist=False))
     display = db.Column(db.Boolean, unique=False, default=True)
+    order = db.Column(db.Integer, default = default_order_value, nullable = False)
+
 
 
 

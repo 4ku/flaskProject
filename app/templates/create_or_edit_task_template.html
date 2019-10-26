@@ -27,20 +27,22 @@
 				$item.attr('id', $item.attr('id').replace(oldIndex, newIndex));
 				$item.attr('name', $item.attr('name').replace(oldIndex, newIndex));
 		});
+
 	}
 		
 	function adjustIndices(removedIndex, class_) {
-		var $forms = $('.'+class_);
 
+	
+		var $forms = $('.'+class_);
 		$forms.each(function(i) {
 			var $form = $(this);
-			var index = parseInt($form.data('index'));
+			var index = parseInt($form.attr('data-index'));
 			var newIndex = index - 1;
-
 			if (index < removedIndex) {
 				// Skip
 				return true;
 			}
+
 			changeIndex($form, index, newIndex);
 		});
 	}
@@ -49,8 +51,32 @@
 	function removeForm() {
 		var class_ =$(this).parent().attr('class');
 		var $removedForm = $(this).closest('.'+class_);
-		var removedIndex = parseInt($removedForm.data('index'));
+		var removedIndex = parseInt($removedForm.attr('data-index'));
+
+		var total_removedIndex;
+		$removedForm.find("[name$=-order]").each(function(idx) {
+			total_removedIndex = $(this).val()
+		});
+
 		$removedForm.remove();
+
+		// Change order index
+		var $all_forms = $("#fields-container").children()
+		$all_forms.each(function(i) {
+			var $form = $(this);
+			var index;
+			$form.find("[name$=-order]").each(function(idx) {
+				index = $(this).val()
+			});
+			var newIndex = index - 1;
+			if (index < total_removedIndex) {
+				// Skip
+				return true;
+			}
+			$form.find("[name$=-order]").each(function(idx) {
+				$(this).val(newIndex)
+			});
+		});
 
 		// Update indices
 		adjustIndices(removedIndex, class_);
@@ -93,6 +119,10 @@
 		} 
 
 		var $newForm = $templateForm.clone();
+
+		var numFields = $('#fields-container').children('div').length
+		$newForm.find('#'+class_+'-___-order').val(numFields)
+
 		changeIndex($newForm, '___', newIndex);
 
 		$('#fields-container').append($newForm);
@@ -136,99 +166,45 @@
 
 	 
 	 {# Form templates #}
-	 <div style="display: none;" id="text_field-_-form" data-index="_">
-		 <label style = "order: 1;" for="fields-_-label">Label: </label>
-		 <input style = "order: 2;" id="fields-_-label" name="fields-_-label" type="text" value="">
-		 <label style = "order: 5;" for="fields-_-is_displayed">Display: </label>
-		 <input checked style = "order: 6;" id="fields-_-is_displayed" name="fields-_-is_displayed" type="checkbox" value="y">
-		 <a style = "order: 7;" class="remove" href="#">Remove</a>
-	 </div>
-
-	 <div style="display: none;" id="text_fields-___-form" data-index="___">		
-		<label for="text_fields-___-label_">Label</label>:
-		<input id="text_fields-___-label_" name="text_fields-___-label_" type="text" value=""> 
-
-		<label for="text_fields-___-text">Text</label>:
-		<input id="text_fields-___-text" name="text_fields-___-text" type="text" value=""> 
-		
-		<label for="text_fields-___-is_displayed">Display</label>:
-		<input checked id="text_fields-___-is_displayed" name="text_fields-___-is_displayed" type="checkbox" value="y"> 
 	
-		<a class="remove" href="#">Remove</a>
-	</div>
-	
-	 <div style="display: none;" id="textArea_fields-___-form" data-index="___">	
-		<label for="textArea_fields-___-label_">Label</label>:
-		<input id="textArea_fields-___-label_" name="textArea_fields-___-label_" type="text" value=""> 
+	 {% macro render_html_field(field_type, label) %}
+		<div style="display: none;" id="{{field_type}}_fields-___-form" data-index="___">		
+			<label for="{{field_type}}_fields-___-label_">Label</label>:
+			<input id="{{field_type}}_fields-___-label_" name="{{field_type}}_fields-___-label_" type="text" value=""> 
+
+			<label for="{{field_type}}_fields-___-{{field_type}}">{{label}}</label>
+			{% if field_type=="text" %}
+				<input id="text_fields-___-text" name="text_fields-___-text" type="text" value=""> 
+			{% elif field_type=="textArea" %}
+				<textarea id="textArea_fields-___-textArea" name="textArea_fields-___-textArea"></textarea> 
+			{% elif field_type=="date" %}
+				<input id="date_fields-___-date" name="date_fields-___-date" type="date" value="">
+			{% elif field_type=="link" %}
+				<input id="link_fields-___-link" name="link_fields-___-link" type="text" value=""> 
+			{% elif field_type=="file" %}
+				<input id="file_fields-___-file" name="file_fields-___-file" type="file">
+				<input id="file_fields-___-filename" name="file_fields-___-filename" type="hidden">
+				<input id="file_fields-___-encrypted_filename" name="file_fields-___-encrypted_filename" type="hidden">				
+			{% elif field_type=="picture" %}
+				<input id="picture_fields-___-picture" name="picture_fields-___-picture" type="file">
+				<input id="picture_fields-___-filename" name="picture_fields-___-filename" type="hidden">
+				<input id="picture_fields-___-encrypted_filename" name="picture_fields-___-encrypted_filename" type="hidden">
+			{% endif %}
+			
+			<label for="{{field_type}}_fields-___-is_displayed">Display</label>
+			<input checked id="{{field_type}}_fields-___-is_displayed" name="{{field_type}}_fields-___-is_displayed" type="checkbox" value="y"> 
 		
-		<label for="textArea_fields-___-textArea">TextArea</label>:
-		<textarea id="textArea_fields-___-textArea" name="textArea_fields-___-textArea"></textarea> 
+			<input id="{{field_type}}_fields-___-order" name="{{field_type}}_fields-___-order" type="hidden">
 
-		<label for="textArea_fields-___-is_displayed">Display</label>:
-		<input checked id="textArea_fields-___-is_displayed" name="textArea_fields-___-is_displayed" type="checkbox" value="y"> 
-		
-		<a class="remove" href="#">Remove</a>
-	</div>
+			<a class="remove" href="#">Remove</a>
+		</div>
+	{% endmacro %}
 
-	<div style="display: none;" id="date_fields-___-form" data-index="___">	
-		<label for="date_fields-___-label_">Label</label>:
-		<input id="date_fields-___-label_" name="date_fields-___-label_" type="text" value=""> 
-		
-		<label for="date_fields-___-date">Date</label>:
-		<input id="date_fields-___-date" name="date_fields-___-date" type="date" value="">
-
-		<label for="date_fields-___-is_displayed">Display</label>:
-		<input checked id="date_fields-___-is_displayed" name="date_fields-___-is_displayed" type="checkbox" value="y"> 
-		
-		<a class="remove" href="#">Remove</a>
-	</div>
-
-	<div style="display: none;" id="link_fields-___-form" data-index="___">	
-		<label for="link_fields-___-label_">Label</label>:
-		<input id="link_fields-___-label_" name="link_fields-___-label_" type="text" value=""> 
-		
-		<label for="link_fields-___-link">Link</label>:
-		<input id="link_fields-___-link" name="link_fields-___-link" type="text" value=""> 
-
-		<label for="link_fields-___-is_displayed">Display</label>:
-		<input checked id="link_fields-___-is_displayed" name="link_fields-___-is_displayed" type="checkbox" value="y"> 
-		
-		<a class="remove" href="#">Remove</a>
-	</div>
-
-	<div style="display: none;" id="file_fields-___-form" data-index="___">	
-		<label for="file_fields-___-label_">Label</label>:
-		<input id="file_fields-___-label_" name="file_fields-___-label_" type="text" value=""> 
-		
-		<label for="file_fields-___-file_">File</label>:
-		<input id="file_fields-___-file_" name="file_fields-___-file_" type="file">
-
-		<label for="file_fields-___-is_displayed">Display</label>:
-		<input checked id="file_fields-___-is_displayed" name="file_fields-___-is_displayed" type="checkbox" value="y"> 
-		
-
-		<input id="file_fields-___-order" name="file_fields-___-order" type="hidden">
-		<input id="file_fields-___-filename" name="file_fields-___-filename" type="hidden">
-		<input id="file_fields-___-encrypted_filename" name="file_fields-___-encrypted_filename" type="hidden">
-		<a class="remove" href="#">Remove</a>
-	</div>
-
-	<div style="display: none;" id="picture_fields-___-form" data-index="___">	
-		<label for="picture_fields-___-label_">Label</label>:
-		<input id="picture_fields-___-label_" name="picture_fields-___-label_" type="text" value=""> 
-		
-		<label for="picture_fields-___-picture">Picture</label>:
-		<input id="picture_fields-___-picture" name="picture_fields-___-picture" type="file">
-
-		<label for="picture_fields-___-is_displayed">Display</label>:
-		<input checked id="picture_fields-___-is_displayed" name="picture_fields-___-is_displayed" type="checkbox" value="y"> 
-		
-
-		<input id="picture_fields-___-order" name="picture_fields-___-order" type="hidden">
-		<input id="picture_fields-___-filename" name="picture_fields-___-filename" type="hidden">
-		<input id="picture_fields-___-encrypted_filename" name="picture_fields-___-encrypted_filename" type="hidden">
-		<a class="remove" href="#">Remove</a>
-	</div>
-
+	{{render_html_field("text", "Text") }}
+	{{render_html_field("textArea", "Text area") }}
+	{{render_html_field("date", "Date") }}
+	{{render_html_field("link", "Link") }}
+	{{render_html_field("file", "File") }}
+	{{render_html_field("picture", "Picture") }}
 
 {% endblock %}
