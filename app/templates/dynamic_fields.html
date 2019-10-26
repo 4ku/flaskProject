@@ -1,0 +1,44 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="static/js/dynamic_fields.js"></script>
+
+{# Form templates #}
+
+{% macro render_html_field(field_type, label) %}
+   <div style="display: none;" id="{{field_type}}_fields-___-form" data-index="___">		
+	   <label for="{{field_type}}_fields-___-label_">Label</label>:
+	   <input id="{{field_type}}_fields-___-label_" name="{{field_type}}_fields-___-label_" type="text" value=""> 
+
+	   <label for="{{field_type}}_fields-___-{{field_type}}">{{label}}</label>
+	   {% if field_type=="text" %}
+		   <input id="text_fields-___-text" name="text_fields-___-text" type="text" value=""> 
+	   {% elif field_type=="textArea" %}
+		   <textarea id="textArea_fields-___-textArea" name="textArea_fields-___-textArea"></textarea> 
+	   {% elif field_type=="date" %}
+		   <input id="date_fields-___-date" name="date_fields-___-date" type="date" value="">
+	   {% elif field_type=="link" %}
+		   <input id="link_fields-___-link" name="link_fields-___-link" type="text" value=""> 
+	   {% elif field_type=="file" %}
+		   <input id="file_fields-___-file" name="file_fields-___-file" type="file">
+		   <input id="file_fields-___-filename" name="file_fields-___-filename" type="hidden">
+		   <input id="file_fields-___-encrypted_filename" name="file_fields-___-encrypted_filename" type="hidden">				
+	   {% elif field_type=="picture" %}
+		   <input id="picture_fields-___-picture" name="picture_fields-___-picture" type="file">
+		   <input id="picture_fields-___-filename" name="picture_fields-___-filename" type="hidden">
+		   <input id="picture_fields-___-encrypted_filename" name="picture_fields-___-encrypted_filename" type="hidden">
+	   {% endif %}
+	   
+	   <label for="{{field_type}}_fields-___-is_displayed">Display</label>
+	   <input checked id="{{field_type}}_fields-___-is_displayed" name="{{field_type}}_fields-___-is_displayed" type="checkbox" value="y"> 
+   
+	   <input id="{{field_type}}_fields-___-order" name="{{field_type}}_fields-___-order" type="hidden">
+
+	   <a class="remove" href="#">Remove</a>
+   </div>
+{% endmacro %}
+
+{{render_html_field("text", "Text") }}
+{{render_html_field("textArea", "Text area") }}
+{{render_html_field("date", "Date") }}
+{{render_html_field("link", "Link") }}
+{{render_html_field("file", "File") }}
+{{render_html_field("picture", "Picture") }}

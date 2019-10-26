@@ -139,14 +139,7 @@ def delete_fields(fields):
 
 
 
-#_____________________________________________
-#            Templates - Шаблоны
-#---------------------------------------------
-
-def process_template(template, is_edit):
-    add_field_form = AddFieldForm()
-    form = TemplateForm()
-
+def dynamic_fields(content, fields, is_task):
     #Формы для разных типов полей
     text_form = TextsForm()
     textArea_form = TextAreasForm()
@@ -157,15 +150,35 @@ def process_template(template, is_edit):
 
     if request.method == 'GET':
         #Заполняем поля при отображении страницы
-        add_and_fill_fields_to_form(template.fields, False,
+        add_and_fill_fields_to_form(fields, is_task,
             text_form, textArea_form, date_form, link_form, file_form, picture_form)
+
+    elif (text_form.validate_on_submit() and textArea_form.validate() 
+        and date_form.validate() and link_form.validate() and file_form.validate() and picture_form.validate()):
+        save_fields(content, text_form, textArea_form, date_form, link_form, file_form, picture_form)
+        db.session.commit()
+
+    return text_form, textArea_form, date_form, link_form, file_form, picture_form
+
+
+#_____________________________________________
+#            Templates - Шаблоны
+#---------------------------------------------
+
+def process_template(template, is_edit):
+    add_field_form = AddFieldForm()
+    form = TemplateForm()
+
+    text_form, textArea_form, date_form, link_form, \
+         file_form, picture_form = dynamic_fields(template, template.fields, False)
+
+    if request.method == 'GET':
+        #Заполняем поля при отображении страницы
         form.name.data = template.name
         
-    elif (form.validate_on_submit() and text_form.validate() and textArea_form.validate() 
-        and date_form.validate() and link_form.validate() and file_form.validate() and picture_form.validate()) :
+    elif form.validate_on_submit() :
         # Сохраняем данные в БД
         template.name = form.name.data
-        save_fields(template, text_form, textArea_form, date_form, link_form, file_form, picture_form)
         if not is_edit:        
             db.session.add(template) 
         db.session.commit()
@@ -174,8 +187,7 @@ def process_template(template, is_edit):
     return render_template("create_or_edit_task_template.html", 
             add_field_form = add_field_form, form = form, is_template = True,
                 text_form = text_form, textArea_form = textArea_form, date_form = date_form,
-                link_form = link_form, file_form = file_form, picture_form = picture_form
-                )
+                link_form = link_form, file_form = file_form, picture_form = picture_form)
 
 # Создание шаблона
 @app.route('/create_task_template', methods=['GET', 'POST'])
@@ -210,24 +222,17 @@ def delete_task_template(template_id):
 
 def process_task(form, task, fields, is_edit):
     #Формы для разных типов полей
-    text_form = TextsForm()
-    textArea_form = TextAreasForm()
-    date_form = DatesForm()
-    link_form = LinksForm()
-    file_form = FilesForm()
-    picture_form = PicturesForm()
 
-    if request.method == 'GET':
+    text_form, textArea_form, date_form, link_form, \
+         file_form, picture_form = dynamic_fields(task, fields, True)
+
+    if request.method == 'GET' and is_edit:
         #Заполняем поля при отображении страницы
-        add_and_fill_fields_to_form(fields, True,
-            text_form, textArea_form, date_form, link_form, file_form, picture_form)
-        if is_edit:
-            form.status.data = task.status
-            form.assigner.data = task.assigner
-            form.acceptor.data = task.acceptor
+        form.status.data = task.status
+        form.assigner.data = task.assigner
+        form.acceptor.data = task.acceptor
  
-    elif (form.validate_on_submit() and text_form.validate() and textArea_form.validate() 
-        and date_form.validate() and link_form.validate() and file_form.validate() and picture_form.validate()) :
+    elif form.validate_on_submit():
         if is_edit:
             assigner = form.assigner.data
         else:
@@ -242,27 +247,11 @@ def process_task(form, task, fields, is_edit):
         if is_edit:
             task.status = form.status.data
 
-        save_fields(task, text_form, textArea_form, date_form, link_form, file_form, picture_form)
-
         if not is_edit:
             db.session.add(task)    
         db.session.commit()
         flash(_('Your changes have been saved.'))
         return redirect(url_for('login'))
-
-    # all_fields = []
-    # for field in text_form:
-    #     all_fields.append(field)
-    # for field in textArea_form:
-    #     all_fields.append(field)
-    # for field in date_form:
-    #     all_fields.append(field)
-    # for field in link_form:
-    #     all_fields.append(field)
-    # for field in file_form:
-    #     all_fields.append(field)
-    # for field in picture_form:
-    #     all_fields.append(field)
     
     return render_template("create_or_edit_task.html", form = form, is_edit = is_edit,
                 text_form = text_form, textArea_form = textArea_form,

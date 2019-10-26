@@ -98,7 +98,6 @@ class AddFieldForm(FlaskForm):
     fields_list = SelectField(_l('Field type'), 
         choices=[('Text',_l('Text')), ('TextArea',_l('TextArea')),
             ('Date',_l('Date')),('File',_l('File')),('Picture',_l('Picture')),('Link',_l('Link'))])
-    add_field = SubmitField(_l('Add field'))
 
 class TemplateForm(FlaskForm):
     name = TextField(label = _l("Template name"))

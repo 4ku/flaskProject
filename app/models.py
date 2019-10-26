@@ -69,6 +69,24 @@ class Tasks(db.Model):
         backref = "task", order_by = "Fields.id")
 
 
+page_field_connection = db.Table("page_field_connection",
+    db.Column('page_id', db.Integer, db.ForeignKey('pages.id')),
+    db.Column('field_id', db.Integer, db.ForeignKey('fields.id'))
+ )
+ 
+class Pages(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Unicode(64))
+    fields = db.relationship("Fields", 
+        secondary = page_field_connection, 
+        primaryjoin =(page_field_connection.c.page_id == id),
+        secondaryjoin = (page_field_connection.c.field_id == Fields.id),
+        cascade="all, delete, delete-orphan",single_parent=True,
+        backref = "page", order_by = "Fields.id")
+
+
+
+
 
 
 
