@@ -149,8 +149,7 @@ def edit_user(id):
         profile_template = Profile_template.query.filter_by(id=1).first()
         fields = profile_template.fields
 
-    is_validated, text_form, textArea_form, date_form, link_form, \
-         file_form, picture_form = dynamic_fields(profile, fields, True)
+    is_validated, dynamic_forms = dynamic_fields(profile, fields, True)
 
     if request.method == 'GET' and is_admin:
         # Предзаполнение полей
@@ -162,13 +161,15 @@ def edit_user(id):
         if is_admin:
             user.email = form.email.data
             user.roles[0].name = form.role_list.data
+            
+        if not user.profile:
+            user.profile = profile
+            db.session.add(profile)
         db.session.commit()
         flash(_l('Your changes have been saved.'))
     
     return render_template('edit_user.html', title=_l('Edit Profile'),
-        form=form, user = user,is_template = False,
-        text_form = text_form, textArea_form = textArea_form, date_form = date_form,
-        link_form = link_form, file_form = file_form, picture_form = picture_form)
+        form=form, user = user, is_template = False, dynamic_forms = dynamic_forms)
 
 
 # --- Удаление пользователя и заданий ----
@@ -316,6 +317,9 @@ def before_request():
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
 
+
+
+
 from app.task_routes import delete_task
 from app.dynamic_fields import *
 
@@ -330,14 +334,13 @@ def profile_template():
     form = TemplateProfileForm()
     add_field_form = AddFieldForm()
     
-    is_validated, text_form, textArea_form, date_form, link_form, \
-         file_form, picture_form = dynamic_fields(template, template.fields, False)
+    is_validated, dynamic_forms = dynamic_fields(template, template.fields, False)
 
+    if is_validated:
+        db.session.commit()
 
-    return render_template("profile_template.html", 
-            add_field_form = add_field_form, form = form, is_template = True,
-                text_form = text_form, textArea_form = textArea_form, date_form = date_form,
-                link_form = link_form, file_form = file_form, picture_form = picture_form)
+    return render_template("profile_template.html", add_field_form = add_field_form, 
+        form = form, is_template = True, dynamic_forms = dynamic_forms)
 
 
 # #Здесь тупо отображение постов

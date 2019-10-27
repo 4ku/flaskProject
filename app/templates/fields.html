@@ -42,10 +42,10 @@
 {% endmacro %}
 
 <div style="display: flex; flex-direction: column;" id="fields-container">
-	{{render_field(text_form, "text")}}
-	{{render_field(textArea_form, "textArea")}}
-	{{render_field(date_form, "date")}}
-	{{render_field(link_form, "link")}}	
-	{{render_field(file_form, "file")}}
-	{{render_field(picture_form, "picture")}}
+	{{render_field(dynamic_forms['text_form'], "text")}}
+	{{render_field(dynamic_forms['textArea_form'], "textArea")}}
+	{{render_field(dynamic_forms['date_form'], "date")}}
+	{{render_field(dynamic_forms['link_form'], "link")}}	
+	{{render_field(dynamic_forms['file_form'], "file")}}
+	{{render_field(dynamic_forms['picture_form'], "picture")}}
 </div>	

@@ -14,7 +14,7 @@ from app.routes import roles_required, encode_filename
 #            Fields - Поля
 #---------------------------------------------
 
-def add_and_fill_fields_to_form(fields, is_task, text_form, textArea_form, date_form, link_form, file_form, picture_form):
+def add_and_fill_fields_to_form(fields, is_task, forms):
     text_validator = [Length(max=50), DataRequired()] if is_task else [Length(max=50)]
     textArea_validator = [Length(max=255), DataRequired()] if is_task else [Length(max=255)]
     date_validator = [DataRequired()] if is_task else [validators.Optional()]
@@ -40,24 +40,24 @@ def add_and_fill_fields_to_form(fields, is_task, text_form, textArea_form, date_
         data = {'label_': field.label, 'is_displayed': field.display,"order": field.order}
         if field_data.text is not None:
             data["text"] = field_data.text
-            text_form.text_fields.append_entry(data)
+            forms["text_form"].text_fields.append_entry(data)
         if field_data.textArea is not None:
             data["textArea"] = field_data.textArea
-            textArea_form.textArea_fields.append_entry(data)
+            forms["textArea_form"].textArea_fields.append_entry(data)
         elif field_data.date:
             data["date"] = field_data.date 
-            date_form.date_fields.append_entry(data)
+            forms["date_form"].date_fields.append_entry(data)
         elif field_data.link is not None:
             data["link"] = field_data.link 
-            link_form.link_fields.append_entry(data)
+            forms["link_form"].link_fields.append_entry(data)
         elif field_data.filename is not None:
             data["filename"] = field_data.filename
             data["encrypted_filename"] = field_data.encrypted_filename
-            file_form.file_fields.append_entry(data)
+            forms["file_form"].file_fields.append_entry(data)
         elif field_data.picture is not None:
             data["filename"] = field_data.picture
             data["encrypted_filename"] = field_data.encrypted_filename
-            picture_form.picture_fields.append_entry(data)
+            forms["picture_form"].picture_fields.append_entry(data)
 
 
 def save_file(file, field_filename, field_encrypted_filename):
@@ -79,7 +79,7 @@ def save_file(file, field_filename, field_encrypted_filename):
     return field_filename, field_encrypted_filename   
 
 
-def save_fields(content, text_form, textArea_form,  date_form, link_form, file_form, picture_form):
+def save_fields(content, forms):
     old_fields_id = [field.id for field in content.fields] 
 
     def save_field(field, media):
@@ -89,29 +89,29 @@ def save_fields(content, text_form, textArea_form,  date_form, link_form, file_f
             field = Fields(label = label, display = is_displayed, media = media, order = order)
             content.fields.append(field)
 
-    for field in text_form.text_fields:
+    for field in forms["text_form"].text_fields:
         media = Media(text = field.text.data)
         save_field(field, media)
 
-    for field in textArea_form.textArea_fields:
+    for field in forms["textArea_form"].textArea_fields:
         media = Media(textArea = field.textArea.data)
         save_field(field, media)
 
-    for field in date_form.date_fields:
+    for field in forms["date_form"].date_fields:
         date = field.date.data if field.date.data else datetime(2000,1,1)
         media = Media(date = date)
         save_field(field, media)
 
-    for field in link_form.link_fields:
+    for field in forms["link_form"].link_fields:
         media = Media(link = field.link.data)
         save_field(field, media)
 
-    for field in file_form.file_fields:
+    for field in forms["file_form"].file_fields:
         filename, encrypted_filename = save_file(field.file.data, field.filename.data, field.encrypted_filename.data)
         media = Media(filename = filename, encrypted_filename = encrypted_filename) 
         save_field(field, media)
 
-    for field in picture_form.picture_fields:
+    for field in forms["picture_form"].picture_fields:
         filename, encrypted_filename = save_file(field.picture.data, field.filename.data, field.encrypted_filename.data)
         media = Media(picture = filename, encrypted_filename = encrypted_filename) 
         save_field(field, media)
@@ -133,23 +133,23 @@ def delete_fields(fields):
 
 def dynamic_fields(content, fields, is_task):
     #Формы для разных типов полей
-    text_form = TextsForm()
-    textArea_form = TextAreasForm()
-    date_form = DatesForm()
-    link_form = LinksForm()
-    file_form = FilesForm()
-    picture_form = PicturesForm()
+    forms = {}
+    forms["text_form"] = TextsForm()
+    forms["textArea_form"] = TextAreasForm()
+    forms["date_form"] = DatesForm()
+    forms["link_form"] = LinksForm()
+    forms["file_form"] = FilesForm()
+    forms["picture_form"] = PicturesForm()
+     
 
-    is_validated = (text_form.validate_on_submit() and textArea_form.validate() 
-            and date_form.validate() and link_form.validate() and file_form.validate() and picture_form.validate())
+    is_validated = (forms["text_form"].validate_on_submit() and forms["textArea_form"].validate() 
+            and forms["date_form"].validate() and forms["link_form"].validate() and forms["file_form"].validate() and forms["picture_form"].validate())
 
     if request.method == 'GET':
         #Заполняем поля при отображении страницы
-        add_and_fill_fields_to_form(fields, is_task,
-            text_form, textArea_form, date_form, link_form, file_form, picture_form)
+        add_and_fill_fields_to_form(fields, is_task, forms)
 
     elif is_validated:
-        save_fields(content, text_form, textArea_form, date_form, link_form, file_form, picture_form)
-        db.session.commit()
+        save_fields(content, forms)
 
-    return is_validated, text_form, textArea_form, date_form, link_form, file_form, picture_form
+    return is_validated, forms

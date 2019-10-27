@@ -20,8 +20,7 @@ def process_template(template, is_edit):
     form = TemplateForm()
     add_field_form = AddFieldForm()
     
-    is_validated, text_form, textArea_form, date_form, link_form, \
-         file_form, picture_form = dynamic_fields(template, template.fields, False)
+    is_validated, dynamic_forms = dynamic_fields(template, template.fields, False)
 
     if request.method == 'GET':
         #Заполняем поля при отображении страницы
@@ -35,10 +34,8 @@ def process_template(template, is_edit):
         db.session.commit()
         return redirect(url_for('task_templates'))
 
-    return render_template("create_or_edit_task_template.html", 
-            add_field_form = add_field_form, form = form, is_template = True,
-                text_form = text_form, textArea_form = textArea_form, date_form = date_form,
-                link_form = link_form, file_form = file_form, picture_form = picture_form)
+    return render_template("create_or_edit_task_template.html", add_field_form = add_field_form,
+        form = form, is_template = True, dynamic_forms = dynamic_forms)
 
 # Создание шаблона
 @app.route('/create_task_template', methods=['GET', 'POST'])
@@ -73,8 +70,7 @@ def delete_task_template(template_id):
 def process_task(form, task, fields, is_edit):
     #Формы для разных типов полей
 
-    is_validated, text_form, textArea_form, date_form, link_form, \
-         file_form, picture_form = dynamic_fields(task, fields, True)
+    is_validated, dynamic_forms = dynamic_fields(task, fields, True)
 
     if request.method == 'GET' and is_edit:
         #Заполняем поля при отображении страницы
@@ -103,10 +99,8 @@ def process_task(form, task, fields, is_edit):
         flash(_('Your changes have been saved.'))
         return redirect(url_for('login'))
     
-    return render_template("create_or_edit_task.html", form = form, is_edit = is_edit,
-                text_form = text_form, textArea_form = textArea_form,
-                date_form = date_form, link_form = link_form, file_form = file_form, 
-                picture_form = picture_form, is_template = False)
+    return render_template("create_or_edit_task.html", form = form, 
+        is_edit = is_edit, dynamic_forms = dynamic_forms, is_template = False)
 
 
 @app.route('/create_task/<template_id>', methods=['GET', 'POST'])

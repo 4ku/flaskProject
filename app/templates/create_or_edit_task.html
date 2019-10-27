@@ -4,10 +4,9 @@
 <div id="create_task">
 	<form method="post" enctype="multipart/form-data">
 		{{ form.hidden_tag() }} 
-		{{ text_form.hidden_tag() }}
-		{{ textArea_form.hidden_tag() }}
+
 		<div class="line">	
-		{% if is_edit %}
+			{% if is_edit %}
 					<div class="assigner">
 							<div class="label">
 									{{ form.assigner.label }}:
@@ -41,8 +40,8 @@
 									{{ form.acceptor() }}
 							</div>
 					</div>
-		{% endif %}
-	</div>
+			{% endif %}
+		</div>
 
 		
 	{% include "fields.html" %}

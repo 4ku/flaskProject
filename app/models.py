@@ -153,7 +153,7 @@ profile_field_connection = db.Table("profile_field_connection",
 class Profiles(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    user = db.relationship("Users", uselist=False, backref = "profile")
+    user = db.relationship("Users", uselist=False, backref = db.backref("profile", uselist=False))
 
     fields = db.relationship("Fields", 
         secondary = profile_field_connection, 
@@ -173,8 +173,8 @@ class Profile_template(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     fields = db.relationship("Fields", 
-        secondary = profile_field_connection, 
-        primaryjoin =(profile_field_connection.c.profile_id == id),
-        secondaryjoin = (profile_field_connection.c.field_id == Fields.id),
+        secondary = profile_template_field_connection, 
+        primaryjoin =(profile_template_field_connection.c.profile_template_id == id),
+        secondaryjoin = (profile_template_field_connection.c.field_id == Fields.id),
         cascade="all, delete, delete-orphan",single_parent=True,
         backref = "profile_template", order_by = "Fields.id")
