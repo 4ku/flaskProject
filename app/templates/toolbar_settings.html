@@ -2,18 +2,23 @@
 
 {% block content %}
 
+<div>
+	<a href="{{ url_for('profile_template') }}">Profile template</a>
+</div>
+
 {% for link in current_user.extra_menu_fields %}
 	<div>
 		<a style = "margin-right: 50px; " href="{{ link.link }}">
 			{% if link.name %}
 				{{ link.name }}
 			{% else %}
-			{{ _('Link_')}}{{link.id}}
+				{{ _('Link_')}}{{link.id}}
 			{% endif %}
 		</a>
 		<a style = "margin-right: 50px; " href="{{ url_for('rename_menu_field', link_id = link.id) }}">{{ _('Rename link')}}</a>
 		<a style = "margin-right: 50px; " href="{{ url_for('delete_menu_field', link_id = link.id) }}">{{ _('Delete link')}}</a>
 	</div>
 {% endfor %}
+
 
 {% endblock %}

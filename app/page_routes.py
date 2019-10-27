@@ -8,14 +8,13 @@ from wtforms import validators
 from datetime import datetime
 from sqlalchemy import or_
 import os
-from shutil import copyfile
 
 from app import app, db
 from app.forms import *
 from app.models import *
 import re
 
-from app.routes import roles_required, encode_filename
+from app.routes import roles_required
 
 
 def process_template(template, is_edit):
@@ -66,7 +65,5 @@ def delete_task_template(template_id):
     db.session.delete(template)
     db.session.commit()
     return redirect(url_for("task_templates"))
-
-
 
 

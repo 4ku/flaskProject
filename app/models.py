@@ -69,27 +69,6 @@ class Tasks(db.Model):
         backref = "task", order_by = "Fields.id")
 
 
-page_field_connection = db.Table("page_field_connection",
-    db.Column('page_id', db.Integer, db.ForeignKey('pages.id')),
-    db.Column('field_id', db.Integer, db.ForeignKey('fields.id'))
- )
- 
-class Pages(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Unicode(64))
-    fields = db.relationship("Fields", 
-        secondary = page_field_connection, 
-        primaryjoin =(page_field_connection.c.page_id == id),
-        secondaryjoin = (page_field_connection.c.field_id == Fields.id),
-        cascade="all, delete, delete-orphan",single_parent=True,
-        backref = "page", order_by = "Fields.id")
-
-
-
-
-
-
-
 class Users(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     #Обязательные поля
@@ -137,13 +116,65 @@ class Menu_fields(db.Model):
     link = db.Column(db.Unicode(255))
 
 
-class Roles(db.Model):
-    id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.Unicode(64))
-
 role_connection = db.Table("user_roles",
     db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
     db.Column('role_id', db.Integer, db.ForeignKey('roles.id'))
  )
 
+class Roles(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.Unicode(64))
 
+
+
+
+
+page_field_connection = db.Table("page_field_connection",
+    db.Column('page_id', db.Integer, db.ForeignKey('pages.id')),
+    db.Column('field_id', db.Integer, db.ForeignKey('fields.id'))
+ )
+ 
+class Pages(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Unicode(64))
+    fields = db.relationship("Fields", 
+        secondary = page_field_connection, 
+        primaryjoin =(page_field_connection.c.page_id == id),
+        secondaryjoin = (page_field_connection.c.field_id == Fields.id),
+        cascade="all, delete, delete-orphan",single_parent=True,
+        backref = "page", order_by = "Fields.id")
+
+
+profile_field_connection = db.Table("profile_field_connection",
+    db.Column('profile_id', db.Integer, db.ForeignKey('profiles.id')),
+    db.Column('field_id', db.Integer, db.ForeignKey('fields.id'))
+ )
+ 
+class Profiles(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user = db.relationship("Users", uselist=False, backref = "profile")
+
+    fields = db.relationship("Fields", 
+        secondary = profile_field_connection, 
+        primaryjoin =(profile_field_connection.c.profile_id == id),
+        secondaryjoin = (profile_field_connection.c.field_id == Fields.id),
+        cascade="all, delete, delete-orphan",single_parent=True,
+        backref = "profile", order_by = "Fields.id")
+
+
+
+profile_template_field_connection = db.Table("profile_template_field_connection",
+    db.Column('profile_template_id', db.Integer, db.ForeignKey('profile_template.id')),
+    db.Column('field_id', db.Integer, db.ForeignKey('fields.id'))
+ )
+
+class Profile_template(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    fields = db.relationship("Fields", 
+        secondary = profile_field_connection, 
+        primaryjoin =(profile_field_connection.c.profile_id == id),
+        secondaryjoin = (profile_field_connection.c.field_id == Fields.id),
+        cascade="all, delete, delete-orphan",single_parent=True,
+        backref = "profile_template", order_by = "Fields.id")

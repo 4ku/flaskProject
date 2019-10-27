@@ -116,53 +116,65 @@ def all_tasks():
     return render_template("tasks.html", title = _l("All tasks"),
         tasks = Tasks.query.order_by(Tasks.timestamp.desc()).all())
 
+def save_avatar(user, picture):
+    if picture:
+        __ , encrypted_filename = encode_filename(picture.filename)
+        image = Image.open(picture)
+        image.save(os.path.join(app.root_path, 'static/avatars/', encrypted_filename))
+        user.avatar_path = encrypted_filename
 
-@app.route('/edit_user_admin/<id>', methods=['GET', 'POST'])
-@roles_required(['Admin'])
-def edit_user_admin(id):
+
+@app.route('/edit_user/<id>', methods=['GET', 'POST'])
+@login_required
+def edit_user(id):
+    is_admin = (current_user.roles[0].name == "Admin")
     user = Users.query.filter_by(id=id).first()
-    form = EditProfileForm_Admin(user.email)
-    if form.validate_on_submit():
-        if form.picture.data:
-            __ , encrypted_filename = encode_filename(form.picture.data.filename)
-            image = Image.open(form.picture.data)
-            image.save(os.path.join(app.root_path, 'static/avatars/', encrypted_filename))
-            user.avatar_path = encrypted_filename
-        user.email = form.email.data
-        user.roles[0] = (Roles(name=form.role_list.data))
-        db.session.commit()
-        flash(_l('Your changes have been saved.'))
-        return redirect(url_for('edit_user_admin', id = user.id))
-    elif request.method == 'GET':
+    
+    if not is_admin and current_user.id != user.id:
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('all_users')
+        return redirect(next_page)
+
+    if is_admin:
+        form = EditProfileForm_Admin(user.email)
+    else:
+        form = EditProfileForm()
+
+    if user.profile:
+        profile = user.profile
+        fields = profile.fields
+    else:
+        profile = Profiles()
+        profile_template = Profile_template.query.filter_by(id=1).first()
+        fields = profile_template.fields
+
+    is_validated, text_form, textArea_form, date_form, link_form, \
+         file_form, picture_form = dynamic_fields(profile, fields, True)
+
+    if request.method == 'GET' and is_admin:
         # Предзаполнение полей
         form.email.data = user.email
         form.role_list.data = user.roles[0].name
-    return render_template('edit_user.html', title=_l('Edit Profile'),
-                           form=form, user = user)
 
-
-# Такая же функция, только для обычных пользователей
-@app.route('/edit_profile', methods=['GET', 'POST'])
-@login_required
-def edit_profile():
-    form = EditProfileForm()
-    if form.validate_on_submit():
-        if form.picture.data:
-            _ , encrypted_filename = encode_filename(form.picture.data.filename)
-            image = Image.open(form.picture.data)
-            image.save(os.path.join(app.root_path, 'static/avatars/', encrypted_filename))
-            current_user.avatar_path = encrypted_filename
+    elif is_validated and form.validate_on_submit():
+        save_avatar(user, form.picture.data)
+        if is_admin:
+            user.email = form.email.data
+            user.roles[0].name = form.role_list.data
         db.session.commit()
         flash(_l('Your changes have been saved.'))
-        return redirect(url_for('edit_profile'))
+    
     return render_template('edit_user.html', title=_l('Edit Profile'),
-                           form=form, user = current_user)
+        form=form, user = user,is_template = False,
+        text_form = text_form, textArea_form = textArea_form, date_form = date_form,
+        link_form = link_form, file_form = file_form, picture_form = picture_form)
+
 
 # --- Удаление пользователя и заданий ----
 @app.route('/delete_user/<user_id>')
 @roles_required(['Admin'])
 def delete_user(user_id):
-
     user = Users.query.filter_by(id=user_id).first()
 
     # Удаление аватарки
@@ -180,6 +192,15 @@ def delete_user(user_id):
     Users.query.filter_by(id=user_id).delete()
     db.session.commit()
     return redirect(url_for("all_users"))
+
+@app.route('/confirm_user/<id>')
+@roles_required(['Admin'])
+def confirm_user(id):
+    user = Users.query.filter_by(id=id).first()
+    user.roles[0].name = "Usual"
+    db.session.commit()
+    return redirect(url_for("all_users"))
+
 
 #-------------------------------------------------------------
 # Страницы, которые доступны и админу и обычному пользователю 
@@ -296,10 +317,27 @@ def before_request():
         db.session.commit()
 
 from app.task_routes import delete_task
+from app.dynamic_fields import *
+
+@app.route('/profile_template',methods=['GET', 'POST'])
+@roles_required(['Admin'])
+def profile_template():
+
+    class TemplateProfileForm(FlaskForm):
+        submit = SubmitField(_l('Submit'))
+
+    template = Profile_template.query.filter_by(id=1).first()
+    form = TemplateProfileForm()
+    add_field_form = AddFieldForm()
+    
+    is_validated, text_form, textArea_form, date_form, link_form, \
+         file_form, picture_form = dynamic_fields(template, template.fields, False)
 
 
-
-
+    return render_template("profile_template.html", 
+            add_field_form = add_field_form, form = form, is_template = True,
+                text_form = text_form, textArea_form = textArea_form, date_form = date_form,
+                link_form = link_form, file_form = file_form, picture_form = picture_form)
 
 
 # #Здесь тупо отображение постов

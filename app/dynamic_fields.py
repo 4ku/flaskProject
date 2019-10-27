@@ -1,0 +1,155 @@
+from flask import render_template, flash, redirect, url_for, request, session
+from shutil import copyfile
+import os
+from wtforms import validators
+from datetime import datetime
+from flask_babel import _, lazy_gettext as _l
+
+from app import app, db
+from app.forms import *
+from app.models import *
+from app.routes import roles_required, encode_filename
+
+#_____________________________________________
+#            Fields - Поля
+#---------------------------------------------
+
+def add_and_fill_fields_to_form(fields, is_task, text_form, textArea_form, date_form, link_form, file_form, picture_form):
+    text_validator = [Length(max=50), DataRequired()] if is_task else [Length(max=50)]
+    textArea_validator = [Length(max=255), DataRequired()] if is_task else [Length(max=255)]
+    date_validator = [DataRequired()] if is_task else [validators.Optional()]
+    link_validator = [DataRequired()] if is_task else []
+    file_validator = [check_file_label] if is_task else []
+    picture_validator = [DataRequired(), FileAllowed(['jpg', 'png','jpeg'])] if is_task else [FileAllowed(['jpg', 'png','jpeg'])]
+
+    delattr(ExtTextField, "text")
+    setattr(ExtTextField, "text", TextField(label = _("Text"), validators = text_validator))
+    delattr(ExtTextAreaField, "textArea")
+    setattr(ExtTextAreaField, "textArea", TextAreaField(label = _("TextArea"), validators = textArea_validator))
+    delattr(ExtDateField, "date")
+    setattr(ExtDateField, "date", DateField(label = _("Date"), validators=date_validator))
+    delattr(LinkField, "link")
+    setattr(LinkField, "link", TextField(label = _("Link"), validators=link_validator))
+    delattr(ExtFileField, "file")
+    setattr(ExtFileField, "file", FileField(label = _('File'), validators=file_validator))
+    delattr(PictureField, "picture")
+    setattr(PictureField, "picture", FileField(label =_('Picture'), validators=picture_validator))
+
+    for field in fields:
+        field_data = field.media
+        data = {'label_': field.label, 'is_displayed': field.display,"order": field.order}
+        if field_data.text is not None:
+            data["text"] = field_data.text
+            text_form.text_fields.append_entry(data)
+        if field_data.textArea is not None:
+            data["textArea"] = field_data.textArea
+            textArea_form.textArea_fields.append_entry(data)
+        elif field_data.date:
+            data["date"] = field_data.date 
+            date_form.date_fields.append_entry(data)
+        elif field_data.link is not None:
+            data["link"] = field_data.link 
+            link_form.link_fields.append_entry(data)
+        elif field_data.filename is not None:
+            data["filename"] = field_data.filename
+            data["encrypted_filename"] = field_data.encrypted_filename
+            file_form.file_fields.append_entry(data)
+        elif field_data.picture is not None:
+            data["filename"] = field_data.picture
+            data["encrypted_filename"] = field_data.encrypted_filename
+            picture_form.picture_fields.append_entry(data)
+
+
+def save_file(file, field_filename, field_encrypted_filename):
+    filename, encrypted_filename = "", ""
+    # Если добавляем свой файл 
+    if file:
+    # Неважно редактирование или нет - просто сохраняем новый файл, старые, если они были, потом удалятся  
+        filename, encrypted_filename = encode_filename(file.filename)
+        file.save(os.path.join(app.root_path, 'static/files/',  encrypted_filename))
+        return filename, encrypted_filename
+
+    # Если есть предыдущий файл, то делаем его копию, оригинал позже удалится.
+    elif field_filename:
+        src_path = os.path.join(app.root_path, 'static/files/', field_encrypted_filename)
+        filename, encrypted_filename = encode_filename(field_filename)
+        dst_path = os.path.join(app.root_path, 'static/files/', encrypted_filename)
+        copyfile(src_path, dst_path)
+        return filename, encrypted_filename
+    return field_filename, field_encrypted_filename   
+
+
+def save_fields(content, text_form, textArea_form,  date_form, link_form, file_form, picture_form):
+    old_fields_id = [field.id for field in content.fields] 
+
+    def save_field(field, media):
+            label = field.label_.data
+            is_displayed = field.is_displayed.data
+            order = field.order.data
+            field = Fields(label = label, display = is_displayed, media = media, order = order)
+            content.fields.append(field)
+
+    for field in text_form.text_fields:
+        media = Media(text = field.text.data)
+        save_field(field, media)
+
+    for field in textArea_form.textArea_fields:
+        media = Media(textArea = field.textArea.data)
+        save_field(field, media)
+
+    for field in date_form.date_fields:
+        date = field.date.data if field.date.data else datetime(2000,1,1)
+        media = Media(date = date)
+        save_field(field, media)
+
+    for field in link_form.link_fields:
+        media = Media(link = field.link.data)
+        save_field(field, media)
+
+    for field in file_form.file_fields:
+        filename, encrypted_filename = save_file(field.file.data, field.filename.data, field.encrypted_filename.data)
+        media = Media(filename = filename, encrypted_filename = encrypted_filename) 
+        save_field(field, media)
+
+    for field in picture_form.picture_fields:
+        filename, encrypted_filename = save_file(field.picture.data, field.filename.data, field.encrypted_filename.data)
+        media = Media(picture = filename, encrypted_filename = encrypted_filename) 
+        save_field(field, media)
+
+    old_fields = []
+    for id_ in old_fields_id:
+        field = Fields.query.filter_by(id = id_).first()
+        old_fields.append(field)
+    delete_fields(old_fields)
+
+
+def delete_fields(fields):
+    for field in fields:
+        if field.media.encrypted_filename:
+            os.remove(os.path.join(app.root_path, 'static/files/', field.media.encrypted_filename))
+        db.session.delete(field.media)
+        db.session.delete(field)
+
+
+def dynamic_fields(content, fields, is_task):
+    #Формы для разных типов полей
+    text_form = TextsForm()
+    textArea_form = TextAreasForm()
+    date_form = DatesForm()
+    link_form = LinksForm()
+    file_form = FilesForm()
+    picture_form = PicturesForm()
+
+    is_validated = (text_form.validate_on_submit() and textArea_form.validate() 
+            and date_form.validate() and link_form.validate() and file_form.validate() and picture_form.validate())
+
+    if request.method == 'GET':
+        #Заполняем поля при отображении страницы
+        add_and_fill_fields_to_form(fields, is_task,
+            text_form, textArea_form, date_form, link_form, file_form, picture_form)
+
+    elif is_validated:
+        save_fields(content, text_form, textArea_form, date_form, link_form, file_form, picture_form)
+        db.session.commit()
+
+    return is_validated, text_form, textArea_form, date_form, link_form, file_form, picture_form

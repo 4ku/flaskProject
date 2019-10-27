@@ -33,7 +33,10 @@
 		         <span style="color: red;">[{{ error }}]</span>
 		         {% endfor %}
 		     </p>		  
-        {% endif %}
+		{% endif %}
+		
+		{% include "fields.html" %}
+
         <p>{{ form.submit() }}</p>
     </form>
 {% endblock %}
