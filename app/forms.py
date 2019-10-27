@@ -107,8 +107,9 @@ class MenuForm(FlaskForm):
     name = TextField(label = _l("Link name"))
     submit = SubmitField(_l('Submit'))
 
-
-
+class PageForm(FlaskForm):
+    name = TextField(label = _l("Page name"))
+    submit = SubmitField(_l('Submit'))
 
 
 #______________________________________

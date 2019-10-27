@@ -6,6 +6,11 @@
 	<a href="{{ url_for('profile_template') }}">Profile template</a>
 </div>
 
+<div>
+		<a href="{{ url_for('create_page') }}">Create page</a>
+</div>
+	
+
 {% for link in current_user.extra_menu_fields %}
 	<div>
 		<a style = "margin-right: 50px; " href="{{ link.link }}">

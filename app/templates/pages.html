@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+      
+    {% for page in pages %}
+    		{% include 'page.html' %}
+    		<br>
+    {% endfor %}
+
+{% endblock %}
+
+
+

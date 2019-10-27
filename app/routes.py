@@ -149,7 +149,7 @@ def edit_user(id):
         profile_template = Profile_template.query.filter_by(id=1).first()
         fields = profile_template.fields
 
-    is_validated, dynamic_forms = dynamic_fields(profile, fields, True)
+    is_validated, dynamic_forms = dynamic_fields(profile, fields, False)
 
     if request.method == 'GET' and is_admin:
         # Предзаполнение полей
@@ -323,6 +323,7 @@ def before_request():
 from app.task_routes import delete_task
 from app.dynamic_fields import *
 
+
 @app.route('/profile_template',methods=['GET', 'POST'])
 @roles_required(['Admin'])
 def profile_template():
@@ -343,19 +344,63 @@ def profile_template():
         form = form, is_template = True, dynamic_forms = dynamic_forms)
 
 
-# #Здесь тупо отображение постов
-# @app.route('/main', methods=['GET'])
-# @login_required
-# def main():
-#     templates = Task_templates.query.all()
-#     return render_template('templates.html', templates = templates)
 
 
-# #Это страничка с отображением всех шаблонов для постов
-# @app.route('/post_templates', methods=['GET', 'POST'])
-# @roles_required(['Admin', 'Usual'])
-# def post_templates():
-#     templates = Post_templates.query.all()
-#     return render_template('post_templates.html', templates = templates)
+def create_or_edit_page(page, is_edit):
+    form = PageForm()
+    add_field_form = AddFieldForm()
+    
+    is_validated, dynamic_forms = dynamic_fields(page, page.fields, True)
 
+    if request.method == "GET":
+        form.name.data = page.name
+
+    elif is_validated and form.validate_on_submit():
+        page.name = form.name.data
+        if not is_edit:
+            db.session.add(page)
+        db.session.commit()
+        return redirect(url_for("main"))
+
+    return render_template("create_or_edit_page.html", add_field_form = add_field_form, 
+        form = form, is_template = True, dynamic_forms = dynamic_forms)
+
+
+@app.route('/create_page',methods=['GET', 'POST'])
+@roles_required(['Admin'])
+def create_page():
+    page = Pages()
+    return create_or_edit_page(page, False)
+
+
+@app.route('/edit_page/<page_id>', methods=['GET', 'POST'])
+@roles_required(['Admin'])
+def edit_page(page_id):
+    page = Pages.query.filter_by(id = page_id).first()
+    return create_or_edit_page(page, True)
+
+@app.route('/delete_page/<page_id>')
+@roles_required(['Admin'])
+def delete_page(page_id):
+    page = Pages.query.filter_by(id == page_id).first()
+    delete_fields(page.fields)
+    db.session.commit()
+    db.session.delete(page)
+    db.session.commit()
+    next_page = request.args.get('next')
+    if not next_page or url_parse(next_page).netloc != '':
+        next_page = url_for('all_users')
+    return redirect(next_page)
+
+@app.route('/view_full_page/<page_id>', methods=['GET'])
+@roles_required(['Admin'])
+def full_page(page_id):
+    page = Pages.query.filter_by(id = page_id).first()
+    return render_template("full_page.html",page = page)
+
+@app.route('/main', methods=['GET', 'POST'])
+@login_required
+def main():
+    return render_template("pages.html", title = _l("Main page"),
+        pages = Pages.query.all())
 
