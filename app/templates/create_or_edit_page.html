@@ -1,27 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
 
-	{% include "dynamic_fields.html" %}
-
-	<form method="post">
-		{{ form.hidden_tag() }}
-		<p>{{add_field_form.fields_list.label}}: {{add_field_form.fields_list()}}</p>
-		<button id="add_field" type="button">Add field</button>
-		
-		{% for error in add_field_form.errors %}
-					<span style="color: red;">[{{ error }}]</span>
-		{% endfor %}
-	</form>
-	
-     <form method="post" enctype="multipart/form-data">
+	<form method="post" enctype="multipart/form-data">
 		{{ form.hidden_tag() }} 
-        <p>Page name {{ form.name }}</p>
-        {% include "fields.html" %}
-
-	   <p>{{ form.submit() }}</p>
-	   {% for error in form.errors %}
-	  		<span style="color: red;">[{{ error }}]</span>
-		{% endfor %}
+		
+		{% include "fields.html" %}		
+		
+		{{ form.submit }}
+		{% for error in form.errors %}
+			<span style="color: red;">[{{ error }}]</span>
+  		{% endfor %}
      </form>
 	 
 {% endblock %}

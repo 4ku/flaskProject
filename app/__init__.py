@@ -32,4 +32,4 @@ def get_locale():
         return session["CURRENT_LANGUAGE"]
     return request.accept_languages.best_match(app.config['LANGUAGES'])
 
-from app import routes, task_routes, models
+from app import routes, section_routes, task_routes, models

@@ -129,6 +129,25 @@ class Roles(db.Model):
 
 
 
+section_field_connection = db.Table("section_field_connection",
+    db.Column('section_id', db.Integer, db.ForeignKey('sections.id')),
+    db.Column('field_id', db.Integer, db.ForeignKey('fields.id'))
+ )
+ 
+class Sections(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Unicode(64), unique=True)
+    fields = db.relationship("Fields", 
+        secondary = section_field_connection, 
+        primaryjoin =(section_field_connection.c.section_id == id),
+        secondaryjoin = (section_field_connection.c.field_id == Fields.id),
+        cascade="all, delete, delete-orphan",single_parent=True,
+        backref = "section", order_by = "Fields.id")
+
+
+
+
+
 page_field_connection = db.Table("page_field_connection",
     db.Column('page_id', db.Integer, db.ForeignKey('pages.id')),
     db.Column('field_id', db.Integer, db.ForeignKey('fields.id'))
@@ -136,7 +155,8 @@ page_field_connection = db.Table("page_field_connection",
  
 class Pages(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Unicode(64))
+    section_id = db.Column(db.Integer, db.ForeignKey('sections.id'))
+    section = db.relationship("Sections", backref = "pages")
     fields = db.relationship("Fields", 
         secondary = page_field_connection, 
         primaryjoin =(page_field_connection.c.page_id == id),

@@ -2,7 +2,7 @@ from flask_babel import _, lazy_gettext as _l
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, BooleanField,SelectField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length
-from app.models import Users, Roles
+from app.models import Users, Roles, Sections
 from wtforms import Form, StringField, TextField, TextAreaField, SubmitField, \
     RadioField, FieldList, FormField, Field, HiddenField
 from flask_wtf.file import FileField, FileAllowed
@@ -107,9 +107,17 @@ class MenuForm(FlaskForm):
     name = TextField(label = _l("Link name"))
     submit = SubmitField(_l('Submit'))
 
-class PageForm(FlaskForm):
-    name = TextField(label = _l("Page name"))
+class SectionForm(FlaskForm):
+    name = TextField(label = _l("Page name"), validators =[DataRequired()])
     submit = SubmitField(_l('Submit'))
+
+class PageForm(FlaskForm):
+    submit = SubmitField(_l('Submit'))
+
+    def validate_name(self, name):
+        section = Sections.query.filter_by(name=self.name.data).first()
+        if section is not None:
+            raise ValidationError(_l('Please use a different section name.'))
 
 
 #______________________________________

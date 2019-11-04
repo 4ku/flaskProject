@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="task_info">
+
+	<div class="user_edit">
+		<div class="edit">
+				<a href="{{ url_for('create_page', section_id=section_id) }}">{{ _('Create new page')}}</a>
+		</div> 
+	</div>
+</div>      
+
+
+    {% for page in pages %}
+    		{% include 'page.html' %}
+    		<br>
+    {% endfor %}
+
+{% endblock %}

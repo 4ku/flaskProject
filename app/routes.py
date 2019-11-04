@@ -130,6 +130,7 @@ def edit_user(id):
     is_admin = (current_user.roles[0].name == "Admin")
     user = Users.query.filter_by(id=id).first()
     
+    print(current_user.id)
     if not is_admin and current_user.id != user.id:
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
@@ -235,8 +236,8 @@ def your_tasks():
 #-------------------------------------------------------------
 # Функции меню
 #-------------------------------------------------------------
-@app.route('/toolbar_settings', methods=['GET'])
 @login_required
+@app.route('/toolbar_settings', methods=['GET'])
 def toolbar_settings():
     return render_template("toolbar_settings.html", title=_l('Toolbar settings'))
 
@@ -287,9 +288,15 @@ def append_http(link):
 def is_link(link):
     return checkers.is_url(append_http(link))
 
+# def get_sections():
+#     return Sections.query().all()
+
 app.jinja_env.globals.update(is_link = is_link)
 app.jinja_env.globals.update(append_http = append_http)
 app.jinja_env.globals.update(now = datetime.utcnow)
+# app.jinja_env.globals.update(get_sections = get_sections)
+
+
 
 def encode_filename(filename):
     random_hex = secrets.token_hex(8)
@@ -317,12 +324,9 @@ def before_request():
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
 
-
-
-
+# delete_task нужен в delete_user
 from app.task_routes import delete_task
 from app.dynamic_fields import *
-
 
 @app.route('/profile_template',methods=['GET', 'POST'])
 @roles_required(['Admin'])
@@ -346,61 +350,6 @@ def profile_template():
 
 
 
-def create_or_edit_page(page, is_edit):
-    form = PageForm()
-    add_field_form = AddFieldForm()
-    
-    is_validated, dynamic_forms = dynamic_fields(page, page.fields, True)
-
-    if request.method == "GET":
-        form.name.data = page.name
-
-    elif is_validated and form.validate_on_submit():
-        page.name = form.name.data
-        if not is_edit:
-            db.session.add(page)
-        db.session.commit()
-        return redirect(url_for("main"))
-
-    return render_template("create_or_edit_page.html", add_field_form = add_field_form, 
-        form = form, is_template = True, dynamic_forms = dynamic_forms)
 
 
-@app.route('/create_page',methods=['GET', 'POST'])
-@roles_required(['Admin'])
-def create_page():
-    page = Pages()
-    return create_or_edit_page(page, False)
-
-
-@app.route('/edit_page/<page_id>', methods=['GET', 'POST'])
-@roles_required(['Admin'])
-def edit_page(page_id):
-    page = Pages.query.filter_by(id = page_id).first()
-    return create_or_edit_page(page, True)
-
-@app.route('/delete_page/<page_id>')
-@roles_required(['Admin'])
-def delete_page(page_id):
-    page = Pages.query.filter_by(id == page_id).first()
-    delete_fields(page.fields)
-    db.session.commit()
-    db.session.delete(page)
-    db.session.commit()
-    next_page = request.args.get('next')
-    if not next_page or url_parse(next_page).netloc != '':
-        next_page = url_for('all_users')
-    return redirect(next_page)
-
-@app.route('/view_full_page/<page_id>', methods=['GET'])
-@roles_required(['Admin'])
-def full_page(page_id):
-    page = Pages.query.filter_by(id = page_id).first()
-    return render_template("full_page.html",page = page)
-
-@app.route('/main', methods=['GET', 'POST'])
-@login_required
-def main():
-    return render_template("pages.html", title = _l("Main page"),
-        pages = Pages.query.all())
 

@@ -26,7 +26,7 @@ def process_template(template, is_edit):
         #Заполняем поля при отображении страницы
         form.name.data = template.name
         
-    elif is_validated and form.validate_on_submit() :
+    elif is_validated and form.validate_on_submit():
         # Сохраняем данные в БД
         template.name = form.name.data
         if not is_edit:        

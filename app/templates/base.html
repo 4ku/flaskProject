@@ -46,7 +46,6 @@
 			{% if not current_user.is_anonymous %}
 				<ul>
 						{% if current_user.roles %}
-							<li><a href="{{ url_for('main') }}">{{ _('Main page')}}</a></li>
 
 							{% if current_user.roles[0].name == "Admin" %}
 								<li><a href="{{ url_for('all_users') }}">{{ _('All users')}}</a></li>

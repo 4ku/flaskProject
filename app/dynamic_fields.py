@@ -20,7 +20,7 @@ def add_and_fill_fields_to_form(fields, is_task, forms):
     date_validator = [DataRequired()] if is_task else [validators.Optional()]
     link_validator = [DataRequired()] if is_task else []
     file_validator = [check_file_label] if is_task else []
-    picture_validator = [DataRequired(), FileAllowed(['jpg', 'png','jpeg'])] if is_task else [FileAllowed(['jpg', 'png','jpeg'])]
+    picture_validator = [check_file_label, FileAllowed(['jpg', 'png','jpeg'])] if is_task else [FileAllowed(['jpg', 'png','jpeg'])]
 
     delattr(ExtTextField, "text")
     setattr(ExtTextField, "text", TextField(label = _("Text"), validators = text_validator))
@@ -142,8 +142,12 @@ def dynamic_fields(content, fields, is_task):
     forms["picture_form"] = PicturesForm()
      
 
-    is_validated = (forms["text_form"].validate_on_submit() and forms["textArea_form"].validate() 
-            and forms["date_form"].validate() and forms["link_form"].validate() and forms["file_form"].validate() and forms["picture_form"].validate())
+    is_validated = (forms["text_form"].validate_on_submit() and 
+        forms["textArea_form"].validate_on_submit() and
+        forms["date_form"].validate_on_submit() and
+        forms["link_form"].validate_on_submit() and 
+        forms["file_form"].validate_on_submit() and 
+        forms["picture_form"].validate_on_submit())
 
     if request.method == 'GET':
         #Заполняем поля при отображении страницы
