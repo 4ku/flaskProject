@@ -288,13 +288,13 @@ def append_http(link):
 def is_link(link):
     return checkers.is_url(append_http(link))
 
-# def get_sections():
-#     return Sections.query().all()
+def get_sections():
+    return Sections.query.all()
 
 app.jinja_env.globals.update(is_link = is_link)
 app.jinja_env.globals.update(append_http = append_http)
 app.jinja_env.globals.update(now = datetime.utcnow)
-# app.jinja_env.globals.update(get_sections = get_sections)
+app.jinja_env.globals.update(get_sections = get_sections)
 
 
 
@@ -324,10 +324,19 @@ def before_request():
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
 
-# delete_task нужен в delete_user
-from app.task_routes import delete_task
-from app.dynamic_fields import *
 
+
+@app.route('/all_documents',methods=['GET', 'POST'])
+@login_required
+def all_documents():
+    media = Media.query.all()
+    files = []
+    for field in media:
+        if field.filename:
+            files.append(field)
+    return render_template("all_documents.html", files = files)
+
+    
 @app.route('/profile_template',methods=['GET', 'POST'])
 @roles_required(['Admin'])
 def profile_template():
@@ -347,6 +356,9 @@ def profile_template():
     return render_template("profile_template.html", add_field_form = add_field_form, 
         form = form, is_template = True, dynamic_forms = dynamic_forms)
 
+# delete_task нужен в delete_user
+from app.task_routes import delete_task
+from app.dynamic_fields import *
 
 
 

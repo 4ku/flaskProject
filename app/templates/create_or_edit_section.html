@@ -19,7 +19,7 @@
         {% include "fields.html" %}
 
 	   <p>{{ form.submit() }}</p>
-	   {% for error in form.errors %}
+	   {% for error in form.name.errors %}
 	  		<span style="color: red;">[{{ error }}]</span>
 		{% endfor %}
      </form>

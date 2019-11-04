@@ -111,13 +111,15 @@ class SectionForm(FlaskForm):
     name = TextField(label = _l("Page name"), validators =[DataRequired()])
     submit = SubmitField(_l('Submit'))
 
-class PageForm(FlaskForm):
-    submit = SubmitField(_l('Submit'))
-
     def validate_name(self, name):
         section = Sections.query.filter_by(name=self.name.data).first()
         if section is not None:
             raise ValidationError(_l('Please use a different section name.'))
+
+class PageForm(FlaskForm):
+    submit = SubmitField(_l('Submit'))
+
+
 
 
 #______________________________________
@@ -175,6 +177,8 @@ class ExtFileField(FieldForm):
     file = FileField()
     filename = HiddenField()
     encrypted_filename = HiddenField()
+    file_type = SelectField('File type', 
+        choices=[('1',_l('Счёт фактура')),('2',_l('Не счёт фатура')),('3',_l('Что-то ещё'))])
 
 class FilesForm(FlaskForm):
     file_fields = FieldList(

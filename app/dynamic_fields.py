@@ -41,7 +41,7 @@ def add_and_fill_fields_to_form(fields, is_task, forms):
         if field_data.text is not None:
             data["text"] = field_data.text
             forms["text_form"].text_fields.append_entry(data)
-        if field_data.textArea is not None:
+        elif field_data.textArea is not None:
             data["textArea"] = field_data.textArea
             forms["textArea_form"].textArea_fields.append_entry(data)
         elif field_data.date:
@@ -53,6 +53,7 @@ def add_and_fill_fields_to_form(fields, is_task, forms):
         elif field_data.filename is not None:
             data["filename"] = field_data.filename
             data["encrypted_filename"] = field_data.encrypted_filename
+            data["file_type"] = field_data.file_type
             forms["file_form"].file_fields.append_entry(data)
         elif field_data.picture is not None:
             data["filename"] = field_data.picture
@@ -108,7 +109,8 @@ def save_fields(content, forms):
 
     for field in forms["file_form"].file_fields:
         filename, encrypted_filename = save_file(field.file.data, field.filename.data, field.encrypted_filename.data)
-        media = Media(filename = filename, encrypted_filename = encrypted_filename) 
+        media = Media(filename = filename, 
+            encrypted_filename = encrypted_filename, file_type = field.file_type.data) 
         save_field(field, media)
 
     for field in forms["picture_form"].picture_fields:
@@ -143,11 +145,9 @@ def dynamic_fields(content, fields, is_task):
      
 
     is_validated = (forms["text_form"].validate_on_submit() and 
-        forms["textArea_form"].validate_on_submit() and
-        forms["date_form"].validate_on_submit() and
-        forms["link_form"].validate_on_submit() and 
-        forms["file_form"].validate_on_submit() and 
-        forms["picture_form"].validate_on_submit())
+        forms["textArea_form"].validate() and forms["date_form"].validate() and
+        forms["link_form"].validate() and forms["file_form"].validate() and 
+        forms["picture_form"].validate())
 
     if request.method == 'GET':
         #Заполняем поля при отображении страницы

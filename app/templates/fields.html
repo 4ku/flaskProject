@@ -16,6 +16,7 @@
 				{% if field_form.filename.data %}
 					<a href="{{ url_for('download_file', filename = field_form.encrypted_filename.data) }}">{{ field_form.filename.data }}</a>
 				{% endif %}
+				{{field_form.file_type()}}
 			{% endif %}
 
 			{{ field_form.is_displayed.label }}		

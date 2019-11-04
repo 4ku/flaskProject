@@ -15,6 +15,22 @@
 	<p>... </p> 
 </div>
 
+
+{% for section in get_sections() %}
+<div>
+	<ul>
+	<li><a href="{{ url_for('view_section', section_id=section.id) }}">{{ _(section.name)}}</a></li>
+	<li><a href="{{ url_for('delete_section', section_id=section.id) }}">Delete section</a></li>
+	</ul>	
+</div>
+<div>
+		<p>... </p> 
+		<p>... </p> 
+	</div>
+{% endfor %}
+
+
+
 {% for link in current_user.extra_menu_fields %}
 	<div>
 		<a style = "margin-right: 50px; " href="{{ link.link }}">

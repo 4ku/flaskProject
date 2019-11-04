@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+	{% for file in files %}
+	<div>	
+		<a href="{{ url_for('download_file', filename = file.encrypted_filename) }}">{{ file.filename }}</a>
+		<p>{{file.file_type}}</p>
+	</div>	
+	{% endfor %}
+{% endblock %}

@@ -20,7 +20,13 @@
 	   {% elif field_type=="file" %}
 		   <input id="file_fields-___-file" name="file_fields-___-file" type="file">
 		   <input id="file_fields-___-filename" name="file_fields-___-filename" type="hidden">
-		   <input id="file_fields-___-encrypted_filename" name="file_fields-___-encrypted_filename" type="hidden">				
+		   <input id="file_fields-___-encrypted_filename" name="file_fields-___-encrypted_filename" type="hidden">
+		   <select id="file_fields-___-file_type" name="file_fields-___-file_type">
+				<option value="1">Счёт фактура</option>
+				<option value="2">Не счёт фатура</option>
+				<option value="3">Что-то ещё</option>
+			</select>
+							
 	   {% elif field_type=="picture" %}
 		   <input id="picture_fields-___-picture" name="picture_fields-___-picture" type="file">
 		   <input id="picture_fields-___-filename" name="picture_fields-___-filename" type="hidden">
@@ -42,3 +48,6 @@
 {{render_html_field("link", "Link") }}
 {{render_html_field("file", "File") }}
 {{render_html_field("picture", "Picture") }}
+
+
+

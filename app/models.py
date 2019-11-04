@@ -11,10 +11,12 @@ class Media(db.Model):
     text = db.Column(db.Unicode(255))
     textArea = db.Column(db.Unicode(255))
     date = db.Column(db.DateTime())
-    encrypted_filename = db.Column(db.Unicode(255))
-    filename = db.Column(db.Unicode(255))
     link = db.Column(db.Unicode(255))
     picture = db.Column(db.Unicode(255))
+
+    encrypted_filename = db.Column(db.Unicode(255))
+    filename = db.Column(db.Unicode(255))
+    file_type = db.Column(db.Unicode(30))
 
     def __repr__(self):
         return '<Media {}, {}, {}, {}, {}, {}, {}>'.format(self.text, self.textArea, 

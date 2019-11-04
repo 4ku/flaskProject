@@ -18,6 +18,11 @@ function changeIndex(form, oldIndex, newIndex){
 			$item.attr('id', $item.attr('id').replace(oldIndex, newIndex));
 			$item.attr('name', $item.attr('name').replace(oldIndex, newIndex));
 	});
+	form.find('select').each(function(idx) {
+		var $item = $(this);
+		$item.attr('id', $item.attr('id').replace(oldIndex, newIndex));
+		$item.attr('name', $item.attr('name').replace(oldIndex, newIndex));
+	});
 
 }
 	

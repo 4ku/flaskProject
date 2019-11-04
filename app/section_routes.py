@@ -47,7 +47,7 @@ def edit_section(section_id):
 @app.route('/delete_section/<section_id>')
 @roles_required(['Admin'])
 def delete_section(section_id):
-    section = Sections.query.filter_by(id == section_id).first()
+    section = Sections.query.filter_by(id = section_id).first()
     for page in section.pages:
         _delete_page(page.id)
         db.session.commit()
@@ -61,6 +61,13 @@ def delete_section(section_id):
         next_page = url_for('all_users')
     return redirect(next_page)
 
+# def get_statistics(section_id):
+#     fields = []
+#     if section_id == 1:
+#         pass
+#     elif section_id == 2:
+#         pass
+#     return fields
 
 @app.route('/sections/<section_id>', methods=['GET'])
 @roles_required(['Admin'])
@@ -105,7 +112,7 @@ def edit_page(page_id):
 
 
 def _delete_page(page_id):
-    page = Pages.query.filter_by(id == page_id).first()
+    page = Pages.query.filter_by(id = page_id).first()
     delete_fields(page.fields)
     db.session.commit()
     db.session.delete(page)
