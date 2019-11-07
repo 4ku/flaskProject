@@ -7,7 +7,7 @@
 	<form method="post">
 		{{ form.hidden_tag() }}
 		<p>{{add_field_form.fields_list.label}}: {{add_field_form.fields_list()}}</p>
-		<button id="add_field" type="button">Add field</button>
+		<button id="add_field" type="button">{{_('Add field')}}</button>
 		
 		{% for error in add_field_form.errors %}
 					<span style="color: red;">[{{ error }}]</span>
@@ -17,7 +17,7 @@
      <form method="post" enctype="multipart/form-data">
 		{{ form.hidden_tag() }} 
 		
-		<p>{{ form.name.label}}: {{ form.name() }}</p>
+		<p>{{ form.name.label }}: {{ form.name() }}</p>
 		
 		{% include "fields.html" %}
 

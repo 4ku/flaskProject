@@ -7,7 +7,7 @@
 				{{ field_form[field_type].label }}
 			{% else %}
 				{{ field_form.label_(style = "display: none;") }}
-				{{ field_form.label_.data}}
+				{{ _(field_form.label_.data)}}
 			{% endif %}
 
 			{{ field_form[field_type] }}
@@ -36,7 +36,7 @@
 			{% endfor %}
 
 			{% if is_template %}
-				<a class="remove" href="#">Remove</a>
+				<a class="remove" href="#">_('Remove')</a>
 			{% endif %}
 		</div>
 	{% endfor %}

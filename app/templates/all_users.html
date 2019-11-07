@@ -14,7 +14,7 @@
 				
 						<div class="real_name">
 								<div class="label">
-										Ф.И.О.:
+										{{_("Full name")}}:
 								</div>
 								<div class="info">
 										{{user.last_name}} {{user.first_name}}
@@ -23,7 +23,7 @@
 				
 						<div class="user_name">
 								<div class="label">
-										Логин в системе:
+										{{_('Email')}}:
 								</div>
 								<div class="info">
 										<a href="{{ url_for('user', id=user.id) }}">{{ user.email }}</a>
@@ -33,7 +33,7 @@
 						{% if user.roles %}
 							<div class="user_role">
 									<div class="label">
-											{{ _('Role:')}}
+											{{ _('Role')}}:
 									</div>
 									<div class="info">
 											{{_(user.roles[0].name)}}

@@ -3,6 +3,9 @@ from flask import render_template, flash, redirect, url_for, request, session, s
 from flask_login import current_user, login_user, logout_user, login_manager, login_required
 from functools import wraps
 from flask import abort
+from flask import g
+from flask_babel import get_locale
+
 
 from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
@@ -53,7 +56,7 @@ def login():
     if form.validate_on_submit():
         user = Users.query.filter_by(email=form.email.data).first()
         if user is None or not user.check_password(form.password.data) or user.roles[0].name == 'Not confirmed':
-            flash('Invalid email or password')
+            flash(_l('Invalid email or password'))
             return redirect(url_for('login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
@@ -258,7 +261,6 @@ def add_extra_menu_field():
 def rename_menu_field(link_id):
     link = Menu_fields.query.filter_by(id = link_id).first()
     form = MenuForm()
-
     if form.validate_on_submit():
         link.name = form.name.data
         db.session.commit()
@@ -293,9 +295,8 @@ def get_sections():
 
 app.jinja_env.globals.update(is_link = is_link)
 app.jinja_env.globals.update(append_http = append_http)
-app.jinja_env.globals.update(now = datetime.utcnow)
 app.jinja_env.globals.update(get_sections = get_sections)
-
+app.jinja_env.globals.update(now = datetime.utcnow)
 
 
 def encode_filename(filename):
@@ -320,10 +321,10 @@ def change_language(language):
 # Обновление времени последнего запроса пользователя на сайте
 @app.before_request
 def before_request():
+    g.locale = str(get_locale())
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
-
 
 
 @app.route('/all_documents',methods=['GET', 'POST'])

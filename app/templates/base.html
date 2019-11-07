@@ -2,6 +2,12 @@
     <head>
 	<link rel="shortcut icon" href="#" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+	<script src="https://use.fontawesome.com/fc5a4d0310.js"></script>
+	{{ moment.include_jquery() }}
+	{{ moment.include_moment() }}
+	{{ moment.lang(g.locale) }}
+	
         {% if title %}
         <title>{{ title }}</title>
         {% else %}
@@ -14,7 +20,7 @@
 		<h1>{{ title }}</h1>
 		<div class="menu">
 			<ul>
-				<li>{{ now().strftime('%H:%M') }}</li>
+				<li>{{ moment(now()).format('HH:mm') }}</li>
 				{% if current_user.is_anonymous %}
 					<li><a href="{{ url_for('login') }}"><i class="fa fa-chevron-right" aria-hidden="true"></i> {{ _('Sign in')}}</a></li>
 				{% else %}
@@ -47,9 +53,9 @@
 				<ul>	
 						{% if current_user.roles %}
 							{% for section in get_sections() %}
-								<li><a href="{{ url_for('view_section', section_id=section.id) }}">{{ _(section.name)}}</a></li>
+								<li><a href="{{ url_for('view_section', section_id=section.id) }}">{{ section.name }}</a></li>
 							{% endfor %}
-							<li><a href="{{ url_for('all_documents') }}">Documents</a></li>
+							<li><a href="{{ url_for('all_documents') }}">{{ _('Documents') }}</a></li>
 
 							{% if current_user.roles[0].name == "Admin" %}
 								<li><a href="{{ url_for('all_users') }}">{{ _('All users')}}</a></li>
@@ -73,9 +79,9 @@
 							{% for link in current_user.extra_menu_fields %}
 								<li><a href="{{ link.link }}">
 									{% if link.name %}
-											{{ link.name }}
+											{{ _(link.name) }}
 										{% else %}
-										{{ _('Link_')}}{{link.id}}
+										{{ _('Link')}}_{{link.id}}
 										{% endif %}
 									</a></li>
 							{% endfor %}
@@ -103,9 +109,7 @@
         {% block content %}{% endblock %}
 		
 	</div>
-	
-	<script src="https://use.fontawesome.com/fc5a4d0310.js"></script>
-	
+		
     </body>
 </html>
 

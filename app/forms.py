@@ -18,12 +18,6 @@ class LoginForm(FlaskForm):
     remember_me = BooleanField(_l('Remember Me'))
     submit = SubmitField(_l('Sign In'))
 
-# def isEnglish(form, field):
-#     english_alphabet = "abcdefghijklmnopqrstuvwxyz1234567890"
-#     for letter in str(field.data).lower():
-#         if letter not in english_alphabet:
-#             raise ValidationError(_l('English letters or numbers required'))
-
 def isRussian(form, field):
     russian_alphabet = "йцукенгшщзхъфывапролджэячсмитьбю"
     for letter in str(field.data).lower():

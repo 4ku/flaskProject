@@ -12,7 +12,7 @@
 				
 						<div class="real_name">
 								<div class="label">
-										Ф.И.О.:
+										{{_('Full name')}}:
 								</div>
 								<div class="info">
 										{{current_user.last_name}} {{current_user.first_name}}
@@ -21,7 +21,7 @@
 				
 						<div class="user_name">
 								<div class="label">
-										Логин в системе:
+										{{_('Email')}}:
 								</div>
 								<div class="info">
 										{{ user.email }}
@@ -31,7 +31,7 @@
 						{% if user.roles %}
 							<div class="user_role">
 									<div class="label">
-											{{ _('Role:')}}
+											{{ _('Role')}}:
 									</div>
 									<div class="info">
 											{{_(user.roles[0].name)}}
@@ -43,10 +43,10 @@
 						{% if user.last_seen %}
 						<div class="last_session">
 								<div class="label">
-										{{ _('Last seen on:')}}
+										{{ _('Last seen on')}}:
 								</div>
 								<div class="info">
-										{{ user.last_seen.strftime('%d %B %Y at %H:%M') }}
+										{{ moment(user.last_seen).format('LLL') }}
 								</div>
 						</div>
 						{% endif %}

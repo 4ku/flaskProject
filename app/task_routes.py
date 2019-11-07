@@ -96,7 +96,7 @@ def process_task(form, task, fields, is_edit):
         if not is_edit:
             db.session.add(task)    
         db.session.commit()
-        flash(_('Your changes have been saved.'))
+        flash(_l('Your changes have been saved.'))
         return redirect(url_for('login'))
     
     return render_template("create_or_edit_task.html", form = form, 

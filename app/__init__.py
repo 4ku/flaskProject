@@ -2,6 +2,7 @@ from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
+from flask_moment import Moment
 from flask_session import Session
 from flask import session
 from flask_babel import Babel
@@ -15,8 +16,11 @@ db.create_all()
 migrate = Migrate(app, db)
 babel = Babel(app)
 login = LoginManager(app)
+moment = Moment(app)
+
 login.session_protection = "strong"
 login.login_view = 'login'
+
 Session(app)
 app.jinja_env.globals['LANGUAGES'] = app.config['LANGUAGES']
 

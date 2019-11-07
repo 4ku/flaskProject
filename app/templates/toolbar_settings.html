@@ -3,13 +3,13 @@
 {% block content %}
 
 <div>
-	<a href="{{ url_for('profile_template') }}">Profile template</a>
+	<a href="{{ url_for('profile_template') }}">{{_('Profile template')}}</a>
 </div>
 <div>
 	<p>... </p> 
 </div>
 <div>
-		<a href="{{ url_for('create_section') }}">Create section</a>
+		<a href="{{ url_for('create_section') }}">{{_('Create section')}}</a>
 </div>
 <div>
 	<p>... </p> 
@@ -19,8 +19,8 @@
 {% for section in get_sections() %}
 <div>
 	<ul>
-	<li><a href="{{ url_for('view_section', section_id=section.id) }}">{{ _(section.name)}}</a></li>
-	<li><a href="{{ url_for('delete_section', section_id=section.id) }}">Delete section</a></li>
+	<li><a href="{{ url_for('view_section', section_id=section.id) }}">{{ section.name }}</a></li>
+	<li><a href="{{ url_for('delete_section', section_id=section.id) }}">{{_('Delete section')}}</a></li>
 	</ul>	
 </div>
 <div>
@@ -37,7 +37,7 @@
 			{% if link.name %}
 				{{ link.name }}
 			{% else %}
-				{{ _('Link_')}}{{link.id}}
+				{{ _('Link')}}_{{link.id}}
 			{% endif %}
 		</a>
 		<a style = "margin-right: 50px; " href="{{ url_for('rename_menu_field', link_id = link.id) }}">{{ _('Rename link')}}</a>
