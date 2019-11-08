@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-11-07 19:16+0300\n"
+"POT-Creation-Date: 2019-11-08 00:59+0300\n"
 "PO-Revision-Date: 2019-05-25 12:47+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
@@ -19,214 +19,246 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.6.0\n"
 
-#: app/dynamic_fields.py:26 app/forms.py:93
-msgid "Text"
-msgstr "Текст"
-
-#: app/dynamic_fields.py:28 app/forms.py:93
-msgid "TextArea"
-msgstr "Текстовое поле"
-
-#: app/dynamic_fields.py:30 app/forms.py:94
-msgid "Date"
-msgstr "Дата"
-
-#: app/dynamic_fields.py:32 app/forms.py:94 app/templates/base.html:78
-#: app/templates/toolbar_settings.html:40
-msgid "Link"
-msgstr "Ссылка"
-
-#: app/dynamic_fields.py:34 app/forms.py:94
-msgid "File"
-msgstr "Файл"
-
-#: app/dynamic_fields.py:36 app/forms.py:94
-msgid "Picture"
-msgstr "Картинка"
-
-#: app/forms.py:16 app/forms.py:28 app/forms.py:45
+#: app/auth/forms.py:8 app/auth/forms.py:20 app/forms.py:16
 #: app/templates/all_users.html:26 app/templates/user.html:24
 msgid "Email"
 msgstr "Почта"
 
-#: app/forms.py:17 app/forms.py:31
-msgid "Password"
-msgstr "Пароль"
-
-#: app/forms.py:18
-msgid "Remember Me"
-msgstr "Запомнить меня"
-
-#: app/forms.py:19
-msgid "Sign In"
-msgstr "Войти"
-
-#: app/forms.py:25
-msgid "Russian letters required"
-msgstr "Имя пользователя может содержать только буквы на кириллице"
-
-#: app/forms.py:29
-msgid "Last name"
-msgstr "Фамилия"
-
-#: app/forms.py:30
-msgid "First name"
-msgstr "Имя"
-
-#: app/forms.py:33
-msgid "Repeat Password"
-msgstr "Повторите пароль"
-
-#: app/forms.py:34 app/templates/register.html:4
-msgid "Register"
-msgstr "Регистрация"
-
-#: app/forms.py:42
-msgid "Please use a different email address."
-msgstr "Пожалуйста, используйте другой email"
-
-#: app/forms.py:46 app/templates/all_users.html:36 app/templates/user.html:34
+#: app/forms.py:17 app/templates/all_users.html:36 app/templates/user.html:34
 msgid "Role"
 msgstr "Тип"
 
-#: app/forms.py:47
+#: app/forms.py:18
 msgid "Admin"
 msgstr "Администратор"
 
-#: app/forms.py:47
+#: app/forms.py:18
 msgid "Usual user"
 msgstr "Обычный пользоваетль"
 
-#: app/forms.py:47
+#: app/forms.py:18
 msgid "Not confirmed"
 msgstr "Не подтверждён"
 
-#: app/forms.py:48 app/forms.py:62
+#: app/forms.py:19 app/forms.py:33
 msgid "Update Profile Picture"
 msgstr "Обновить фотокарточку"
 
-#: app/forms.py:49 app/forms.py:63 app/forms.py:84 app/forms.py:89
-#: app/forms.py:98 app/forms.py:102 app/forms.py:106 app/forms.py:114
-#: app/routes.py:342
+#: app/forms.py:20 app/forms.py:34 app/forms.py:55 app/forms.py:60
+#: app/forms.py:64 app/forms.py:68 app/routes.py:305 app/sections/forms.py:10
+#: app/sections/forms.py:18
 msgid "Submit"
 msgstr "Принять"
 
-#: app/forms.py:59
+#: app/forms.py:30
 msgid "Please use a different email."
 msgstr "Пожалуйста, используйте другую почту"
 
-#: app/forms.py:78
+#: app/forms.py:49
 msgid "Assigner"
 msgstr "Создатель"
 
-#: app/forms.py:80 app/forms.py:87
+#: app/forms.py:51 app/forms.py:58
 msgid "Acceptor"
 msgstr "Принимающий"
 
-#: app/forms.py:82
+#: app/forms.py:53
 msgid "Status"
 msgstr "Статус"
 
-#: app/forms.py:83
+#: app/forms.py:54
 msgid "Issued"
 msgstr "Выпущено"
 
-#: app/forms.py:83
+#: app/forms.py:54
 msgid "In progress"
 msgstr "В процессе"
 
-#: app/forms.py:83
+#: app/forms.py:54
 msgid "Done"
 msgstr "Выполнено"
 
-#: app/forms.py:92
-msgid "Field type"
-msgstr "Тип поля"
-
-#: app/forms.py:97
+#: app/forms.py:63
 msgid "Template name"
 msgstr "Имя шаблона"
 
-#: app/forms.py:101
+#: app/forms.py:67
 msgid "Link name"
 msgstr "Название ссылки"
 
-#: app/forms.py:105
-msgid "Page name"
-msgstr "Имя страницы"
-
-#: app/forms.py:111
-msgid "Please use a different section name."
-msgstr "Пожалуйста, используйте другое имя раздела."
-
-#: app/forms.py:124
+#: app/dynamic_fields/templates/dynamic_fields.html:8 app/forms.py:80
 msgid "Label"
 msgstr "Подпись"
 
-#: app/forms.py:125
+#: app/dynamic_fields/templates/dynamic_fields.html:36 app/forms.py:81
 msgid "Display"
 msgstr "Отобразить"
 
-#: app/forms.py:175
-msgid "Счёт фактура"
-msgstr ""
-
-#: app/forms.py:175
-msgid "Не счёт фатура"
-msgstr ""
-
-#: app/forms.py:175
-msgid "Что-то ещё"
-msgstr ""
-
-#: app/forms.py:196
+#: app/forms.py:152
 msgid "Please choose a file"
 msgstr "Выберите файл"
 
-#: app/routes.py:37
+#: app/routes.py:40
 msgid "You do not have access to that page. Sorry!"
 msgstr "Нет прав доступа к этой странице"
 
-#: app/routes.py:56
-msgid "Invalid email or password"
-msgstr "Неверный пароль или не та почта"
-
-#: app/routes.py:83
-msgid "Wait for administrator register confirmation."
-msgstr "Ждите подтверждения администратора"
-
-#: app/routes.py:110 app/templates/base.html:55
+#: app/routes.py:73 app/templates/base.html:61
 msgid "All users"
 msgstr "Пользователи"
 
-#: app/routes.py:116 app/templates/base.html:56
+#: app/routes.py:79 app/templates/base.html:62
 msgid "All tasks"
 msgstr "Задания"
 
-#: app/routes.py:170 app/task_routes.py:99
+#: app/routes.py:133 app/task_routes.py:99
 msgid "Your changes have been saved."
 msgstr "Изменения сохранены"
 
-#: app/routes.py:172 app/templates/edit_user.html:4
+#: app/routes.py:135 app/templates/edit_user.html:4
 msgid "Edit Profile"
 msgstr "Редактировать профиль"
 
-#: app/routes.py:223 app/templates/base.html:60 app/templates/base.html:66
+#: app/routes.py:186 app/templates/base.html:66 app/templates/base.html:72
 msgid "Issued tasks"
 msgstr "Выданные задания"
 
-#: app/routes.py:233 app/templates/base.html:59 app/templates/base.html:65
-#: app/templates/base.html:70
+#: app/routes.py:196 app/templates/base.html:65 app/templates/base.html:71
+#: app/templates/base.html:76
 msgid "My tasks"
 msgstr "Мои задания"
 
-#: app/routes.py:242
+#: app/routes.py:205
 msgid "Toolbar settings"
 msgstr "Найстройки панели"
 
-#: app/routes.py:267
+#: app/routes.py:230
 msgid "Edit link"
 msgstr "Редактировать ссылку"
+
+#: app/auth/forms.py:9 app/auth/forms.py:23
+msgid "Password"
+msgstr "Пароль"
+
+#: app/auth/forms.py:10
+msgid "Remember Me"
+msgstr "Запомнить меня"
+
+#: app/auth/forms.py:11
+msgid "Sign In"
+msgstr "Войти"
+
+#: app/auth/forms.py:17
+msgid "Russian letters required"
+msgstr "Имя пользователя может содержать только буквы на кириллице"
+
+#: app/auth/forms.py:21
+msgid "Last name"
+msgstr "Фамилия"
+
+#: app/auth/forms.py:22
+msgid "First name"
+msgstr "Имя"
+
+#: app/auth/forms.py:25
+msgid "Repeat Password"
+msgstr "Повторите пароль"
+
+#: app/auth/forms.py:26 app/auth/templates/register.html:4
+msgid "Register"
+msgstr "Регистрация"
+
+#: app/auth/forms.py:34
+msgid "Please use a different email address."
+msgstr "Пожалуйста, используйте другой email"
+
+#: app/auth/routes.py:19
+msgid "Invalid email or password"
+msgstr "Неверный пароль или не та почта"
+
+#: app/auth/routes.py:46
+msgid "Wait for administrator register confirmation."
+msgstr "Ждите подтверждения администратора"
+
+#: app/auth/templates/login.html:6 app/templates/base.html:25
+msgid "Sign in"
+msgstr "Войти"
+
+#: app/auth/templates/login.html:33
+msgid "New User?"
+msgstr "Новый пользователь?"
+
+#: app/auth/templates/login.html:33
+msgid "Click to Register!"
+msgstr "Зарегистрируйся!"
+
+#: app/dynamic_fields/dynamic_fields.py:26 app/dynamic_fields/forms.py:7
+msgid "Text"
+msgstr "Текст"
+
+#: app/dynamic_fields/dynamic_fields.py:28 app/dynamic_fields/forms.py:7
+msgid "TextArea"
+msgstr "Текстовое поле"
+
+#: app/dynamic_fields/dynamic_fields.py:30 app/dynamic_fields/forms.py:8
+msgid "Date"
+msgstr "Дата"
+
+#: app/dynamic_fields/dynamic_fields.py:32 app/dynamic_fields/forms.py:8
+#: app/templates/base.html:84 app/templates/toolbar_settings.html:40
+msgid "Link"
+msgstr "Ссылка"
+
+#: app/dynamic_fields/dynamic_fields.py:34 app/dynamic_fields/forms.py:8
+msgid "File"
+msgstr "Файл"
+
+#: app/dynamic_fields/dynamic_fields.py:36 app/dynamic_fields/forms.py:8
+msgid "Picture"
+msgstr "Картинка"
+
+#: app/dynamic_fields/forms.py:6
+msgid "Field type"
+msgstr "Тип поля"
+
+#: app/dynamic_fields/templates/dynamic_fields.html:41
+#: app/dynamic_fields/templates/fields.html:39
+msgid "Remove"
+msgstr "Удалить"
+
+#: app/sections/forms.py:9
+msgid "Page name"
+msgstr "Имя страницы"
+
+#: app/sections/forms.py:15
+msgid "Please use a different section name."
+msgstr "Пожалуйста, используйте другое имя раздела."
+
+#: app/sections/templates/create_or_edit_section.html:9
+#: app/templates/create_or_edit_task_template.html:10
+#: app/templates/profile_template.html:9
+msgid "Add field"
+msgstr "Добавить поле"
+
+#: app/sections/templates/create_or_edit_section.html:18
+msgid "Section name"
+msgstr "Имя раздела"
+
+#: app/sections/templates/page.html:44
+msgid "View"
+msgstr "Позырить"
+
+#: app/sections/templates/page.html:48 app/templates/_task.html:70
+#: app/templates/all_users.html:52 app/templates/user.html:60
+msgid "Edit"
+msgstr "Изменить"
+
+#: app/sections/templates/page.html:51
+msgid "Delete page"
+msgstr "Удалить страницу"
+
+#: app/sections/templates/section_pages.html:9
+msgid "Create new page"
+msgstr "Создать новую страницу"
 
 #: app/templates/_task.html:46
 msgid "Assigned to:"
@@ -239,11 +271,6 @@ msgstr "Статус:"
 #: app/templates/_task.html:60
 msgid "Issued time:"
 msgstr "Время выдачи:"
-
-#: app/templates/_task.html:70 app/templates/all_users.html:52
-#: app/templates/page.html:48 app/templates/user.html:60
-msgid "Edit"
-msgstr "Изменить"
 
 #: app/templates/_task.html:73
 msgid "Delete task"
@@ -261,62 +288,29 @@ msgstr "Подтвердить"
 msgid "Delete user"
 msgstr "Удалить пользователя"
 
-#: app/templates/base.html:8
+#: app/templates/base.html:14
 msgid "Task manager"
 msgstr "Менеджер заданий"
 
-#: app/templates/base.html:19 app/templates/login.html:6
-msgid "Sign in"
-msgstr "Войти"
-
-#: app/templates/base.html:22
+#: app/templates/base.html:28
 msgid "Settings"
 msgstr "Настройки"
 
-#: app/templates/base.html:23
+#: app/templates/base.html:29
 msgid "Logout"
 msgstr "Выйти"
 
-#: app/templates/base.html:52
+#: app/templates/base.html:58
 msgid "Documents"
 msgstr "Документы"
 
-#: app/templates/base.html:57 app/templates/base.html:64
+#: app/templates/base.html:63 app/templates/base.html:70
 msgid "Create task"
 msgstr "Создать задание"
 
-#: app/templates/base.html:84
+#: app/templates/base.html:90
 msgid "Add"
 msgstr "Добавить"
-
-#: app/templates/create_or_edit_section.html:9
-#: app/templates/profile_template.html:9
-msgid "Add field"
-msgstr "Добавить поле"
-
-#: app/templates/create_or_edit_section.html:18
-msgid "Section name"
-msgstr "Имя раздела"
-
-#: app/templates/login.html:33
-msgid "New User?"
-msgstr "Новый пользователь?"
-
-#: app/templates/login.html:33
-msgid "Click to Register!"
-msgstr "Зарегистрируйся!"
-
-#: app/templates/page.html:44
-msgid "View"
-msgstr "Посмотреть"
-
-#: app/templates/page.html:51
-msgid "Delete page"
-msgstr "Удалить страницу"
-
-#: app/templates/section_pages.html:9
-msgid "Create new page"
-msgstr "Создать новую страницу"
 
 #: app/templates/task_templates.html:6
 msgid "Choose type of task"
@@ -365,7 +359,4 @@ msgstr "Последняя активность"
 #: app/templates/user.html:71
 msgid "All tasks related with that user"
 msgstr "Все задания, связанные с этим пользователем"
-
-#~ msgid "Confirm"
-#~ msgstr "Подтвердить"
 

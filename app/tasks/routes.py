@@ -1,19 +1,21 @@
 # Здесь добавлены все функции, связанные с созданиемб редактированием и удалением заданий и шаблонов к ним
 
 from flask import render_template, flash, redirect, url_for, request, session
-from flask_login import current_user
+from flask_login import current_user, login_required
 from flask_babel import _, lazy_gettext as _l
 from werkzeug.urls import url_parse
 
-from app import app, db
-from app.forms import *
+from app import db
+from app.tasks import bp
+from app.tasks.forms import *
 from app.models import *
-from app.dynamic_fields import *
+from app.dynamic_fields.dynamic_fields import *
+from app.dynamic_fields.forms import AddFieldForm
 from app.routes import roles_required
 
 
 #_____________________________________________
-#            Templates - Шаблоны
+#      Task_templates - Шаблоны заданий
 #---------------------------------------------
 
 def process_template(template, is_edit):
@@ -32,27 +34,27 @@ def process_template(template, is_edit):
         if not is_edit:        
             db.session.add(template) 
         db.session.commit()
-        return redirect(url_for('task_templates'))
+        return redirect(url_for('tasks.task_templates'))
 
     return render_template("create_or_edit_task_template.html", add_field_form = add_field_form,
         form = form, is_template = True, dynamic_forms = dynamic_forms)
 
 # Создание шаблона
-@app.route('/create_task_template', methods=['GET', 'POST'])
+@bp.route('/create_task_template', methods=['GET', 'POST'])
 @roles_required(['Admin'])
 def create_task_template():
     template = Task_templates()
     return process_template(template, False)
 
 
-@app.route('/edit_task_template/<template_id>', methods=['GET', 'POST'])
+@bp.route('/edit_task_template/<template_id>', methods=['GET', 'POST'])
 @roles_required(['Admin'])
 def edit_task_template(template_id):
     template = Task_templates.query.filter_by(id = template_id).first()
     return process_template(template, True)
 
 
-@app.route('/delete_task_template/<template_id>', methods=['GET', 'POST'])
+@bp.route('/delete_task_template/<template_id>', methods=['GET', 'POST'])
 @roles_required(['Admin'])
 def delete_task_template(template_id):
     template = Task_templates.query.filter_by(id = template_id).first()
@@ -60,7 +62,7 @@ def delete_task_template(template_id):
     db.session.commit()
     db.session.delete(template)
     db.session.commit()
-    return redirect(url_for("task_templates"))
+    return redirect(url_for("tasks.task_templates"))
 
 
 #_____________________________________________
@@ -97,13 +99,13 @@ def process_task(form, task, fields, is_edit):
             db.session.add(task)    
         db.session.commit()
         flash(_l('Your changes have been saved.'))
-        return redirect(url_for('login'))
+        return redirect(url_for('auth.login'))
     
     return render_template("create_or_edit_task.html", form = form, 
         is_edit = is_edit, dynamic_forms = dynamic_forms, is_template = False)
 
 
-@app.route('/create_task/<template_id>', methods=['GET', 'POST'])
+@bp.route('/create_task/<template_id>', methods=['GET', 'POST'])
 @roles_required(['Admin', 'Usual'])
 def create_task(template_id):
     task = Tasks()
@@ -113,7 +115,7 @@ def create_task(template_id):
     return process_task(form, task, fields, False)
 
     
-@app.route('/edit_task/<task_id>', methods=['GET', 'POST'])
+@bp.route('/edit_task/<task_id>', methods=['GET', 'POST'])
 @roles_required(['Admin'])
 def edit_task(task_id):
     task = Tasks.query.filter_by(id = task_id).first()
@@ -121,7 +123,7 @@ def edit_task(task_id):
     return process_task(form, task, task.fields, True)
 
 
-@app.route('/delete_task/<task_id>')
+@bp.route('/delete_task/<task_id>')
 @roles_required(['Admin'])
 def delete_task(task_id):
     task = Tasks.query.filter(Tasks.id == task_id).first()
@@ -131,12 +133,42 @@ def delete_task(task_id):
     db.session.commit()
     next_page = request.args.get('next')
     if not next_page or url_parse(next_page).netloc != '':
-        next_page = url_for('all_users')
+        next_page = url_for('users.all_users')
     return redirect(next_page)
 
 
 
+#_____________________________________________
+#      Отображение заданий на страницах
+#---------------------------------------------
 
+@bp.route('/all_tasks', methods=['GET', 'POST'])
+@roles_required(['Admin'])
+def all_tasks():
+    return render_template("tasks.html", title = _l("All tasks"),
+        tasks = Tasks.query.order_by(Tasks.timestamp.desc()).all())
+
+
+# Страница с выбором существующего шаблона задания или создание нового шаблона (создание только для админа)
+@bp.route('/task_templates', methods=['GET', 'POST'])
+@roles_required(['Admin', 'Usual'])
+def task_templates():
+    templates = Task_templates.query.all()
+    return render_template('task_templates.html', templates = templates)
+
+
+@bp.route('/issued_tasks', methods=['GET', 'POST'])
+@roles_required(['Admin', 'Usual'])
+def issued_tasks():
+    tasks = current_user.assign.order_by(Tasks.timestamp.desc()).all()
+    return render_template("tasks.html", title=_l('Issued tasks'), tasks = tasks)
+
+
+@bp.route('/your_tasks', methods=['GET', 'POST'])
+@login_required
+def your_tasks():
+    tasks = current_user.accept.order_by(Tasks.timestamp.desc()).all()
+    return render_template("tasks.html", title=_l('My tasks'), tasks = tasks)
 
 
 

@@ -5,7 +5,7 @@
 
 {% macro render_html_field(field_type, label) %}
    <div style="display: none;" id="{{field_type}}_fields-___-form" data-index="___">		
-	   <label for="{{field_type}}_fields-___-label_">_('Label')</label>:
+	   <label for="{{field_type}}_fields-___-label_">{{_('Label')}}</label>:
 	   <input id="{{field_type}}_fields-___-label_" name="{{field_type}}_fields-___-label_" type="text" value=""> 
 
 	   <label for="{{field_type}}_fields-___-{{field_type}}">{{_(label)}}</label>
@@ -22,9 +22,9 @@
 		   <input id="file_fields-___-filename" name="file_fields-___-filename" type="hidden">
 		   <input id="file_fields-___-encrypted_filename" name="file_fields-___-encrypted_filename" type="hidden">
 		   <select id="file_fields-___-file_type" name="file_fields-___-file_type">
-				<option value="1">_('Счёт фактура')</option>
-				<option value="2">_('Не счёт фатура')</option>
-				<option value="3">_('Что-то ещё')</option>
+				<option value="1">Счёт фактура</option>
+				<option value="2"> Не счёт фатура </option>
+				<option value="3"> Что-то ещё </option>
 			</select>
 							
 	   {% elif field_type=="picture" %}
@@ -33,12 +33,12 @@
 		   <input id="picture_fields-___-encrypted_filename" name="picture_fields-___-encrypted_filename" type="hidden">
 	   {% endif %}
 	   
-	   <label for="{{field_type}}_fields-___-is_displayed">_('Display')</label>
+	   <label for="{{field_type}}_fields-___-is_displayed">{{_('Display')}}</label>
 	   <input checked id="{{field_type}}_fields-___-is_displayed" name="{{field_type}}_fields-___-is_displayed" type="checkbox" value="y"> 
    
 	   <input id="{{field_type}}_fields-___-order" name="{{field_type}}_fields-___-order" type="hidden">
 
-	   <a class="remove" href="#">_('Remove')</a>
+	   <a class="remove" href="#">{{_('Remove')}}</a>
    </div>
 {% endmacro %}
 

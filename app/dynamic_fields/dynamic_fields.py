@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, request, session
+from flask import request, session
 from shutil import copyfile
 import os
 from wtforms import validators
@@ -6,13 +6,10 @@ from datetime import datetime
 from flask_babel import _, lazy_gettext as _l
 
 from app import app, db
-from app.forms import *
 from app.models import *
-from app.routes import roles_required, encode_filename
+from app.routes import encode_filename
+from app.dynamic_fields.forms import *
 
-#_____________________________________________
-#            Fields - Поля
-#---------------------------------------------
 
 def add_and_fill_fields_to_form(fields, is_task, forms):
     text_validator = [Length(max=50), DataRequired()] if is_task else [Length(max=50)]

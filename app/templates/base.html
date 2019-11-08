@@ -22,11 +22,11 @@
 			<ul>
 				<li>{{ moment(now()).format('HH:mm') }}</li>
 				{% if current_user.is_anonymous %}
-					<li><a href="{{ url_for('login') }}"><i class="fa fa-chevron-right" aria-hidden="true"></i> {{ _('Sign in')}}</a></li>
+					<li><a href="{{ url_for('auth.login') }}"><i class="fa fa-chevron-right" aria-hidden="true"></i> {{ _('Sign in')}}</a></li>
 				{% else %}
-					<li><a href="{{ url_for('user', id=current_user.id) }}"><i class="fa fa-user-circle" aria-hidden="true"></i>  							{{current_user.real_name}}</a></li>
+					<li><a href="{{ url_for('users.user', id=current_user.id) }}"><i class="fa fa-user-circle" aria-hidden="true"></i>  							{{current_user.real_name}}</a></li>
 					<li><a href="{{ url_for('toolbar_settings') }}"><i class="fa fa-cogs" aria-hidden="true"></i> {{ _('Settings')}}</a></li>
-					<li><a href="{{ url_for('logout') }}"><i class="fa fa-power-off" aria-hidden="true"></i> {{ _('Logout')}}</a></li>
+					<li><a href="{{ url_for('auth.logout') }}"><i class="fa fa-power-off" aria-hidden="true"></i> {{ _('Logout')}}</a></li>
 				{% endif %}
 
 
@@ -53,27 +53,27 @@
 				<ul>	
 						{% if current_user.roles %}
 							{% for section in get_sections() %}
-								<li><a href="{{ url_for('view_section', section_id=section.id) }}">{{ section.name }}</a></li>
+								<li><a href="{{ url_for('sections.view_section', section_id=section.id) }}">{{ section.name }}</a></li>
 							{% endfor %}
-							<li><a href="{{ url_for('all_documents') }}">{{ _('Documents') }}</a></li>
+							<li><a href="{{ url_for('sections.all_documents') }}">{{ _('Documents') }}</a></li>
 
 							{% if current_user.roles[0].name == "Admin" %}
-								<li><a href="{{ url_for('all_users') }}">{{ _('All users')}}</a></li>
-								<li><a href="{{ url_for('all_tasks') }}">{{ _('All tasks')}}</a></li>
-								<li><a href="{{ url_for('task_templates') }}">{{ _('Create task')}}</a></li>
+								<li><a href="{{ url_for('users.all_users') }}">{{ _('All users')}}</a></li>
+								<li><a href="{{ url_for('tasks.all_tasks') }}">{{ _('All tasks')}}</a></li>
+								<li><a href="{{ url_for('tasks.task_templates') }}">{{ _('Create task')}}</a></li>
 								
-								<li><a href="{{ url_for('your_tasks') }}">{{ _('My tasks')}}</a></li>
-								<li><a href="{{ url_for('issued_tasks') }}">{{ _('Issued tasks')}}</a></li>
+								<li><a href="{{ url_for('tasks.your_tasks') }}">{{ _('My tasks')}}</a></li>
+								<li><a href="{{ url_for('tasks.issued_tasks') }}">{{ _('Issued tasks')}}</a></li>
 								
 								
 							{% elif current_user.roles[0].name == "Usual" %}
-								<li><a href="{{ url_for('task_templates') }}">{{ _('Create task')}}</a></li>
-								<li><a href="{{ url_for('your_tasks') }}">{{ _('My tasks')}}</a></li>
-								<li><a href="{{ url_for('issued_tasks') }}">{{ _('Issued tasks')}}</a></li>
+								<li><a href="{{ url_for('tasks.task_templates') }}">{{ _('Create task')}}</a></li>
+								<li><a href="{{ url_for('tasks.your_tasks') }}">{{ _('My tasks')}}</a></li>
+								<li><a href="{{ url_for('tasks.issued_tasks') }}">{{ _('Issued tasks')}}</a></li>
 								
 								
 							{% elif current_user.roles[0].name == "Client" %}
-								<li><a href="{{ url_for('your_tasks') }}">{{ _('My tasks')}}</a></li>
+								<li><a href="{{ url_for('tasks.your_tasks') }}">{{ _('My tasks')}}</a></li>
 							{% endif %}
 							
 							{% for link in current_user.extra_menu_fields %}

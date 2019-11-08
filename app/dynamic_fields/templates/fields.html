@@ -7,7 +7,7 @@
 				{{ field_form[field_type].label }}
 			{% else %}
 				{{ field_form.label_(style = "display: none;") }}
-				{{ _(field_form.label_.data)}}
+				{{ field_form.label_.data }}
 			{% endif %}
 
 			{{ field_form[field_type] }}
@@ -16,7 +16,7 @@
 				{% if field_form.filename.data %}
 					<a href="{{ url_for('download_file', filename = field_form.encrypted_filename.data) }}">{{ field_form.filename.data }}</a>
 				{% endif %}
-				{{field_form.file_type()}}
+				{{field_form.file_type}}
 			{% endif %}
 
 			{{ field_form.is_displayed.label }}		
@@ -36,7 +36,7 @@
 			{% endfor %}
 
 			{% if is_template %}
-				<a class="remove" href="#">_('Remove')</a>
+				<a class="remove" href="#">{{_('Remove')}}</a>
 			{% endif %}
 		</div>
 	{% endfor %}
