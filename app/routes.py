@@ -6,7 +6,7 @@ from flask import g
 from flask_babel import get_locale
 
 from werkzeug.urls import url_parse
-from werkzeug.utils import secure_filename
+# from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
 import secrets
@@ -106,7 +106,7 @@ app.jinja_env.globals.update(append_http = append_http)
 # с одинаковыми именами
 def encode_filename(filename):
     random_hex = secrets.token_hex(8)
-    filename = secure_filename(filename)
+    # filename = secure_filename(filename)
     __, f_ext = os.path.splitext(filename)
     encrypted_filename = random_hex + f_ext
     return (filename, encrypted_filename)

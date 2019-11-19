@@ -41,9 +41,6 @@ def add_and_fill_fields_to_form(fields, is_template, forms):
         elif field_data.textArea is not None:
             data["textArea"] = field_data.textArea
             forms["textArea_form"].textArea_fields.append_entry(data)
-        elif field_data.date:
-            data["date"] = field_data.date 
-            forms["date_form"].date_fields.append_entry(data)
         elif field_data.link is not None:
             data["link"] = field_data.link 
             forms["link_form"].link_fields.append_entry(data)
@@ -56,6 +53,9 @@ def add_and_fill_fields_to_form(fields, is_template, forms):
             data["filename"] = field_data.picture
             data["encrypted_filename"] = field_data.encrypted_filename
             forms["picture_form"].picture_fields.append_entry(data)
+        else:
+            data["date"] = field_data.date 
+            forms["date_form"].date_fields.append_entry(data)
 
 
 def save_file(file, field_filename, field_encrypted_filename):
@@ -63,7 +63,9 @@ def save_file(file, field_filename, field_encrypted_filename):
     # Если добавляем свой файл 
     if file:
     # Неважно редактирование или нет - просто сохраняем новый файл, старые, если они были, потом удалятся  
+        print(file.filename)
         filename, encrypted_filename = encode_filename(file.filename)
+        print(filename)
         file.save(os.path.join(app.root_path, 'static/files/',  encrypted_filename))
         return filename, encrypted_filename
 
@@ -96,7 +98,7 @@ def save_fields(content, forms):
         save_field(field, media)
 
     for field in forms["date_form"].date_fields:
-        date = field.date.data if field.date.data else datetime(2000,1,1)
+        date = field.date.data if field.date.data else None
         media = Media(date = date)
         save_field(field, media)
 

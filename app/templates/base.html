@@ -52,7 +52,7 @@
 			{% if not current_user.is_anonymous %}
 				<ul>	
 						{% if current_user.roles %}
-							<li><a href="{{ url_for('sections.main') }}">{{ _('Main') }}</a></li>
+							<li><a href="{{ url_for('') }}">{{ _('Main') }}</a></li>
 
 							{% for section in get_sections() %}
 								<li><a href="{{ url_for('sections.view_section', section_id=section.id) }}">{{ section.name }}</a></li>

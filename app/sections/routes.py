@@ -153,10 +153,6 @@ def full_page(page_id):
 @bp.route('/main', methods=['GET', 'POST'])
 @login_required
 def main():
-    print(session.keys())
-    for key in session.keys():
-        print(session[key])
-
     return render_template("main.html", title = _l("Main page"),
         sections = Sections.query.all())
 

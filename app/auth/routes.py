@@ -21,7 +21,7 @@ def login():
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('users.user', id=user.id)
+            next_page = url_for("sections.main")
         return redirect(next_page)
     return render_template('login.html', title='Login', form=form)
 
@@ -34,7 +34,7 @@ def logout():
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('users.user', id=current_user.id))
+        return redirect(url_for("sections.main"))
     form = RegistrationForm()
     if form.validate_on_submit():
         user = Users(email = form.email.data, last_name=form.last_name.data,

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-11-08 00:59+0300\n"
+"POT-Creation-Date: 2019-11-19 12:34+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,132 +17,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.6.0\n"
 
-#: app/auth/forms.py:8 app/auth/forms.py:20 app/forms.py:16
-#: app/templates/all_users.html:26 app/templates/user.html:24
-msgid "Email"
-msgstr ""
-
-#: app/forms.py:17 app/templates/all_users.html:36 app/templates/user.html:34
-msgid "Role"
-msgstr ""
-
-#: app/forms.py:18
-msgid "Admin"
-msgstr ""
-
-#: app/forms.py:18
-msgid "Usual user"
-msgstr ""
-
-#: app/forms.py:18
-msgid "Not confirmed"
-msgstr ""
-
-#: app/forms.py:19 app/forms.py:33
-msgid "Update Profile Picture"
-msgstr ""
-
-#: app/forms.py:20 app/forms.py:34 app/forms.py:55 app/forms.py:60
-#: app/forms.py:64 app/forms.py:68 app/routes.py:305 app/sections/forms.py:10
-#: app/sections/forms.py:18
-msgid "Submit"
-msgstr ""
-
-#: app/forms.py:30
-msgid "Please use a different email."
-msgstr ""
-
-#: app/forms.py:49
-msgid "Assigner"
-msgstr ""
-
-#: app/forms.py:51 app/forms.py:58
-msgid "Acceptor"
-msgstr ""
-
-#: app/forms.py:53
-msgid "Status"
-msgstr ""
-
-#: app/forms.py:54
-msgid "Issued"
-msgstr ""
-
-#: app/forms.py:54
-msgid "In progress"
-msgstr ""
-
-#: app/forms.py:54
-msgid "Done"
-msgstr ""
-
-#: app/forms.py:63
-msgid "Template name"
-msgstr ""
-
-#: app/forms.py:67
+#: app/forms.py:7
 msgid "Link name"
 msgstr ""
 
-#: app/dynamic_fields/templates/dynamic_fields.html:8 app/forms.py:80
-msgid "Label"
+#: app/forms.py:8 app/sections/forms.py:11 app/sections/forms.py:24
+#: app/tasks/forms.py:28 app/tasks/forms.py:33 app/tasks/forms.py:37
+#: app/users/forms.py:13 app/users/forms.py:28 app/users/routes.py:135
+msgid "Submit"
 msgstr ""
 
-#: app/dynamic_fields/templates/dynamic_fields.html:36 app/forms.py:81
-msgid "Display"
-msgstr ""
-
-#: app/dynamic_fields/templates/dynamic_fields.html:25 app/forms.py:131
-msgid "Счёт фактура"
-msgstr ""
-
-#: app/dynamic_fields/templates/dynamic_fields.html:26 app/forms.py:131
-msgid "Не счёт фатура"
-msgstr ""
-
-#: app/dynamic_fields/templates/dynamic_fields.html:27 app/forms.py:131
-msgid "Что-то ещё"
-msgstr ""
-
-#: app/forms.py:152
-msgid "Please choose a file"
-msgstr ""
-
-#: app/routes.py:40
+#: app/routes.py:34
 msgid "You do not have access to that page. Sorry!"
 msgstr ""
 
-#: app/routes.py:73 app/templates/base.html:61
-msgid "All users"
-msgstr ""
-
-#: app/routes.py:79 app/templates/base.html:62
-msgid "All tasks"
-msgstr ""
-
-#: app/routes.py:133 app/task_routes.py:99
-msgid "Your changes have been saved."
-msgstr ""
-
-#: app/routes.py:135 app/templates/edit_user.html:4
-msgid "Edit Profile"
-msgstr ""
-
-#: app/routes.py:186 app/templates/base.html:66 app/templates/base.html:72
-msgid "Issued tasks"
-msgstr ""
-
-#: app/routes.py:196 app/templates/base.html:65 app/templates/base.html:71
-#: app/templates/base.html:76
-msgid "My tasks"
-msgstr ""
-
-#: app/routes.py:205
+#: app/routes.py:47
 msgid "Toolbar settings"
 msgstr ""
 
-#: app/routes.py:230
+#: app/routes.py:76
 msgid "Edit link"
+msgstr ""
+
+#: app/auth/forms.py:8 app/auth/forms.py:20 app/users/forms.py:9
+#: app/users/templates/all_users.html:26 app/users/templates/user.html:24
+msgid "Email"
 msgstr ""
 
 #: app/auth/forms.py:9 app/auth/forms.py:23
@@ -201,33 +100,59 @@ msgstr ""
 msgid "Click to Register!"
 msgstr ""
 
-#: app/dynamic_fields/dynamic_fields.py:26 app/dynamic_fields/forms.py:7
+#: app/dynamic_fields/dynamic_fields.py:23 app/dynamic_fields/forms.py:12
 msgid "Text"
 msgstr ""
 
-#: app/dynamic_fields/dynamic_fields.py:28 app/dynamic_fields/forms.py:7
+#: app/dynamic_fields/dynamic_fields.py:25 app/dynamic_fields/forms.py:12
 msgid "TextArea"
 msgstr ""
 
-#: app/dynamic_fields/dynamic_fields.py:30 app/dynamic_fields/forms.py:8
+#: app/dynamic_fields/dynamic_fields.py:27 app/dynamic_fields/forms.py:13
 msgid "Date"
 msgstr ""
 
-#: app/dynamic_fields/dynamic_fields.py:32 app/dynamic_fields/forms.py:8
-#: app/templates/base.html:84 app/templates/toolbar_settings.html:40
+#: app/dynamic_fields/dynamic_fields.py:29 app/dynamic_fields/forms.py:13
+#: app/templates/base.html:86 app/templates/toolbar_settings.html:43
 msgid "Link"
 msgstr ""
 
-#: app/dynamic_fields/dynamic_fields.py:34 app/dynamic_fields/forms.py:8
+#: app/dynamic_fields/dynamic_fields.py:31 app/dynamic_fields/forms.py:13
 msgid "File"
 msgstr ""
 
-#: app/dynamic_fields/dynamic_fields.py:36 app/dynamic_fields/forms.py:8
+#: app/dynamic_fields/dynamic_fields.py:33 app/dynamic_fields/forms.py:13
 msgid "Picture"
 msgstr ""
 
-#: app/dynamic_fields/forms.py:6
+#: app/dynamic_fields/forms.py:11
 msgid "Field type"
+msgstr ""
+
+#: app/dynamic_fields/forms.py:18
+#: app/dynamic_fields/templates/dynamic_fields.html:8
+msgid "Label"
+msgstr ""
+
+#: app/dynamic_fields/forms.py:19
+#: app/dynamic_fields/templates/dynamic_fields.html:36 app/sections/forms.py:10
+msgid "Display"
+msgstr ""
+
+#: app/dynamic_fields/forms.py:69
+msgid "Счёт фактура"
+msgstr ""
+
+#: app/dynamic_fields/forms.py:69
+msgid "Не счёт фатура"
+msgstr ""
+
+#: app/dynamic_fields/forms.py:69
+msgid "Что-то ещё"
+msgstr ""
+
+#: app/dynamic_fields/forms.py:90
+msgid "Please choose a file"
 msgstr ""
 
 #: app/dynamic_fields/templates/dynamic_fields.html:41
@@ -239,17 +164,25 @@ msgstr ""
 msgid "Page name"
 msgstr ""
 
-#: app/sections/forms.py:15
+#: app/sections/forms.py:21
 msgid "Please use a different section name."
 msgstr ""
 
+#: app/sections/routes.py:160
+msgid "Main page"
+msgstr ""
+
 #: app/sections/templates/create_or_edit_section.html:9
-#: app/templates/create_or_edit_task_template.html:10
-#: app/templates/profile_template.html:9
+#: app/tasks/templates/create_or_edit_task_template.html:10
+#: app/users/templates/profile_template.html:9
 msgid "Add field"
 msgstr ""
 
 #: app/sections/templates/create_or_edit_section.html:18
+msgid "Display section"
+msgstr ""
+
+#: app/sections/templates/create_or_edit_section.html:19
 msgid "Section name"
 msgstr ""
 
@@ -257,8 +190,8 @@ msgstr ""
 msgid "View"
 msgstr ""
 
-#: app/sections/templates/page.html:48 app/templates/_task.html:70
-#: app/templates/all_users.html:52 app/templates/user.html:60
+#: app/sections/templates/page.html:48 app/tasks/templates/_task.html:70
+#: app/users/templates/all_users.html:52 app/users/templates/user.html:60
 msgid "Edit"
 msgstr ""
 
@@ -270,32 +203,86 @@ msgstr ""
 msgid "Create new page"
 msgstr ""
 
-#: app/templates/_task.html:46
+#: app/tasks/forms.py:22
+msgid "Assigner"
+msgstr ""
+
+#: app/tasks/forms.py:24 app/tasks/forms.py:31
+msgid "Acceptor"
+msgstr ""
+
+#: app/tasks/forms.py:26
+msgid "Status"
+msgstr ""
+
+#: app/tasks/forms.py:27
+msgid "Issued"
+msgstr ""
+
+#: app/tasks/forms.py:27
+msgid "In progress"
+msgstr ""
+
+#: app/tasks/forms.py:27
+msgid "Done"
+msgstr ""
+
+#: app/tasks/forms.py:36
+msgid "Template name"
+msgstr ""
+
+#: app/tasks/routes.py:101 app/users/routes.py:93
+msgid "Your changes have been saved."
+msgstr ""
+
+#: app/tasks/routes.py:148 app/templates/base.html:64
+msgid "All tasks"
+msgstr ""
+
+#: app/tasks/routes.py:164 app/templates/base.html:68
+#: app/templates/base.html:74
+msgid "Issued tasks"
+msgstr ""
+
+#: app/tasks/routes.py:171 app/templates/base.html:67
+#: app/templates/base.html:73 app/templates/base.html:78
+msgid "My tasks"
+msgstr ""
+
+#: app/tasks/templates/_task.html:46
 msgid "Assigned to:"
 msgstr ""
 
-#: app/templates/_task.html:51
+#: app/tasks/templates/_task.html:51
 msgid "Status:"
 msgstr ""
 
-#: app/templates/_task.html:60
+#: app/tasks/templates/_task.html:60
 msgid "Issued time:"
 msgstr ""
 
-#: app/templates/_task.html:73
+#: app/tasks/templates/_task.html:73
 msgid "Delete task"
 msgstr ""
 
-#: app/templates/all_users.html:17 app/templates/user.html:15
-msgid "Full name"
+#: app/tasks/templates/task_templates.html:6
+msgid "Choose type of task"
 msgstr ""
 
-#: app/templates/all_users.html:46
-msgid "Confirm"
+#: app/tasks/templates/task_templates.html:15
+msgid "Template"
 msgstr ""
 
-#: app/templates/all_users.html:55 app/templates/user.html:64
-msgid "Delete user"
+#: app/tasks/templates/task_templates.html:21
+msgid "Edit template"
+msgstr ""
+
+#: app/tasks/templates/task_templates.html:24
+msgid "Delete template"
+msgstr ""
+
+#: app/tasks/templates/task_templates.html:33
+msgid "New template"
 msgstr ""
 
 #: app/templates/base.html:14
@@ -310,36 +297,24 @@ msgstr ""
 msgid "Logout"
 msgstr ""
 
-#: app/templates/base.html:58
+#: app/templates/base.html:55
+msgid "Main"
+msgstr ""
+
+#: app/templates/base.html:60
 msgid "Documents"
 msgstr ""
 
-#: app/templates/base.html:63 app/templates/base.html:70
+#: app/templates/base.html:63 app/users/routes.py:39
+msgid "All users"
+msgstr ""
+
+#: app/templates/base.html:65 app/templates/base.html:72
 msgid "Create task"
 msgstr ""
 
-#: app/templates/base.html:90
+#: app/templates/base.html:92
 msgid "Add"
-msgstr ""
-
-#: app/templates/task_templates.html:6
-msgid "Choose type of task"
-msgstr ""
-
-#: app/templates/task_templates.html:15
-msgid "Template"
-msgstr ""
-
-#: app/templates/task_templates.html:21
-msgid "Edit template"
-msgstr ""
-
-#: app/templates/task_templates.html:24
-msgid "Delete template"
-msgstr ""
-
-#: app/templates/task_templates.html:33
-msgid "New template"
 msgstr ""
 
 #: app/templates/toolbar_settings.html:6
@@ -350,23 +325,68 @@ msgstr ""
 msgid "Create section"
 msgstr ""
 
-#: app/templates/toolbar_settings.html:23
+#: app/templates/toolbar_settings.html:26
+msgid "Edit section"
+msgstr ""
+
+#: app/templates/toolbar_settings.html:29
 msgid "Delete section"
 msgstr ""
 
-#: app/templates/toolbar_settings.html:43
+#: app/templates/toolbar_settings.html:46
 msgid "Rename link"
 msgstr ""
 
-#: app/templates/toolbar_settings.html:44
+#: app/templates/toolbar_settings.html:47
 msgid "Delete link"
 msgstr ""
 
-#: app/templates/user.html:46
+#: app/users/forms.py:10 app/users/templates/all_users.html:36
+#: app/users/templates/user.html:34
+msgid "Role"
+msgstr ""
+
+#: app/users/forms.py:11
+msgid "Admin"
+msgstr ""
+
+#: app/users/forms.py:11
+msgid "Usual user"
+msgstr ""
+
+#: app/users/forms.py:11
+msgid "Not confirmed"
+msgstr ""
+
+#: app/users/forms.py:12 app/users/forms.py:27
+msgid "Update Profile Picture"
+msgstr ""
+
+#: app/users/forms.py:23
+msgid "Please use a different email."
+msgstr ""
+
+#: app/users/routes.py:95 app/users/templates/edit_user.html:4
+msgid "Edit Profile"
+msgstr ""
+
+#: app/users/templates/all_users.html:17 app/users/templates/user.html:15
+msgid "Full name"
+msgstr ""
+
+#: app/users/templates/all_users.html:46
+msgid "Confirm"
+msgstr ""
+
+#: app/users/templates/all_users.html:55 app/users/templates/user.html:64
+msgid "Delete user"
+msgstr ""
+
+#: app/users/templates/user.html:46
 msgid "Last seen on"
 msgstr ""
 
-#: app/templates/user.html:71
+#: app/users/templates/user.html:71
 msgid "All tasks related with that user"
 msgstr ""
 

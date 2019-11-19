@@ -10,12 +10,18 @@ from config import Config
 from datetime import datetime
 from jinja2 import ChoiceLoader, FileSystemLoader
 
+import logging
+from logging.handlers import SMTPHandler
+from logging.handlers import RotatingFileHandler
+import os
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
 db = SQLAlchemy(app)
 db.create_all()
+db.session.commit()
+
 
 migrate = Migrate(app, db)
 babel = Babel(app)
@@ -64,4 +70,4 @@ def get_locale():
         return session["CURRENT_LANGUAGE"]
     return request.accept_languages.best_match(app.config['LANGUAGES'])
 
-from app import routes, models
+from app import routes, models, errors_handling

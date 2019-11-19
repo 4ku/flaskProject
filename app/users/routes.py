@@ -53,7 +53,6 @@ def edit_user(id):
     is_admin = (current_user.roles[0].name == "Admin")
     user = Users.query.filter_by(id=id).first()
     
-    print(current_user.id)
     if not is_admin and current_user.id != user.id:
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
@@ -135,13 +134,24 @@ def profile_template():
         submit = SubmitField(_l('Submit'))
 
     template = Profile_template.query.filter_by(id=1).first()
+    if template==None:
+        template = Profile_template(id = 1)
+        db.session.add(template)
+
     form = TemplateProfileForm()
     add_field_form = AddFieldForm()
     
     is_validated, dynamic_forms = dynamic_fields(template, template.fields, True)
 
     if is_validated:
+        profiles = Profiles.query.all()
+        for profile in profiles:
+            delete_fields(profile.fields)
         db.session.commit()
+        Profiles.query.delete()
+        db.session.commit()
+        return redirect(url_for("toolbar_settings"))
+
 
     return render_template("profile_template.html", add_field_form = add_field_form, 
         form = form, is_template = True, dynamic_forms = dynamic_forms)
