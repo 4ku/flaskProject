@@ -69,8 +69,11 @@ def edit_user(id):
         fields = profile.fields
     else:
         profile = Profiles()
+
         profile_template = Profile_template.query.filter_by(id=1).first()
-        fields = profile_template.fields
+        fields = []
+        if profile_template:
+            fields = profile_template.fields
 
     is_validated, dynamic_forms = dynamic_fields(profile, fields, True)
 
@@ -90,6 +93,8 @@ def edit_user(id):
             db.session.add(profile)
         db.session.commit()
         flash(_l('Your changes have been saved.'))
+        return redirect(url_for("users.all_users"))
+
     
     return render_template('edit_user.html', title=_l('Edit Profile'),
         form=form, user = user, is_template = False, dynamic_forms = dynamic_forms)
@@ -105,15 +110,24 @@ def delete_user(user_id):
     if user.avatar_path:
         os.remove(os.path.join(app.root_path, 'static/avatars/', user.avatar_path))
 
-    #Удаление всех заданий пользователя
+    # #Удаления информации о профиле
+    if user.profile:
+        if user.profile.fields:
+            delete_fields(user.profile.fields)
+        db.session.delete(user.profile)
+        
+    db.session.commit()
+
+    #Удаление всех заданий, связанных с этим пользователем
     acceptor_tasks = Tasks.query.filter(Tasks.acceptor_id == user.id).all()
     assigner_tasks = Tasks.query.filter(Tasks.assigner_id == user.id).all()
     for task in acceptor_tasks:
         delete_task(task.id)
     for task in assigner_tasks:
         delete_task(task.id)
-    
-    Users.query.filter_by(id=user_id).delete()
+
+    db.session.commit()
+    db.session.delete(user)
     db.session.commit()
     return redirect(url_for("users.all_users"))
 

@@ -23,9 +23,7 @@ class Task_templates(db.Model):
         secondary = task_template_field_connection, 
         primaryjoin =(task_template_field_connection.c.template_id == id),
         secondaryjoin = (task_template_field_connection.c.field_id == Fields.id),
-        cascade="all, delete-orphan",single_parent=True,
         backref = "task_template", order_by = "Fields.order")
-
 
 task_field_connection = db.Table("task_field_connection",
     db.Column('task_id', db.Integer, db.ForeignKey('tasks.id')),
@@ -42,7 +40,6 @@ class Tasks(db.Model):
         secondary = task_field_connection, 
         primaryjoin =(task_field_connection.c.task_id == id),
         secondaryjoin = (task_field_connection.c.field_id == Fields.id),
-        cascade="all, delete, delete-orphan",single_parent=True,
         backref = "task", order_by = "Fields.order")
 
 
@@ -61,8 +58,8 @@ class Users(UserMixin, db.Model):
     # Здесь должно быть media
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     avatar_path = db.Column(db.Unicode(255), default = None)
-    roles = db.relationship('Roles', secondary='user_roles')
-    extra_menu_fields = db.relationship("Menu_fields")
+    roles = db.relationship('Roles', cascade="all, delete-orphan", single_parent=True)
+    extra_menu_fields = db.relationship("Menu_fields", cascade="all, delete-orphan", single_parent=True)
 
     assign = db.relationship('Tasks',
         primaryjoin=(Tasks.assigner_id == id),
@@ -89,13 +86,9 @@ class Users(UserMixin, db.Model):
         return '<User {}>'.format(self.email)
 
 
-role_connection = db.Table("user_roles",
-    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
-    db.Column('role_id', db.Integer, db.ForeignKey('roles.id'))
- )
-
 class Roles(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     name = db.Column(db.Unicode(64))
 
 
@@ -113,7 +106,6 @@ class Profiles(db.Model):
         secondary = profile_field_connection, 
         primaryjoin =(profile_field_connection.c.profile_id == id),
         secondaryjoin = (profile_field_connection.c.field_id == Fields.id),
-        cascade="all, delete, delete-orphan",single_parent=True,
         backref = "profile", order_by = "Fields.order")
 
 
@@ -129,7 +121,6 @@ class Profile_template(db.Model):
         secondary = profile_template_field_connection, 
         primaryjoin =(profile_template_field_connection.c.profile_template_id == id),
         secondaryjoin = (profile_template_field_connection.c.field_id == Fields.id),
-        cascade="all, delete, delete-orphan",single_parent=True,
         backref = "profile_template", order_by = "Fields.order")
 
 #Дополнительные ссылки пользователя
@@ -157,7 +148,6 @@ class Sections(db.Model):
         secondary = section_field_connection, 
         primaryjoin =(section_field_connection.c.section_id == id),
         secondaryjoin = (section_field_connection.c.field_id == Fields.id),
-        cascade="all, delete, delete-orphan",single_parent=True,
         backref = "section", order_by = "Fields.order")
 
 
@@ -174,7 +164,6 @@ class Pages(db.Model):
         secondary = page_field_connection, 
         primaryjoin =(page_field_connection.c.page_id == id),
         secondaryjoin = (page_field_connection.c.field_id == Fields.id),
-        cascade="all, delete, delete-orphan",single_parent=True,
         backref = "page", order_by = "Fields.order")
 
 

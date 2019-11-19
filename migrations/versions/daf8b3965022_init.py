@@ -1,8 +1,8 @@
 """init
 
-Revision ID: 62e88576444b
+Revision ID: daf8b3965022
 Revises: 
-Create Date: 2019-11-04 12:50:51.873693
+Create Date: 2019-11-19 23:32:09.653197
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '62e88576444b'
+revision = 'daf8b3965022'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -23,24 +23,21 @@ def upgrade():
     sa.Column('text', sa.Unicode(length=255), nullable=True),
     sa.Column('textArea', sa.Unicode(length=255), nullable=True),
     sa.Column('date', sa.DateTime(), nullable=True),
-    sa.Column('encrypted_filename', sa.Unicode(length=255), nullable=True),
-    sa.Column('filename', sa.Unicode(length=255), nullable=True),
     sa.Column('link', sa.Unicode(length=255), nullable=True),
     sa.Column('picture', sa.Unicode(length=255), nullable=True),
+    sa.Column('encrypted_filename', sa.Unicode(length=255), nullable=True),
+    sa.Column('filename', sa.Unicode(length=255), nullable=True),
+    sa.Column('file_type', sa.Unicode(length=30), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('profile_template',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('roles',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.Unicode(length=64), nullable=True),
-    sa.PrimaryKeyConstraint('id')
-    )
     op.create_table('sections',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.Unicode(length=64), nullable=True),
+    sa.Column('display', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('name')
     )
@@ -89,6 +86,13 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('roles',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('name', sa.Unicode(length=64), nullable=True),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('tasks',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
@@ -100,12 +104,6 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_tasks_timestamp'), 'tasks', ['timestamp'], unique=False)
-    op.create_table('user_roles',
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.Column('role_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['role_id'], ['roles.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], )
-    )
     op.create_table('page_field_connection',
     sa.Column('page_id', sa.Integer(), nullable=True),
     sa.Column('field_id', sa.Integer(), nullable=True),
@@ -153,9 +151,9 @@ def downgrade():
     op.drop_table('profile_template_field_connection')
     op.drop_table('profile_field_connection')
     op.drop_table('page_field_connection')
-    op.drop_table('user_roles')
     op.drop_index(op.f('ix_tasks_timestamp'), table_name='tasks')
     op.drop_table('tasks')
+    op.drop_table('roles')
     op.drop_table('profiles')
     op.drop_table('pages')
     op.drop_table('menu_fields')
@@ -164,7 +162,6 @@ def downgrade():
     op.drop_table('users')
     op.drop_table('task_templates')
     op.drop_table('sections')
-    op.drop_table('roles')
     op.drop_table('profile_template')
     op.drop_table('media')
     # ### end Alembic commands ###
