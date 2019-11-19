@@ -22,7 +22,7 @@ def process_template(template, is_edit):
     form = TemplateForm()
     add_field_form = AddFieldForm()
     
-    is_validated, dynamic_forms = dynamic_fields(template, template.fields, False)
+    is_validated, dynamic_forms = dynamic_fields(template, template.fields, True)
 
     if request.method == 'GET':
         #Заполняем поля при отображении страницы
@@ -72,7 +72,7 @@ def delete_task_template(template_id):
 def process_task(form, task, fields, is_edit):
     #Формы для разных типов полей
 
-    is_validated, dynamic_forms = dynamic_fields(task, fields, True)
+    is_validated, dynamic_forms = dynamic_fields(task, fields, False)
 
     if request.method == 'GET' and is_edit:
         #Заполняем поля при отображении страницы

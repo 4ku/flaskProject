@@ -19,6 +19,6 @@ class Fields(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     label = db.Column(db.Unicode(64))
     media_id = db.Column(db.Integer, db.ForeignKey('media.id'))
-    media = db.relationship("Media", backref=db.backref("field", uselist=False))
+    media = db.relationship("Media", backref=db.backref("field", uselist=False, order_by="Fields.order"))
     display = db.Column(db.Boolean, unique=False, default=True)
     order = db.Column(db.Integer, default = default_order_value, nullable = False)

@@ -24,7 +24,7 @@ class Task_templates(db.Model):
         primaryjoin =(task_template_field_connection.c.template_id == id),
         secondaryjoin = (task_template_field_connection.c.field_id == Fields.id),
         cascade="all, delete-orphan",single_parent=True,
-        backref = "task_template", order_by = "Fields.id")
+        backref = "task_template", order_by = "Fields.order")
 
 
 task_field_connection = db.Table("task_field_connection",
@@ -43,11 +43,11 @@ class Tasks(db.Model):
         primaryjoin =(task_field_connection.c.task_id == id),
         secondaryjoin = (task_field_connection.c.field_id == Fields.id),
         cascade="all, delete, delete-orphan",single_parent=True,
-        backref = "task", order_by = "Fields.id")
+        backref = "task", order_by = "Fields.order")
 
 
 #---------------------------------------------------------------------
-#                           Pages
+#                           Users
 #---------------------------------------------------------------------
 class Users(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -114,7 +114,7 @@ class Profiles(db.Model):
         primaryjoin =(profile_field_connection.c.profile_id == id),
         secondaryjoin = (profile_field_connection.c.field_id == Fields.id),
         cascade="all, delete, delete-orphan",single_parent=True,
-        backref = "profile", order_by = "Fields.id")
+        backref = "profile", order_by = "Fields.order")
 
 
 profile_template_field_connection = db.Table("profile_template_field_connection",
@@ -130,11 +130,19 @@ class Profile_template(db.Model):
         primaryjoin =(profile_template_field_connection.c.profile_template_id == id),
         secondaryjoin = (profile_template_field_connection.c.field_id == Fields.id),
         cascade="all, delete, delete-orphan",single_parent=True,
-        backref = "profile_template", order_by = "Fields.id")
+        backref = "profile_template", order_by = "Fields.order")
+
+#Дополнительные ссылки пользователя
+class Menu_fields(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    name = db.Column(db.Unicode(64))
+    link = db.Column(db.Unicode(255))
+
 
 
 #---------------------------------------------------------------------
-#                           Sections
+#                        Sections and pages
 #---------------------------------------------------------------------
 section_field_connection = db.Table("section_field_connection",
     db.Column('section_id', db.Integer, db.ForeignKey('sections.id')),
@@ -144,12 +152,13 @@ section_field_connection = db.Table("section_field_connection",
 class Sections(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode(64), unique=True)
+    display = db.Column(db.Boolean, unique=False, default=True)
     fields = db.relationship("Fields", 
         secondary = section_field_connection, 
         primaryjoin =(section_field_connection.c.section_id == id),
         secondaryjoin = (section_field_connection.c.field_id == Fields.id),
         cascade="all, delete, delete-orphan",single_parent=True,
-        backref = "section", order_by = "Fields.id")
+        backref = "section", order_by = "Fields.order")
 
 
 page_field_connection = db.Table("page_field_connection",
@@ -160,20 +169,14 @@ page_field_connection = db.Table("page_field_connection",
 class Pages(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     section_id = db.Column(db.Integer, db.ForeignKey('sections.id'))
-    section = db.relationship("Sections", backref = "pages")
+    section = db.relationship("Sections", backref = db.backref("pages", order_by="desc(Pages.id)"))
     fields = db.relationship("Fields", 
         secondary = page_field_connection, 
         primaryjoin =(page_field_connection.c.page_id == id),
         secondaryjoin = (page_field_connection.c.field_id == Fields.id),
         cascade="all, delete, delete-orphan",single_parent=True,
-        backref = "page", order_by = "Fields.id")
+        backref = "page", order_by = "Fields.order")
 
 
 
 
-#Дополнительные ссылки пользователя
-class Menu_fields(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    name = db.Column(db.Unicode(64))
-    link = db.Column(db.Unicode(255))

@@ -11,7 +11,7 @@ from app.auth.forms import *
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('users.user', id=current_user.id))
+        return redirect(url_for('sections.main'))
     form = LoginForm()
     if form.validate_on_submit():
         user = Users.query.filter_by(email=form.email.data).first()

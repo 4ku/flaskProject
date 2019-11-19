@@ -15,7 +15,9 @@
 	
      <form method="post" enctype="multipart/form-data">
 		{{ form.hidden_tag() }} 
-        <p>{{_('Section name')}} {{ form.name }}</p>
+        <p>{{_('Display section')}} {{ form.is_displayed }}</p>
+		<p>{{_('Section name')}} {{ form.name }}</p>
+		
         {% include "fields.html" %}
 
 	   <p>{{ form.submit() }}</p>

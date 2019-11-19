@@ -17,16 +17,19 @@
 
 
 {% for section in get_sections() %}
-<div>
-	<ul>
-	<li><a href="{{ url_for('sections.view_section', section_id=section.id) }}">{{ section.name }}</a></li>
-	<li><a href="{{ url_for('sections.delete_section', section_id=section.id) }}">{{_('Delete section')}}</a></li>
-	</ul>	
-</div>
-<div>
-		<p>... </p> 
-		<p>... </p> 
+
+	<div class="user_edit">
+		<div class="edit" >
+			<a href="{{ url_for('sections.view_section', section_id=section.id) }}">{{ section.name }}</a>
+		</div>
+		<div class="edit">
+			<a href="{{ url_for('sections.edit_section', section_id=section.id) }}">{{ _('Edit section') }}</a>
+		</div>
+		<div class="delete">
+			<a href="{{ url_for('sections.delete_section', section_id=section.id) }}">{{_('Delete section')}}</a>	
+		</div>
 	</div>
+
 {% endfor %}
 
 

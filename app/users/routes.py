@@ -57,7 +57,7 @@ def edit_user(id):
     if not is_admin and current_user.id != user.id:
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('all_users')
+            next_page = url_for('users.all_users')
         return redirect(next_page)
 
     if is_admin:
@@ -73,7 +73,7 @@ def edit_user(id):
         profile_template = Profile_template.query.filter_by(id=1).first()
         fields = profile_template.fields
 
-    is_validated, dynamic_forms = dynamic_fields(profile, fields, False)
+    is_validated, dynamic_forms = dynamic_fields(profile, fields, True)
 
     if request.method == 'GET' and is_admin:
         # Предзаполнение полей
@@ -116,7 +116,7 @@ def delete_user(user_id):
     
     Users.query.filter_by(id=user_id).delete()
     db.session.commit()
-    return redirect(url_for("all_users"))
+    return redirect(url_for("users.all_users"))
 
 @bp.route('/confirm_user/<id>')
 @roles_required(['Admin'])
@@ -124,7 +124,7 @@ def confirm_user(id):
     user = Users.query.filter_by(id=id).first()
     user.roles[0].name = "Usual"
     db.session.commit()
-    return redirect(url_for("all_users"))
+    return redirect(url_for("users.all_users"))
 
 
 @bp.route('/profile_template',methods=['GET', 'POST'])
@@ -138,7 +138,7 @@ def profile_template():
     form = TemplateProfileForm()
     add_field_form = AddFieldForm()
     
-    is_validated, dynamic_forms = dynamic_fields(template, template.fields, False)
+    is_validated, dynamic_forms = dynamic_fields(template, template.fields, True)
 
     if is_validated:
         db.session.commit()

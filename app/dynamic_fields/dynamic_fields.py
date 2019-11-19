@@ -11,13 +11,13 @@ from app.routes import encode_filename
 from app.dynamic_fields.forms import *
 
 
-def add_and_fill_fields_to_form(fields, is_task, forms):
-    text_validator = [Length(max=50), DataRequired()] if is_task else [Length(max=50)]
-    textArea_validator = [Length(max=255), DataRequired()] if is_task else [Length(max=255)]
-    date_validator = [DataRequired()] if is_task else [validators.Optional()]
-    link_validator = [DataRequired()] if is_task else []
-    file_validator = [check_file_label] if is_task else []
-    picture_validator = [check_file_label, FileAllowed(['jpg', 'png','jpeg'])] if is_task else [FileAllowed(['jpg', 'png','jpeg'])]
+def add_and_fill_fields_to_form(fields, is_template, forms):
+    text_validator = [Length(max=50)] if is_template else [Length(max=50), DataRequired()]
+    textArea_validator = [Length(max=255)] if is_template else [Length(max=255), DataRequired()]
+    date_validator = [validators.Optional()] if is_template else [DataRequired()]
+    link_validator = [] if is_template else [DataRequired()] 
+    file_validator = [] if is_template else [check_file_label] 
+    picture_validator = [FileAllowed(['jpg', 'png','jpeg'])] if is_template else [check_file_label, FileAllowed(['jpg', 'png','jpeg'])]
 
     delattr(ExtTextField, "text")
     setattr(ExtTextField, "text", TextField(label = _("Text"), validators = text_validator))
@@ -130,7 +130,7 @@ def delete_fields(fields):
         db.session.delete(field)
 
 
-def dynamic_fields(content, fields, is_task):
+def dynamic_fields(content, fields, is_template):
     #Формы для разных типов полей
     forms = {}
     forms["text_form"] = TextsForm()
@@ -148,7 +148,7 @@ def dynamic_fields(content, fields, is_task):
 
     if request.method == 'GET':
         #Заполняем поля при отображении страницы
-        add_and_fill_fields_to_form(fields, is_task, forms)
+        add_and_fill_fields_to_form(fields, is_template, forms)
 
     elif is_validated:
         save_fields(content, forms)

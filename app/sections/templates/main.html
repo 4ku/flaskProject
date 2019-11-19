@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <table>
+		{% for section in sections %}
+			{% if section.display %}
+				<tr>
+					<td>
+						<a href="{{ url_for('sections.view_section', section_id=section.id) }}">{{ section.name }}</a>
+					</td>
+				</tr>
+			{% endif %}
+		{% endfor %}
+	</table>
+
+{% endblock %}

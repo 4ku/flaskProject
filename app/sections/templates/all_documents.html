@@ -2,9 +2,17 @@
 
 {% block content %}
 	{% for file in files %}
-	<div>	
-		<a href="{{ url_for('download_file', filename = file.encrypted_filename) }}">{{ file.filename }}</a>
-		<p>{{file.file_type}}</p>
-	</div>	
+	<table width="500">
+
+		<tr>
+			<td>
+					<a href="{{ url_for('download_file', filename = file.encrypted_filename) }}">{{ file.filename }}</a>
+			</td>
+			<td>
+					<p>File type: {{file.file_type}}</p>
+			</td>
+		</tr>
+	</table>
+
 	{% endfor %}
 {% endblock %}
