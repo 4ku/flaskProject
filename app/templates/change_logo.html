@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<form action="" method="post" enctype="multipart/form-data">
+		{{ form.hidden_tag() }}
+		<p> 
+			{{ form.file.label }}
+			{{ form.file() }}
+		</p>
+		{% for error in form.file.errors %}
+			<span style="color: red;">[{{ error }}]</span>
+		{% endfor %}
+		<p> {{ form.submit() }}
+	</form>
+{% endblock %}

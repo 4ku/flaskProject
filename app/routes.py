@@ -11,6 +11,7 @@ from datetime import datetime
 import os
 import secrets
 from validator_collection import checkers
+from PIL import Image
 
 from app import app, db
 from app.forms import *
@@ -134,6 +135,29 @@ def before_request():
 
 
 
+def logo():
+    directory = os.path.join(app.root_path, 'static/logo/')
+    return os.listdir(directory)[0]
+app.jinja_env.globals.update(logo = logo)
+
+@app.route('/change_logo/',methods=['GET', 'POST'])
+@login_required
+def change_logo():
+    form =  LogoForm()
+    if form.validate_on_submit():
+        #Удаление всех предыдущих файлов
+        directory = os.path.join(app.root_path, 'static/logo/')
+        filelist = os.listdir(directory)
+        for f in filelist:
+            os.remove(os.path.join(directory, f))
+
+        #Сохранение
+        file = form.file.data
+        __, f_ext = os.path.splitext(file.filename)
+        file.save(os.path.join(directory, 'logo'+f_ext))
+        return redirect(url_for('toolbar_settings'))
+        
+    return render_template("change_logo.html", title=_l('Change logo'), form = form)
 
 
 

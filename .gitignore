@@ -20,6 +20,7 @@ lib64
 __pycache__
 flask_session
 .vscode
+\.vscode
 
 # Installer logs
 pip-log.txt
@@ -35,6 +36,8 @@ nosetests.xml
 .pydevproject
 
 
+.vscode
+\.vscode
 logs
 venv
 messages.pot

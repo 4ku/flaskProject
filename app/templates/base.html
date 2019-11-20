@@ -27,9 +27,7 @@
 					<li><a href="{{ url_for('users.user', id=current_user.id) }}"><i class="fa fa-user-circle" aria-hidden="true"></i>  							{{current_user.real_name}}</a></li>
 					<li><a href="{{ url_for('toolbar_settings') }}"><i class="fa fa-cogs" aria-hidden="true"></i> {{ _('Settings')}}</a></li>
 					<li><a href="{{ url_for('auth.logout') }}"><i class="fa fa-power-off" aria-hidden="true"></i> {{ _('Logout')}}</a></li>
-				{% endif %}
-
-
+					{% endif %}
 
 					<li>
 						{% for language in LANGUAGES %}
@@ -45,7 +43,7 @@
 	<div id="left">
 	
 		<div class="logo">
-			<a href="#"><img src="{{ url_for('static', filename='images/logo.svg') }}"></a>
+			<a href="#"><img src="{{ url_for('static', filename='logo/'+logo()) }}"></a>
 		</div>
 	
 		<div class="nav">
