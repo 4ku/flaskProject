@@ -7,6 +7,7 @@ class Media(db.Model):
     date = db.Column(db.DateTime())
     link = db.Column(db.Unicode(255))
     picture = db.Column(db.Unicode(255))
+    number = db.Column(db.Float)
 
     encrypted_filename = db.Column(db.Unicode(255))
     filename = db.Column(db.Unicode(255))

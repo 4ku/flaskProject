@@ -107,6 +107,10 @@ function addForm(e) {
 		id_ = "picture_fields-___-form"
 		class_ = "picture_fields"
 	}
+	else if (field_type === "Number"){
+		id_ = "number_fields-___-form"
+		class_ = "number_fields"
+	}
 	var $templateForm = $('#'+id_);
 	var $lastForm = $('.'+class_).last();
 	var newIndex = 0;
@@ -115,7 +119,6 @@ function addForm(e) {
 	} 
 
 	var $newForm = $templateForm.clone();
-
 	var numFields = $('#fields-container').children('div').length
 	$newForm.find('#'+class_+'-___-order').val(numFields)
 

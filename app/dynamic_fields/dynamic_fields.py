@@ -18,6 +18,7 @@ def add_and_fill_fields_to_form(fields, is_template, forms):
     link_validator = [] if is_template else [DataRequired()] 
     file_validator = [] if is_template else [check_file_label] 
     picture_validator = [FileAllowed(['jpg', 'png','jpeg'])] if is_template else [check_file_label, FileAllowed(['jpg', 'png','jpeg'])]
+    number_validator = [check_number] if is_template else [DataRequired(),check_number]
 
     delattr(ExtTextField, "text")
     setattr(ExtTextField, "text", TextField(label = _("Text"), validators = text_validator))
@@ -31,6 +32,8 @@ def add_and_fill_fields_to_form(fields, is_template, forms):
     setattr(ExtFileField, "file", FileField(label = _('File'), validators=file_validator))
     delattr(PictureField, "picture")
     setattr(PictureField, "picture", FileField(label =_('Picture'), validators=picture_validator))
+    delattr(NumberField, "number")
+    setattr(NumberField, "number", TextField(label =_('number'), validators=number_validator))
 
     for field in fields:
         field_data = field.media
@@ -53,6 +56,9 @@ def add_and_fill_fields_to_form(fields, is_template, forms):
             data["filename"] = field_data.picture
             data["encrypted_filename"] = field_data.encrypted_filename
             forms["picture_form"].picture_fields.append_entry(data)
+        elif field_data.number is not None:
+            data["number"] = field_data.number 
+            forms["number_form"].number_fields.append_entry(data)
         else:
             data["date"] = field_data.date 
             forms["date_form"].date_fields.append_entry(data)
@@ -63,9 +69,7 @@ def save_file(file, field_filename, field_encrypted_filename):
     # Если добавляем свой файл 
     if file:
     # Неважно редактирование или нет - просто сохраняем новый файл, старые, если они были, потом удалятся  
-        print(file.filename)
         filename, encrypted_filename = encode_filename(file.filename)
-        print(filename)
         file.save(os.path.join(app.root_path, 'static/files/',  encrypted_filename))
         return filename, encrypted_filename
 
@@ -80,6 +84,7 @@ def save_file(file, field_filename, field_encrypted_filename):
 
 
 def save_fields(content, forms):
+    #Записываем id старых полей, чтобы потом удалить в конце этого метода
     old_fields_id = [field.id for field in content.fields] 
 
     def save_field(field, media):
@@ -117,6 +122,14 @@ def save_fields(content, forms):
         media = Media(picture = filename, encrypted_filename = encrypted_filename) 
         save_field(field, media)
 
+    for field in forms["number_form"].number_fields:
+        data = None
+        if field.number.data:
+            data = field.number.data
+        media = Media(number = data) 
+        save_field(field, media)
+
+    #Удаляем старые поля
     old_fields = []
     for id_ in old_fields_id:
         field = Fields.query.filter_by(id = id_).first()
@@ -141,12 +154,9 @@ def dynamic_fields(content, fields, is_template):
     forms["link_form"] = LinksForm()
     forms["file_form"] = FilesForm()
     forms["picture_form"] = PicturesForm()
-     
+    forms["number_form"] = NumbersForm()
 
-    is_validated = (forms["text_form"].validate_on_submit() and 
-        forms["textArea_form"].validate() and forms["date_form"].validate() and
-        forms["link_form"].validate() and forms["file_form"].validate() and 
-        forms["picture_form"].validate())
+    is_validated = all([form.validate_on_submit() for form in forms.values()])
 
     if request.method == 'GET':
         #Заполняем поля при отображении страницы

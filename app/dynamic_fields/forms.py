@@ -1,7 +1,7 @@
 from flask_babel import _, lazy_gettext as _l
 from flask_wtf import FlaskForm
 from wtforms.validators import ValidationError, DataRequired, Length
-from wtforms import Form, TextField, TextAreaField, \
+from wtforms import Form, TextField, TextAreaField, IntegerField, \
     FieldList, FormField, HiddenField, BooleanField, SelectField
 from flask_wtf.file import FileField, FileAllowed
 from wtforms.fields.html5 import DateField
@@ -10,7 +10,8 @@ from wtforms.fields.html5 import DateField
 class AddFieldForm(FlaskForm):
     fields_list = SelectField(_l('Field type'), 
         choices=[('Text',_l('Text')), ('TextArea',_l('TextArea')),
-            ('Date',_l('Date')),('File',_l('File')),('Picture',_l('Picture')),('Link',_l('Link'))])
+            ('Date',_l('Date')),('File',_l('File')),('Picture',_l('Picture')),('Link',_l('Link')),
+            ('Number',_l('Number'))])
 
 
 # Это основная форма, от которой все наследуются
@@ -88,3 +89,21 @@ class PicturesForm(FlaskForm):
 def check_file_label(form, field):
     if (form.filename.data == "") and (not field.data):
         raise ValidationError(_l('Please choose a file'))
+
+
+
+# number form
+class NumberField(FieldForm):
+    number = TextField()
+
+class NumbersForm(FlaskForm):
+    number_fields = FieldList(
+        FormField(NumberField)
+    )
+
+def check_number(form, field):
+    try:
+        if field.data:
+            float(field.data)
+    except:
+        raise ValidationError(_l('Not a number!'))

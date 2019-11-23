@@ -134,7 +134,6 @@ def before_request():
         db.session.commit()
 
 
-
 def logo():
     directory = os.path.join(app.root_path, 'static/logo/')
     return os.listdir(directory)[0]

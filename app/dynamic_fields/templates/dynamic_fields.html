@@ -17,6 +17,8 @@
 		   <input id="date_fields-___-date" name="date_fields-___-date" type="date" value="">
 	   {% elif field_type=="link" %}
 		   <input id="link_fields-___-link" name="link_fields-___-link" type="text" value=""> 
+		{% elif field_type=="number" %}
+		   <input id="number_fields-___-number" name="number_fields-___-number" type="text" value=""> 
 	   {% elif field_type=="file" %}
 		   <input id="file_fields-___-file" name="file_fields-___-file" type="file">
 		   <input id="file_fields-___-filename" name="file_fields-___-filename" type="hidden">
@@ -48,6 +50,7 @@
 {{render_html_field("link", "Link") }}
 {{render_html_field("file", "File") }}
 {{render_html_field("picture", "Picture") }}
+{{render_html_field("number", "Number") }}
 
 
 
