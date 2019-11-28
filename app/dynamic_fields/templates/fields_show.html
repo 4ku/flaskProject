@@ -1,0 +1,34 @@
+{% macro show_fields(fields, display_all=False) %}
+	<div style="display: flex; flex-direction: column;" id="task_full">
+		{% for field in fields %}
+			{% if display_all or field.display %}
+				<div style="order: {{field.order}}" id="task">
+						<div class="label">
+								{{field.label}}
+						</div>
+						<div class="info">
+							{% if field.media.text %}
+									{{ field.media.text.data }}
+							{% elif field.media.textArea %}
+								{{ field.media.textArea.data }}
+							{% elif field.media.date %}
+								{{ field.media.date.data.strftime('%d %B %Y') }}
+							{% elif field.media.file %}
+									<a href="{{ url_for('download_file', filename = field.media.file.encrypted_filename) }}">
+										<b>{{ field.media.file.data }}</b>
+									</a>
+							{% elif field.media.picture %}
+									<img src="{{ url_for('static',filename = 'files/' + field.media.picture.encrypted_filename) }}" width="200" height="200">
+							{% elif field.media.link %}
+									<a href="{{ append_http(field.media.link.data) }}">
+										{{ field.media.link.data }}
+									</a>
+							{% elif field.media.number %}
+									{{ field.media.number.data }}
+							{% endif %}
+						</div>					
+				</div>
+			{% endif %}	
+		{% endfor %}
+	</div>
+{% endmacro %}

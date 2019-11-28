@@ -21,8 +21,8 @@ def all_documents():
     media = Media.query.all()
     files = []
     for field in media:
-        if field.filename:
-            files.append(field)
+        if field.file:
+            files.append(field.file)
     return render_template("all_documents.html", files = files)
 
 

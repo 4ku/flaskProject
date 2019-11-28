@@ -36,31 +36,31 @@ def add_and_fill_fields_to_form(fields, is_template, forms):
     setattr(NumberField, "number", TextField(label =_('number'), validators=number_validator))
 
     for field in fields:
-        field_data = field.media
+        media = field.media
         data = {'label_': field.label, 'is_displayed': field.display,"order": field.order}
-        if field_data.text is not None:
-            data["text"] = field_data.text
+        if media.text:
+            data["text"] = media.text.data
             forms["text_form"].text_fields.append_entry(data)
-        elif field_data.textArea is not None:
-            data["textArea"] = field_data.textArea
+        elif media.textArea:
+            data["textArea"] = media.textArea.data
             forms["textArea_form"].textArea_fields.append_entry(data)
-        elif field_data.link is not None:
-            data["link"] = field_data.link 
+        elif media.link:
+            data["link"] = media.link.data 
             forms["link_form"].link_fields.append_entry(data)
-        elif field_data.filename is not None:
-            data["filename"] = field_data.filename
-            data["encrypted_filename"] = field_data.encrypted_filename
-            data["file_type"] = field_data.file_type
+        elif media.file:
+            data["filename"] = media.file.data
+            data["encrypted_filename"] = media.file.encrypted_filename
+            data["file_type"] = media.file.file_type
             forms["file_form"].file_fields.append_entry(data)
-        elif field_data.picture is not None:
-            data["filename"] = field_data.picture
-            data["encrypted_filename"] = field_data.encrypted_filename
+        elif media.picture:
+            data["filename"] = media.picture
+            data["encrypted_filename"] = media.encrypted_filename
             forms["picture_form"].picture_fields.append_entry(data)
-        elif field_data.number is not None:
-            data["number"] = field_data.number 
+        elif media.number:
+            data["number"] = media.number.data 
             forms["number_form"].number_fields.append_entry(data)
-        else:
-            data["date"] = field_data.date 
+        elif media.date:
+            data["date"] = media.date.data 
             forms["date_form"].date_fields.append_entry(data)
 
 
@@ -95,38 +95,43 @@ def save_fields(content, forms):
             content.fields.append(field)
 
     for field in forms["text_form"].text_fields:
-        media = Media(text = field.text.data)
+        text = Text_field(data = field.text.data)
+        media = Media(text = text)
         save_field(field, media)
 
     for field in forms["textArea_form"].textArea_fields:
-        media = Media(textArea = field.textArea.data)
+        textArea = TextArea_field(data = field.textArea.data)
+        media = Media(textArea = textArea)
         save_field(field, media)
 
     for field in forms["date_form"].date_fields:
-        date = field.date.data if field.date.data else None
+        date = Date_field(data = field.date.data)
         media = Media(date = date)
         save_field(field, media)
 
     for field in forms["link_form"].link_fields:
-        media = Media(link = field.link.data)
+        link = Link_field(data = field.link.data)
+        media = Media(link = link)
         save_field(field, media)
 
     for field in forms["file_form"].file_fields:
         filename, encrypted_filename = save_file(field.file.data, field.filename.data, field.encrypted_filename.data)
-        media = Media(filename = filename, 
+        file = File_field(data = filename,
             encrypted_filename = encrypted_filename, file_type = field.file_type.data) 
+        media = Media(file = file)            
         save_field(field, media)
 
     for field in forms["picture_form"].picture_fields:
         filename, encrypted_filename = save_file(field.picture.data, field.filename.data, field.encrypted_filename.data)
-        media = Media(picture = filename, encrypted_filename = encrypted_filename) 
+        picture = Picture_field(data = filename,
+            encrypted_filename = encrypted_filename) 
+        media = Media(picture = picture)
         save_field(field, media)
 
     for field in forms["number_form"].number_fields:
-        data = None
-        if field.number.data:
-            data = field.number.data
-        media = Media(number = data) 
+        data = field.number.data if field.number.data else None
+        number = Number_field(data = data)
+        media = Media(number = number) 
         save_field(field, media)
 
     #Удаляем старые поля
@@ -139,8 +144,10 @@ def save_fields(content, forms):
 
 def delete_fields(fields):
     for field in fields:
-        if field.media.encrypted_filename:
-            os.remove(os.path.join(app.root_path, 'static/files/', field.media.encrypted_filename))
+        if field.media.file and field.media.file.data:
+            os.remove(os.path.join(app.root_path, 'static/files/', field.media.file.encrypted_filename))
+        elif field.media.picture and field.media.picture.data:
+            os.remove(os.path.join(app.root_path, 'static/files/', field.media.picture.encrypted_filename))
         db.session.delete(field.media)
         db.session.delete(field)
 

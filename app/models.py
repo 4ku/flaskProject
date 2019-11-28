@@ -55,7 +55,6 @@ class Users(UserMixin, db.Model):
     password = db.Column(db.Unicode(255))
 
     # Второстепенные
-    # Здесь должно быть media
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     avatar_path = db.Column(db.Unicode(255), default = None)
     roles = db.relationship('Roles', cascade="all, delete-orphan", single_parent=True)

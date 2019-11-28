@@ -1,41 +1,5 @@
-<div style="display: flex; flex-direction: column;" id="task_full">
-	{% for field in page.fields %}
-		{% if field.display %}
-			<div style="order: {{field.order}}" id="task">
-					<div class="label">
-							{{field.label}}
-					</div>
-					<div class="info">
-						{% if field.media.text %}
-							{% if is_link(field.media.text) %}
-								<a href="{{ append_http(field.media.text) }}">
-									{{ field.media.text }}
-								</a>
-							{% else %}
-								{{ field.media.text }}
-							{% endif %}
-						{% elif field.media.textArea %}
-							{{ field.media.textArea }}
-						{% elif field.media.date %}
-							{{ field.media.date.strftime('%d %B %Y') }}
-						{% elif field.media.filename %}
-								<a href="{{ url_for('download_file', filename = field.media.encrypted_filename) }}">
-									<b>{{ field.media.filename }}</b>
-								</a>
-						{% elif field.media.picture %}
-								<img src="{{ url_for('static',filename = 'files/' + field.media.encrypted_filename) }}" width="200" height="200">
-						{% elif field.media.link %}
-								<a href="{{ append_http(field.media.link) }}">
-									{{ field.media.link }}
-								</a>
-						{% endif %}
-					</div>		
-			</div>
-		{% endif %}	
-	{% endfor %}
-</div>
-
-
+{% from "fields_show.html" import show_fields %}
+{{ show_fields(page.fields) }}
 
 <div class="task_info">
 

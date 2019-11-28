@@ -1,17 +1,60 @@
 from app import db
 
+class Text_field(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    data = db.Column(db.Unicode(255))
+    media_id = db.Column(db.Integer, db.ForeignKey('media.id'))
+    media = db.relationship("Media", single_parent=True, uselist=False,
+        backref=db.backref("text", uselist=False,cascade="all, delete, delete-orphan"))
+
+class TextArea_field(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    data = db.Column(db.Unicode(255))
+    media_id = db.Column(db.Integer, db.ForeignKey('media.id'))
+    media = db.relationship("Media", single_parent=True, uselist=False,
+        backref=db.backref("textArea", uselist=False,cascade="all, delete, delete-orphan"))
+
+class Date_field(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    data = db.Column(db.DateTime())
+    media_id = db.Column(db.Integer, db.ForeignKey('media.id'))
+    media = db.relationship("Media", single_parent=True, uselist=False,
+        backref=db.backref("date", uselist=False,cascade="all, delete, delete-orphan"))
+
+class Link_field(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    data = db.Column(db.Unicode(255))
+    media_id = db.Column(db.Integer, db.ForeignKey('media.id'))
+    media = db.relationship("Media", single_parent=True, uselist=False,
+        backref=db.backref("link", uselist=False,cascade="all, delete, delete-orphan"))
+
+class Picture_field(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    data = db.Column(db.Unicode(255))
+    encrypted_filename = db.Column(db.Unicode(255))
+    media_id = db.Column(db.Integer, db.ForeignKey('media.id'))
+    media = db.relationship("Media", single_parent=True, uselist=False,
+        backref=db.backref("picture", uselist=False,cascade="all, delete, delete-orphan"))
+
+class File_field(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    data = db.Column(db.Unicode(255))
+    encrypted_filename = db.Column(db.Unicode(255))
+    file_type = db.Column(db.Unicode(30))
+    media_id = db.Column(db.Integer, db.ForeignKey('media.id'))
+    media = db.relationship("Media", single_parent=True, uselist=False,
+        backref=db.backref("file", uselist=False,cascade="all, delete, delete-orphan"))
+
+class Number_field(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    data = db.Column(db.Float)
+    media_id = db.Column(db.Integer, db.ForeignKey('media.id'))
+    media = db.relationship("Media", single_parent=True, uselist=False,
+        backref=db.backref("number", uselist=False,cascade="all, delete, delete-orphan"))
+
 class Media(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    text = db.Column(db.Unicode(255))
-    textArea = db.Column(db.Unicode(255))
-    date = db.Column(db.DateTime())
-    link = db.Column(db.Unicode(255))
-    picture = db.Column(db.Unicode(255))
-    number = db.Column(db.Float)
 
-    encrypted_filename = db.Column(db.Unicode(255))
-    filename = db.Column(db.Unicode(255))
-    file_type = db.Column(db.Unicode(30))
 
 def default_order_value():
     return Fields.query.count()

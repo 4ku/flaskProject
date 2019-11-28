@@ -4,7 +4,7 @@
 	<form method="post" enctype="multipart/form-data">
 		{{ form.hidden_tag() }} 
 		
-		{% include "fields.html" %}		
+		{% include "fields_render.html" %}		
 		
 		{{ form.submit }}
 		{% for error in form.errors %}
