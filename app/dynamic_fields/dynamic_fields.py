@@ -11,7 +11,7 @@ from app.routes import encode_filename
 from app.dynamic_fields.forms import *
 
 
-def add_and_fill_fields_to_form(fields, is_template, forms):
+def add_and_fill_fields_to_form(forms, fields, is_template):
     text_validator = [Length(max=50)] if is_template else [Length(max=50), DataRequired()]
     textArea_validator = [Length(max=255)] if is_template else [Length(max=255), DataRequired()]
     date_validator = [validators.Optional()] if is_template else [DataRequired()]
@@ -19,6 +19,8 @@ def add_and_fill_fields_to_form(fields, is_template, forms):
     file_validator = [] if is_template else [check_file_label] 
     picture_validator = [FileAllowed(['jpg', 'png','jpeg'])] if is_template else [check_file_label, FileAllowed(['jpg', 'png','jpeg'])]
     number_validator = [check_number] if is_template else [DataRequired(),check_number]
+    category_validator = [DataRequired()] if is_template else [DataRequired()]
+
 
     delattr(ExtTextField, "text")
     setattr(ExtTextField, "text", TextField(label = _("Text"), validators = text_validator))
@@ -34,6 +36,10 @@ def add_and_fill_fields_to_form(fields, is_template, forms):
     setattr(PictureField, "picture", FileField(label =_('Picture'), validators=picture_validator))
     delattr(NumberField, "number")
     setattr(NumberField, "number", TextField(label =_('number'), validators=number_validator))
+    delattr(CategoryField_template, "category")
+    setattr(CategoryField_template, "category", TextField(label =_('Option'), validators=category_validator))
+    delattr(CategoryField, "categories")
+    setattr(CategoryField, "categories", SelectField(label =_('Categories'), choices = [], validators=category_validator))
 
     for field in fields:
         media = field.media
@@ -62,7 +68,27 @@ def add_and_fill_fields_to_form(fields, is_template, forms):
         elif media.date:
             data["date"] = media.date.data 
             forms["date_form"].date_fields.append_entry(data)
+        elif media.category:
+            if is_template:
+                data_list = []
+                for value in media.category.values:
+                    data_list.append({'category': value})
+                data["categories"] = data_list
+                
+            forms["category_form"].categories_fields.append_entry(data)
 
+def update_categories_fields(forms, fields):
+    categories = []
+    for field in fields:
+        if field.media.category:
+            categories.append(field.media.category)
+    for i, categories_field in enumerate(forms["category_form"].categories_fields):
+        choices = []
+        for value in categories[i].values:
+            choices.append((value.value,value.value))
+        categories_field.categories.choices = choices
+        if request.method == 'GET':
+            categories_field.categories.data = categories[i].selected_value
 
 def save_file(file, field_filename, field_encrypted_filename):
     filename, encrypted_filename = "", ""
@@ -83,7 +109,7 @@ def save_file(file, field_filename, field_encrypted_filename):
     return field_filename, field_encrypted_filename   
 
 
-def save_fields(content, forms):
+def save_fields(content, forms, is_template):
     #Записываем id старых полей, чтобы потом удалить в конце этого метода
     old_fields_id = [field.id for field in content.fields] 
 
@@ -134,6 +160,19 @@ def save_fields(content, forms):
         media = Media(number = number) 
         save_field(field, media)
 
+    for field in forms["category_form"].categories_fields:
+        categorical_field = Categorical_field()
+        if is_template:
+            for category in field.categories:
+                value = Categorical_values(value = category.category.data)
+                categorical_field.values.append(value)
+        else:
+            for value in list(dict(field.categories.choices).keys()):
+                categorical_field.values.append(Categorical_values(value = value))
+            categorical_field.selected_value = field.categories.data
+        media = Media(category = categorical_field) 
+        save_field(field, media)
+
     #Удаляем старые поля
     old_fields = []
     for id_ in old_fields_id:
@@ -162,14 +201,17 @@ def dynamic_fields(content, fields, is_template):
     forms["file_form"] = FilesForm()
     forms["picture_form"] = PicturesForm()
     forms["number_form"] = NumbersForm()
-
-    is_validated = all([form.validate_on_submit() for form in forms.values()])
+    forms["category_form"] = CategoriesForm_template() if is_template else CategoriesForm()
+        
 
     if request.method == 'GET':
         #Заполняем поля при отображении страницы
-        add_and_fill_fields_to_form(fields, is_template, forms)
-
-    elif is_validated:
-        save_fields(content, forms)
+        add_and_fill_fields_to_form(forms, fields, is_template)
+    
+    update_categories_fields(forms, fields)
+    is_validated = all([form.validate_on_submit() for form in forms.values()])
+    
+    if is_validated:
+        save_fields(content, forms, is_template)
 
     return is_validated, forms

@@ -52,6 +52,21 @@ class Number_field(db.Model):
     media = db.relationship("Media", single_parent=True, uselist=False,
         backref=db.backref("number", uselist=False,cascade="all, delete, delete-orphan"))
 
+class Categorical_values(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    value = db.Column(db.Unicode(255))
+    category_id = db.Column(db.Integer, db.ForeignKey('categorical_field.id'))
+    field = db.relationship("Categorical_field", single_parent=True, foreign_keys=[category_id],
+        backref=db.backref("values",cascade="all, delete, delete-orphan"))
+
+class Categorical_field(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    media_id = db.Column(db.Integer, db.ForeignKey('media.id'))
+    media = db.relationship("Media", single_parent=True, uselist=False,
+        backref=db.backref("category", uselist=False,cascade="all, delete, delete-orphan"))
+    selected_value = db.Column(db.Unicode(255))
+    
+
 class Media(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 

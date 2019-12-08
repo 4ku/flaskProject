@@ -85,12 +85,9 @@ def process_task(form, task, fields, is_edit):
             assigner = form.assigner.data
         else:
             assigner = current_user
-        task.assigner = assigner
-        task.assigner_id = assigner.id
 
-        acceptor = form.acceptor.data
-        task.acceptor = acceptor
-        task.acceptor_id = acceptor.id
+        task.assigner = assigner
+        task.acceptor = form.acceptor.data
 
         if is_edit:
             task.status = form.status.data

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<form method="post">
+
+	{{ form.hidden_tag() }}
+	{{form.select()}}
+	{% for error in form.errors %}
+		<span style="color: red;">[{{ error }}]</span>
+	{% endfor %}
+	<button type="submit" value="Submit">Submit</button>
+</form>
+{% endblock %}

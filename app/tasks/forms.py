@@ -20,9 +20,9 @@ def acceptors_query():
 
 class TaskForm_edit(FlaskForm):
     assigner = QuerySelectField(_l('Assigner'), query_factory=assigners_query, 
-        get_pk = get_pk, get_label ="email")
+        get_pk = get_pk, get_label = "email")
     acceptor = QuerySelectField(_l('Acceptor'), query_factory=acceptors_query, 
-        get_pk = get_pk, get_label ="email")
+        get_pk = get_pk, get_label = "email")
     status = SelectField(_l('Status'), 
         choices=[('Issued',_l('Issued')),('In progress',_l('In progress')),('Done',_l('Done'))])
     submit = SubmitField(_l('Submit'))

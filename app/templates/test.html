@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<form method="post">
+
+	{% for field in form %}
+			{{field()}}
+			{% for error in field.errors %}
+			<span style="color: red;">[{{ error }}]</span>
+		{% endfor %}
+	{% endfor %}
+	<!-- {% for category in form.categories_fields %}
+		{% for field in category.categories %}
+			{{field.category()}}
+		{% endfor %}
+	{% endfor %} -->
+
+	{% for error in form.errors %}
+		<span style="color: red;">[{{ error }}]</span>
+	{% endfor %}
+	<button type="submit" value="Submit">Submit</button>
+</form>
+{% endblock %}

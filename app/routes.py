@@ -30,7 +30,7 @@ def roles_required(roles):
                 for user_role in current_user.roles:
                     if role == user_role.name:
                         access = True
-            
+
             if not access:
                 flash(_l('You do not have access to that page. Sorry!'))
                 return redirect(url_for('auth.login'))
@@ -103,7 +103,7 @@ app.jinja_env.globals.update(is_link = is_link)
 app.jinja_env.globals.update(append_http = append_http)
 
 # Получение закодированного имени файла
-# В основном нужно для хранения файлов, 
+# В основном нужно для хранения файлов,
 # с одинаковыми именами
 def encode_filename(filename):
     random_hex = secrets.token_hex(8)
@@ -155,10 +155,73 @@ def change_logo():
         __, f_ext = os.path.splitext(file.filename)
         file.save(os.path.join(directory, 'logo'+f_ext))
         return redirect(url_for('toolbar_settings'))
-        
+
     return render_template("change_logo.html", title=_l('Change logo'), form = form)
 
 
+
+
+from wtforms import TextField, SubmitField, SelectField
+from app.dynamic_fields.forms import *
+
+@app.route('/test/',methods=['GET', 'POST'])
+@login_required
+def test():
+    class TestForm(FlaskForm):
+        select = SelectField(_l('Field type'),
+        choices=[('Text',_l('Text')), ('TextArea',_l('TextArea')),
+            ('Date',_l('Date'))])
+        submit = SubmitField(_l('Submit'))
+
+    # sub_form = CategoricalField(request.form)
+    form = CategoriesForm()
+    if request.method == 'GET':
+        # sub_form.categories.append_entry()
+        # sub_form.categories.append_entry()
+        # data = {"categories": sub_form.categories.data}
+        # form.categories_fields.append_entry({"categories": [{'category': 'qqqqqqqq'}, {'category': 'wwwww'}] })
+        # form.categories_fields.append_entry({"categories": [{'category': 'rrrrr'}, {'category': '01'}] })
+        pass
+        # form.categories_fields[0].categories=sub_form
+
+    elif form.validate():
+        # for field in sub_form.categories:
+        #     print(field.category.data)
+
+        # print(sub_form.category)
+        # print(sub_form.category.data)
+        # print(sub_form.categories)
+        # print(sub_form.categories.data)
+
+        print(form)
+        print(11111111111)
+        print(form.categories_fields)
+        print(2222222222)
+        print(form.categories_fields.data)
+
+    return render_template("test.html", form = form)
+
+
+@app.route('/test2/',methods=['GET', 'POST'])
+@login_required
+def test2():
+    class TestForm(FlaskForm):
+        select = SelectField(_l('Field type'),
+        choices=[('Text',_l('Text')), ('TextArea',_l('TextArea')),
+            ('Date',_l('Date')), ('Date',_l('Date2'))], default = "Date")
+        submit = SubmitField(_l('Submit'))
+
+    form = TestForm()
+    if request.method == 'GET':
+        pass
+    elif form.validate():
+        print(list(dict(form.select.choices).keys()))
+        print(1111111111111111)
+        print(form.select.data)
+        print(2222222222222222)
+        # print(form.select.choices.keys)
+
+    return render_template("test2.html", form = form)
 
 
 

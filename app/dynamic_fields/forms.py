@@ -2,7 +2,7 @@ from flask_babel import _, lazy_gettext as _l
 from flask_wtf import FlaskForm
 from wtforms.validators import ValidationError, DataRequired, Length
 from wtforms import Form, TextField, TextAreaField, IntegerField, \
-    FieldList, FormField, HiddenField, BooleanField, SelectField
+    FieldList, FormField, HiddenField, BooleanField, SelectField, SubmitField
 from flask_wtf.file import FileField, FileAllowed
 from wtforms.fields.html5 import DateField
 
@@ -11,7 +11,7 @@ class AddFieldForm(FlaskForm):
     fields_list = SelectField(_l('Field type'), 
         choices=[('Text',_l('Text')), ('TextArea',_l('TextArea')),
             ('Date',_l('Date')),('File',_l('File')),('Picture',_l('Picture')),('Link',_l('Link')),
-            ('Number',_l('Number'))])
+            ('Number',_l('Number')), ('Categories',_l('Categories')) ])
 
 
 # Это основная форма, от которой все наследуются
@@ -107,3 +107,27 @@ def check_number(form, field):
             float(field.data)
     except:
         raise ValidationError(_l('Not a number!'))
+
+
+# Category form
+class CategoryField_template(Form):
+    category = TextField()
+
+class CategoricalField(FieldForm):
+    categories = FieldList(
+        FormField(CategoryField_template)
+    )
+
+class CategoriesForm_template(FlaskForm):
+    categories_fields = FieldList(
+        FormField(CategoricalField)
+    )
+
+
+class CategoryField(FieldForm):
+    categories = SelectField(label =_('Categories'), choices = [])
+
+class CategoriesForm(FlaskForm):
+    categories_fields = FieldList(
+        FormField(CategoryField)
+    )

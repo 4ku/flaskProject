@@ -1,34 +1,22 @@
+function make_replace(item, attr_name, oldIndex, newIndex){
+	var attr = item.attr(attr_name);
+	if (typeof attr !== typeof undefined && attr !== false) {
+		item.attr(attr_name, item.attr(attr_name).replace(oldIndex, newIndex));
+	}
+}
+
 function changeIndex(form, oldIndex, newIndex){
 	form.attr('id', form.attr('id').replace(oldIndex, newIndex));
 	form.attr('data-index', form.attr('data-index').replace(oldIndex, newIndex));
-
-	form.find('label').each(function(idx) {
+	form.find('label, input, textArea, select, div, a').each(function(idx) {
 		var $item = $(this);
-		$item.attr('for', $item.attr('for').replace(oldIndex, newIndex));
-
+		make_replace($item, "id", oldIndex, newIndex)
+		make_replace($item, "name", oldIndex, newIndex)
+		make_replace($item, "for", oldIndex, newIndex)
 	});
-
-	form.find('input').each(function(idx) {
-		var $item = $(this);
-		$item.attr('id', $item.attr('id').replace(oldIndex, newIndex));
-		$item.attr('name', $item.attr('name').replace(oldIndex, newIndex));
-	});
-	form.find('textarea').each(function(idx) {
-			var $item = $(this);
-			$item.attr('id', $item.attr('id').replace(oldIndex, newIndex));
-			$item.attr('name', $item.attr('name').replace(oldIndex, newIndex));
-	});
-	form.find('select').each(function(idx) {
-		var $item = $(this);
-		$item.attr('id', $item.attr('id').replace(oldIndex, newIndex));
-		$item.attr('name', $item.attr('name').replace(oldIndex, newIndex));
-	});
-
 }
 	
 function adjustIndices(removedIndex, class_) {
-
-
 	var $forms = $('.'+class_);
 	$forms.each(function(i) {
 		var $form = $(this);
@@ -38,21 +26,17 @@ function adjustIndices(removedIndex, class_) {
 			// Skip
 			return true;
 		}
-
 		changeIndex($form, index, newIndex);
 	});
 }
 
-
 function removeForm() {
-	var class_ =$(this).parent().attr('class');
-	var $removedForm = $(this).closest('.'+class_);
+	var class_ = $(this).parent().attr('class');
+	var $removedForm = $(this).parent();
 	var removedIndex = parseInt($removedForm.attr('data-index'));
 
 	var total_removedIndex;
-	$removedForm.find("[name$=-order]").each(function(idx) {
-		total_removedIndex = $(this).val()
-	});
+	var total_removedIndex = $removedForm.find("[name$=-order]").val()
 
 	$removedForm.remove();
 
@@ -60,79 +44,94 @@ function removeForm() {
 	var $all_forms = $("#fields-container").children()
 	$all_forms.each(function(i) {
 		var $form = $(this);
-		var index;
-		$form.find("[name$=-order]").each(function(idx) {
-			index = $(this).val()
-		});
-		var newIndex = index - 1;
+		var index = $form.find("[name$=-order]").val()
 		if (index < total_removedIndex) {
 			// Skip
 			return true;
 		}
-		$form.find("[name$=-order]").each(function(idx) {
-			$(this).val(newIndex)
-		});
+		$form.find("[name$=-order]").val(index-1)
 	});
 
 	// Update indices
 	adjustIndices(removedIndex, class_);
 }
 
-function addForm(e) {
+function addForm(newForm, class_, append_to_id){
+
+	// Вычисляем индекс нового поля нужного типа 
+	var newIndex = $('.' + class_).length
+	
+	changeIndex(newForm, '___', newIndex);
+	
+	newForm.addClass(class_);
+	newForm.find('.remove').click(removeForm);
+	$(append_to_id).append(newForm);
+
+	// Добавление порядка - записываем в css и поле order
+	// Вычиляем сколько всего полей
+	var numFields = $(append_to_id).children('div').length
+	// Заполняем порядковый номер нового поля
+	newForm.find('#'+class_+'-___-order').val(numFields)
+	newForm.css({'order': numFields,'display':'flex'});	
+}
+
+function addFieldForm(e) {
 	e.preventDefault();
+
+	// fields_list - кнопка из AddForm
 	var field_type = $("#fields_list").children("option:selected").val();
-	var id_ = 0;
-	var class_ = 0;
+
+	var prefix;
+	
 	if (field_type === "Text"){
-		id_ = "text_fields-___-form"
-		class_ = "text_fields"
+		prefix = "text"
 	}
 	else if (field_type === "TextArea"){
-		id_ = "textArea_fields-___-form"
-		class_ = "textArea_fields"
+		prefix = "textArea"
 	}
 	else if (field_type === "Date"){
-		id_ = "date_fields-___-form"
-		class_ = "date_fields"
+		prefix = "date"
 	}
 	else if (field_type === "Link"){
-		id_ = "link_fields-___-form"
-		class_ = "link_fields"
+		prefix = "link"
 	}
 	else if (field_type === "File"){
-		id_ = "file_fields-___-form"
-		class_ = "file_fields"
+		prefix = "file"
 	}
 	else if (field_type === "Picture"){
-		id_ = "picture_fields-___-form"
-		class_ = "picture_fields"
+		prefix = "picture"
 	}
 	else if (field_type === "Number"){
-		id_ = "number_fields-___-form"
-		class_ = "number_fields"
+		prefix = "number"
 	}
-	var $templateForm = $('#'+id_);
-	var $lastForm = $('.'+class_).last();
-	var newIndex = 0;
-	if ($lastForm.length > 0) {
-		newIndex = parseInt($lastForm.data('index')) + 1;
-	} 
+	else if (field_type === "Categories"){
+		prefix = "categories"
+	}
 
-	var $newForm = $templateForm.clone();
-	var numFields = $('#fields-container').children('div').length
-	$newForm.find('#'+class_+'-___-order').val(numFields)
+	var id_ = prefix + "_fields-___-form"
+	var class_ = prefix + "_fields"
 
-	changeIndex($newForm, '___', newIndex);
+	// Берём шаблон нужного типа и клонируем 
+	var $newForm = $('#' + id_).clone();
 
-	$('#fields-container').append($newForm);
-	$newForm.addClass(class_);
-	// $newForm.css('display', 'flex');
-	$newForm.css({'order': numFields,'display':'flex'});
+	addForm($newForm, class_, '#fields-container')
 
-	$newForm.find('.remove').click(removeForm);
+	if (field_type === "Categories"){
+		$newForm.find('#add_category').click(add_category);
+	}
+}
+
+function add_category(){
+	var id_ ="categories_fields-xxx-categories-___-category-form"
+	var $newForm = $('#' + id_).clone();
+	var categories_id = $(this).parent().attr("id")
+	var categories_number = parseInt(categories_id.substring("categories-".length, categories_id.length))
+	changeIndex($newForm, 'xxx', categories_number);
+	var class_ = "categories-" + categories_number
+	addForm($newForm, class_, "#" + categories_id)
 }
 
 $(document).ready(function() {
-	$('#add_field').click(addForm);
+	$('#add_field').click(addFieldForm);
 	$('.remove').click(removeForm);
 });

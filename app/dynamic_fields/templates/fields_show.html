@@ -25,6 +25,8 @@
 									</a>
 							{% elif field.media.number %}
 									{{ field.media.number.data }}
+							{% elif field.media.category %}
+									{{ field.media.category.selected_value }}
 							{% endif %}
 						</div>					
 				</div>

@@ -1,3 +1,22 @@
+{% macro render(field_form, field_type) %}
+			{% if is_template and field_form.categories %}
+					{% for field in field_form.categories %}
+						{{field.category()}}
+					{% endfor %}
+			{% else %}
+				{{ field_form[field_type] }}
+			{% endif %}
+
+			{% if field_form.filename %}
+				{% if field_form.filename.data %}
+					<a href="{{ url_for('download_file', filename = field_form.encrypted_filename.data) }}">{{ field_form.filename.data }}</a>
+				{% endif %}
+				{{field_form.file_type}}
+				{{ field_form.filename() }}
+				{{ field_form.encrypted_filename() }}	
+			{% endif %}
+{% endmacro %}
+
 {% macro render_field(form, field_type) %}
 	{% for field_form in form[field_type ~ "_fields"] %}
 		<div style="order:{{field_form.order.data}}" id="{{field_type}}_fields-{{ loop.index0 }}-form" class="{{field_type}}_fields" data-index="{{ loop.index0 }}">			
@@ -10,23 +29,11 @@
 				{{ field_form.label_.data }}
 			{% endif %}
 
-			{{ field_form[field_type] }}
-
-			{% if field_form.filename %}
-				{% if field_form.filename.data %}
-					<a href="{{ url_for('download_file', filename = field_form.encrypted_filename.data) }}">{{ field_form.filename.data }}</a>
-				{% endif %}
-				{{field_form.file_type}}
-			{% endif %}
+			{{ render(field_form, field_type)}}
 
 			{{ field_form.is_displayed.label }}		
 			{{ field_form.is_displayed() }}	
 			
-			{% if field_form.filename %}
-				{{ field_form.filename() }}
-				{{ field_form.encrypted_filename() }}	
-			{% endif %}
-
 			{{ field_form.order() }}
 
 			{% for field in field_form %}					
@@ -50,4 +57,5 @@
 	{{render_field(dynamic_forms['file_form'], "file")}}
 	{{render_field(dynamic_forms['picture_form'], "picture")}}
 	{{render_field(dynamic_forms['number_form'], "number")}}
+	{{render_field(dynamic_forms['category_form'], "categories")}}
 </div>	

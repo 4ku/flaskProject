@@ -1,8 +1,8 @@
-"""i
+"""init
 
-Revision ID: 04c8b257d854
+Revision ID: e4ae68ce5429
 Revises: 
-Create Date: 2019-11-28 16:27:45.334186
+Create Date: 2019-12-05 23:54:07.230991
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '04c8b257d854'
+revision = 'e4ae68ce5429'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -49,6 +49,13 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
+    op.create_table('categorical_field',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('media_id', sa.Integer(), nullable=True),
+    sa.Column('selected_value', sa.Unicode(length=255), nullable=True),
+    sa.ForeignKeyConstraint(['media_id'], ['media.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('date_field',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('data', sa.DateTime(), nullable=True),
@@ -148,6 +155,13 @@ def upgrade():
     sa.ForeignKeyConstraint(['media_id'], ['media.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('categorical_values',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('value', sa.Unicode(length=255), nullable=True),
+    sa.Column('category_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['category_id'], ['categorical_field.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('page_field_connection',
     sa.Column('page_id', sa.Integer(), nullable=True),
     sa.Column('field_id', sa.Integer(), nullable=True),
@@ -195,6 +209,7 @@ def downgrade():
     op.drop_table('profile_template_field_connection')
     op.drop_table('profile_field_connection')
     op.drop_table('page_field_connection')
+    op.drop_table('categorical_values')
     op.drop_table('text_field')
     op.drop_table('text_area_field')
     op.drop_index(op.f('ix_tasks_timestamp'), table_name='tasks')
@@ -209,6 +224,7 @@ def downgrade():
     op.drop_table('file_field')
     op.drop_table('fields')
     op.drop_table('date_field')
+    op.drop_table('categorical_field')
     op.drop_index(op.f('ix_users_email'), table_name='users')
     op.drop_table('users')
     op.drop_table('task_templates')
